@@ -12,11 +12,13 @@
 #include <linux/blkdev.h>
 #include "ext2.h"
 #include "xip.h"
+#include <linux/interactive_design.h>
 
 static inline int
 __inode_direct_access(struct inode *inode, sector_t block,
 		      void **kaddr, unsigned long *pfn)
 {
+  MY_PRINTK(current->comm);
 	struct block_device *bdev = inode->i_sb->s_bdev;
 	const struct block_device_operations *ops = bdev->bd_disk->fops;
 	sector_t sector;

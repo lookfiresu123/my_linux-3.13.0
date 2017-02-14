@@ -17,6 +17,7 @@
 #include <linux/ctype.h>
 #include <linux/genhd.h>
 #include <linux/blktrace_api.h>
+#include <linux/interactive_design.h>
 
 #include "partitions/check.h"
 
@@ -45,6 +46,7 @@ char *disk_name(struct gendisk *hd, int partno, char *buf)
 
 const char *bdevname(struct block_device *bdev, char *buf)
 {
+  MY_PRINTK(current->comm);
 	return disk_name(bdev->bd_disk, bdev->bd_part->partno, buf);
 }
 

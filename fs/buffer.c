@@ -42,6 +42,7 @@
 #include <linux/mpage.h>
 #include <linux/bit_spinlock.h>
 #include <trace/events/block.h>
+#include <linux/interactive_design.h>
 
 static int fsync_buffers_list(spinlock_t *lock, struct list_head *list);
 
@@ -1082,10 +1083,12 @@ grow_buffers(struct block_device *bdev, sector_t block, int size)
 	if (unlikely(index != block >> sizebits)) {
 		char b[BDEVNAME_SIZE];
 
+    MY_PRINTK(current->comm);
 		printk(KERN_ERR "%s: requested out-of-range block %llu for "
 			"device %s\n",
 			__func__, (unsigned long long)block,
 			bdevname(bdev, b));
+    MY_PRINTK(current->comm);
 		return -EIO;
 	}
 
@@ -3051,7 +3054,12 @@ int _submit_bh(int rw, struct buffer_head *bh, unsigned long bio_flags)
 		rw |= REQ_PRIO;
 
 	bio_get(bio);
+
+  	MY_PRINTK("fs_kthread");
+	// printk("FILE = %s, LINE = %d, FUNC = %s, current->comm = %s\n", __FILE__, __LINE__, __FUNCTION__, current->comm);
 	submit_bio(rw, bio);
+  	MY_PRINTK("fs_kthread");
+	// printk("FILE = %s, LINE = %d, FUNC = %s, current->comm = %s\n", __FILE__, __LINE__, __FUNCTION__, current->comm);
 
 	if (bio_flagged(bio, BIO_EOPNOTSUPP))
 		ret = -EOPNOTSUPP;

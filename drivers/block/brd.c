@@ -21,6 +21,7 @@
 #include <linux/slab.h>
 
 #include <asm/uaccess.h>
+#include <linux/interactive_design.h>
 
 #define SECTOR_SHIFT		9
 #define PAGE_SECTORS_SHIFT	(PAGE_SHIFT - SECTOR_SHIFT)
@@ -364,6 +365,7 @@ out:
 static int brd_direct_access(struct block_device *bdev, sector_t sector,
 			void **kaddr, unsigned long *pfn)
 {
+  MY_PRINTK(current->comm);
 	struct brd_device *brd = bdev->bd_disk->private_data;
 	struct page *page;
 

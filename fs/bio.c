@@ -31,6 +31,7 @@
 #include <scsi/sg.h>		/* for struct sg_iovec */
 
 #include <trace/events/block.h>
+#include <linux/interactive_design.h>
 
 /*
  * Test patch to inline a certain number of bi_io_vec's inside the bio
@@ -2017,7 +2018,11 @@ int bio_associate_current(struct bio *bio)
 void bio_disassociate_task(struct bio *bio)
 {
 	if (bio->bi_ioc) {
+
+    MY_PRINTK(current->comm);
 		put_io_context(bio->bi_ioc);
+    MY_PRINTK(current->comm);
+
 		bio->bi_ioc = NULL;
 	}
 	if (bio->bi_css) {

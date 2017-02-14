@@ -32,6 +32,7 @@
 #include <linux/delay.h>
 #include <linux/ratelimit.h>
 #include <linux/pm_runtime.h>
+#include <linux/interactive_design.h>
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/block.h>
@@ -1848,6 +1849,10 @@ EXPORT_SYMBOL(generic_make_request);
  */
 void submit_bio(int rw, struct bio *bio)
 {
+
+  	MY_PRINTK("fs_kthread");
+	// printk("FILE = %s, LINE = %d, FUNC = %s, current->comm = %s\n", __FILE__, __LINE__, __FUNCTION__, current->comm);
+
 	bio->bi_rw |= rw;
 
 	/*
