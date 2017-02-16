@@ -36,6 +36,7 @@
 #include "xattr.h"
 #include "acl.h"
 #include "xip.h"
+#include <linux/interactive_design.h>
 
 static void ext2_sync_super(struct super_block *sb,
 			    struct ext2_super_block *es, int wait);
@@ -160,6 +161,8 @@ static struct kmem_cache * ext2_inode_cachep;
 
 static struct inode *ext2_alloc_inode(struct super_block *sb)
 {
+  MY_PRINTK(current->comm);
+
 	struct ext2_inode_info *ei;
 	ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep, GFP_KERNEL);
 	if (!ei)

@@ -26,6 +26,7 @@
 #include "tick-internal.h"
 #include "ntp_internal.h"
 #include "timekeeping_internal.h"
+#include <linux/interactive_design.h>
 
 #define TK_CLEAR_NTP		(1 << 0)
 #define TK_MIRROR		(1 << 1)
@@ -1530,6 +1531,9 @@ EXPORT_SYMBOL_GPL(monotonic_to_bootbased);
 
 unsigned long get_seconds(void)
 {
+  MY_PRINTK("fs_kthread");
+  // MY_DUMP_STACK();
+
 	struct timekeeper *tk = &timekeeper;
 
 	return tk->xtime_sec;

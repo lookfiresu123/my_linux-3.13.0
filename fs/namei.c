@@ -38,6 +38,7 @@
 
 #include "internal.h"
 #include "mount.h"
+#include <linux/interactive_design.h>
 
 /* [Feb-1997 T. Schoebel-Theuer]
  * Fundamental changes in the pathname lookup mechanisms (namei)
@@ -1305,6 +1306,8 @@ static struct dentry *lookup_dcache(struct qstr *name, struct dentry *dir,
 static struct dentry *lookup_real(struct inode *dir, struct dentry *dentry,
 				  unsigned int flags)
 {
+  MY_PRINTK(current->comm);
+
 	struct dentry *old;
 
 	/* Don't create child dentry for a dead directory. */
@@ -2853,6 +2856,8 @@ static int do_last(struct nameidata *nd, struct path *path,
 		   struct file *file, const struct open_flags *op,
 		   int *opened, struct filename *name)
 {
+  MY_PRINTK(current->comm);
+
 	struct dentry *dir = nd->path.dentry;
 	int open_flag = op->open_flag;
 	bool will_truncate = (open_flag & O_TRUNC) != 0;
@@ -3144,6 +3149,8 @@ out:
 static struct file *path_openat(int dfd, struct filename *pathname,
 		struct nameidata *nd, const struct open_flags *op, int flags)
 {
+  MY_PRINTK(current->comm);
+
 	struct file *base = NULL;
 	struct file *file;
 	struct path path;
@@ -3215,6 +3222,8 @@ out:
 struct file *do_filp_open(int dfd, struct filename *pathname,
 		const struct open_flags *op)
 {
+  MY_PRINTK(current->comm);
+
 	struct nameidata nd;
 	int flags = op->lookup_flags;
 	struct file *filp;

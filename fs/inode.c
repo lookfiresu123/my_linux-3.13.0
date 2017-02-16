@@ -19,6 +19,7 @@
 #include <linux/ratelimit.h>
 #include <linux/list_lru.h>
 #include "internal.h"
+#include <linux/interactive_design.h>
 
 /*
  * Inode locking rules:
@@ -202,6 +203,8 @@ EXPORT_SYMBOL(inode_init_always);
 
 static struct inode *alloc_inode(struct super_block *sb)
 {
+  MY_PRINTK(current->comm);
+
 	struct inode *inode;
 
 	if (sb->s_op->alloc_inode)
@@ -1072,6 +1075,8 @@ EXPORT_SYMBOL(iget5_locked);
  */
 struct inode *iget_locked(struct super_block *sb, unsigned long ino)
 {
+  MY_PRINTK(current->comm);
+
 	struct hlist_head *head = inode_hashtable + hash(sb, ino);
 	struct inode *inode;
 

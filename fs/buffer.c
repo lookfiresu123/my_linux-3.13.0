@@ -3055,11 +3055,11 @@ int _submit_bh(int rw, struct buffer_head *bh, unsigned long bio_flags)
 
 	bio_get(bio);
 
-  	MY_PRINTK("fs_kthread");
-	// printk("FILE = %s, LINE = %d, FUNC = %s, current->comm = %s\n", __FILE__, __LINE__, __FUNCTION__, current->comm);
+  //	MY_PRINTK("fs_kthread");
+	// printk("FILE = %s, LINE = %d, FUNC = %s, current->comm = fs_kthread\n", __FILE__, __LINE__, __FUNCTION__);
 	submit_bio(rw, bio);
-  	MY_PRINTK("fs_kthread");
-	// printk("FILE = %s, LINE = %d, FUNC = %s, current->comm = %s\n", __FILE__, __LINE__, __FUNCTION__, current->comm);
+  //	MY_PRINTK("fs_kthread");
+	// printk("FILE = %s, LINE = %d, FUNC = %s, current->comm = fs_kthread\n", __FILE__, __LINE__, __FUNCTION__);
 
 	if (bio_flagged(bio, BIO_EOPNOTSUPP))
 		ret = -EOPNOTSUPP;

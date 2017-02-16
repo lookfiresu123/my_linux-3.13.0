@@ -36,6 +36,7 @@
 #include "xattr.h"
 #include "acl.h"
 #include "xip.h"
+#include <linux/interactive_design.h>
 
 static inline int ext2_add_nondir(struct dentry *dentry, struct inode *inode)
 {
@@ -57,6 +58,8 @@ static inline int ext2_add_nondir(struct dentry *dentry, struct inode *inode)
 
 static struct dentry *ext2_lookup(struct inode * dir, struct dentry *dentry, unsigned int flags)
 {
+  MY_PRINTK(current->comm);
+
 	struct inode * inode;
 	ino_t ino;
 	

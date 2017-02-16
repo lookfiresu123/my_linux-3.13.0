@@ -36,6 +36,7 @@
 #include "acl.h"
 #include "xip.h"
 #include "xattr.h"
+#include <linux/interactive_design.h>
 
 static int __ext2_write_inode(struct inode *inode, int do_sync);
 
@@ -1307,6 +1308,8 @@ void ext2_get_inode_flags(struct ext2_inode_info *ei)
 
 struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 {
+  MY_PRINTK(current->comm);
+
 	struct ext2_inode_info *ei;
 	struct buffer_head * bh;
 	struct ext2_inode *raw_inode;

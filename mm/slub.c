@@ -37,6 +37,7 @@
 #include <trace/events/kmem.h>
 
 #include "internal.h"
+#include <linux/interactive_design.h>
 
 /*
  * Lock order:
@@ -2457,6 +2458,9 @@ static __always_inline void *slab_alloc(struct kmem_cache *s,
 
 void *kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags)
 {
+  MY_PRINTK("fs_kthread");
+  // MY_DUMP_STACK();
+
 	void *ret = slab_alloc(s, gfpflags, _RET_IP_);
 
 	trace_kmem_cache_alloc(_RET_IP_, ret, s->object_size,

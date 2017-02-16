@@ -33,6 +33,7 @@
 #include <linux/compat.h>
 
 #include "internal.h"
+#include <linux/interactive_design.h>
 
 int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
 	struct file *filp)
@@ -970,6 +971,8 @@ EXPORT_SYMBOL(file_open_root);
 
 long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 {
+  MY_PRINTK(current->comm);
+
 	struct open_flags op;
 	int fd = build_open_flags(flags, mode, &op);
 	struct filename *tmp;
