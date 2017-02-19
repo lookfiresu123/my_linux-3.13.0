@@ -25,6 +25,7 @@
 #include <linux/buffer_head.h>
 #include <linux/pagemap.h>
 #include <linux/swap.h>
+#include <linux/interactive_design.h>
 
 typedef struct ext2_dir_entry_2 ext2_dirent;
 
@@ -486,6 +487,7 @@ void ext2_set_link(struct inode *dir, struct ext2_dir_entry_2 *de,
  */
 int ext2_add_link (struct dentry *dentry, struct inode *inode)
 {
+  MY_PRINTK(current->comm);
 	struct inode *dir = dentry->d_parent->d_inode;
 	const char *name = dentry->d_name.name;
 	int namelen = dentry->d_name.len;

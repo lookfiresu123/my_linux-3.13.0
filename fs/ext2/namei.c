@@ -99,6 +99,7 @@ struct dentry *ext2_get_parent(struct dentry *child)
  */
 static int ext2_create (struct inode * dir, struct dentry * dentry, umode_t mode, bool excl)
 {
+  MY_PRINTK(current->comm);
 	struct inode *inode;
 
 	dquot_initialize(dir);

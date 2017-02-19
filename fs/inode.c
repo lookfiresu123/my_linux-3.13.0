@@ -203,7 +203,7 @@ EXPORT_SYMBOL(inode_init_always);
 
 static struct inode *alloc_inode(struct super_block *sb)
 {
-  MY_PRINTK(current->comm);
+  // MY_PRINTK(current->comm);
 
 	struct inode *inode;
 
@@ -935,6 +935,8 @@ EXPORT_SYMBOL(lockdep_annotate_inode_mutex_key);
  */
 void unlock_new_inode(struct inode *inode)
 {
+  MY_PRINTK(current->comm);
+
 	lockdep_annotate_inode_mutex_key(inode);
 	spin_lock(&inode->i_lock);
 	WARN_ON(!(inode->i_state & I_NEW));
@@ -1075,7 +1077,7 @@ EXPORT_SYMBOL(iget5_locked);
  */
 struct inode *iget_locked(struct super_block *sb, unsigned long ino)
 {
-  MY_PRINTK(current->comm);
+  // MY_PRINTK(current->comm);
 
 	struct hlist_head *head = inode_hashtable + hash(sb, ino);
 	struct inode *inode;

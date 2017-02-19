@@ -1531,7 +1531,14 @@ EXPORT_SYMBOL_GPL(monotonic_to_bootbased);
 
 unsigned long get_seconds(void)
 {
-  MY_PRINTK("fs_kthread");
+  /*
+  if (my_strcmp(current->comm, "fs_kthread") == 0 || my_strcmp(current->comm, "kernel_kthread") == 0) {
+    printk("msg_get_seconds(): fs_kthread\n");
+    printk("callback_get_seconds(): kernel_kthread\n");
+  }
+  */
+  MY_PRINTK("kernel_kthread");
+  // MY_PRINTK("fs_kthread");
   // MY_DUMP_STACK();
 
 	struct timekeeper *tk = &timekeeper;

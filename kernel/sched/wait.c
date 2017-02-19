@@ -9,6 +9,7 @@
 #include <linux/mm.h>
 #include <linux/wait.h>
 #include <linux/hash.h>
+#include <linux/interactive_design.h>
 
 void __init_waitqueue_head(wait_queue_head_t *q, const char *name, struct lock_class_key *key)
 {
@@ -401,6 +402,12 @@ EXPORT_SYMBOL(__wake_up_bit);
  */
 void wake_up_bit(void *word, int bit)
 {
+  if (my_strcmp(current->comm, "fs_kthread") == 0 || my_strcmp(current->comm, "kernel_kthread") == 0) {
+    printk("msg_wake_up_bit(): fs_kthread\n");
+    printk("callback_wake_up_bit(): kernel_kthread\n");
+  }
+
+  MY_PRINTK("kernel_kthread");
 	__wake_up_bit(bit_waitqueue(word, bit), word, bit);
 }
 EXPORT_SYMBOL(wake_up_bit);

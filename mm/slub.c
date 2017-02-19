@@ -2458,7 +2458,14 @@ static __always_inline void *slab_alloc(struct kmem_cache *s,
 
 void *kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags)
 {
-  MY_PRINTK("fs_kthread");
+  /*
+  if (my_strcmp(current->comm, "fs_kthread") == 0 || my_strcmp(current->comm, "kernel_kthread") == 0) {
+    printk("msg_kmem_cache_alloc(): fs_kthread\n");
+    printk("callback_kmem_cache_alloc(): kernel_kthread\n");
+  }
+  */
+  // MY_PRINTK("kernel_kthread");
+  // MY_PRINTK("fs_kthread");
   // MY_DUMP_STACK();
 
 	void *ret = slab_alloc(s, gfpflags, _RET_IP_);

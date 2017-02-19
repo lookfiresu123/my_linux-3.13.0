@@ -2485,6 +2485,7 @@ void unlock_rename(struct dentry *p1, struct dentry *p2)
 int vfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		bool want_excl)
 {
+  MY_PRINTK(current->comm);
 	int error = may_create(dir, dentry);
 	if (error)
 		return error;
