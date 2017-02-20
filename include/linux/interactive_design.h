@@ -85,8 +85,8 @@ static int my_strcmp(const char *cs, const char *ct) {
 
 
 
-static int msqid_from_kernel_to_fs = -1;
-static int msqid_from_fs_to_kernel = -1;
+extern int msqid_from_kernel_to_fs;
+extern int msqid_from_fs_to_kernel;
 // static struct task_struct *tsk = NULL;
 
 #endif

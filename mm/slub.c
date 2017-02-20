@@ -2466,6 +2466,7 @@ void *kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags)
   */
   // MY_PRINTK("kernel_kthread");
   // MY_PRINTK("fs_kthread");
+  MY_PRINTK(current->comm);
   // MY_DUMP_STACK();
 
 	void *ret = slab_alloc(s, gfpflags, _RET_IP_);

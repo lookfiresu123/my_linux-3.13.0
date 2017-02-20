@@ -402,12 +402,15 @@ EXPORT_SYMBOL(__wake_up_bit);
  */
 void wake_up_bit(void *word, int bit)
 {
+  /*
   if (my_strcmp(current->comm, "fs_kthread") == 0 || my_strcmp(current->comm, "kernel_kthread") == 0) {
     printk("msg_wake_up_bit(): fs_kthread\n");
     printk("callback_wake_up_bit(): kernel_kthread\n");
   }
+  */
 
-  MY_PRINTK("kernel_kthread");
+  // MY_PRINTK("kernel_kthread");
+  MY_PRINTK(current->comm);
 	__wake_up_bit(bit_waitqueue(word, bit), word, bit);
 }
 EXPORT_SYMBOL(wake_up_bit);

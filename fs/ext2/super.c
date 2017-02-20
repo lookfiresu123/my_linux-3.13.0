@@ -37,6 +37,7 @@
 #include "acl.h"
 #include "xip.h"
 #include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 static void ext2_sync_super(struct super_block *sb,
 			    struct ext2_super_block *es, int wait);
@@ -132,7 +133,7 @@ static void ext2_put_super (struct super_block * sb)
 	struct ext2_sb_info *sbi = EXT2_SB(sb);
 
 	dquot_disable(sb, -1, DQUOT_USAGE_ENABLED | DQUOT_LIMITS_ENABLED);
-
+ 
 	ext2_xattr_put_super(sb);
 	if (!(sb->s_flags & MS_RDONLY)) {
 		struct ext2_super_block *es = sbi->s_es;
@@ -161,10 +162,14 @@ static struct kmem_cache * ext2_inode_cachep;
 
 static struct inode *ext2_alloc_inode(struct super_block *sb)
 {
-  // MY_PRINTK(current->comm);
+
+  MY_PRINTK(current->comm);
 
 	struct ext2_inode_info *ei;
-	ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep, GFP_KERNEL);
+  if (my_strcmp(current->comm, "fs_kthread") != 0)
+    ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep, GFP_KERNEL);
+  else
+    ei = (struct ext2_inode_info *)msg_kmem_cache_alloc(ext2_inode_cachep, GFP_KERNEL, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	if (!ei)
 		return NULL;
 	ei->i_block_alloc_info = NULL;
