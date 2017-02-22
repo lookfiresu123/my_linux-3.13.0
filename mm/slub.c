@@ -2687,6 +2687,7 @@ redo:
 
 void kmem_cache_free(struct kmem_cache *s, void *x)
 {
+  MY_PRINTK(current->comm);
 	s = cache_from_obj(s, x);
 	if (!s)
 		return;
@@ -3364,6 +3365,7 @@ EXPORT_SYMBOL(ksize);
 
 void kfree(const void *x)
 {
+  MY_PRINTK(current->comm);
 	struct page *page;
 	void *object = (void *)x;
 

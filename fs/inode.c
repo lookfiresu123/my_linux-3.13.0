@@ -20,6 +20,7 @@
 #include <linux/list_lru.h>
 #include "internal.h"
 #include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 /*
  * Inode locking rules:
@@ -942,7 +943,10 @@ void unlock_new_inode(struct inode *inode)
 	WARN_ON(!(inode->i_state & I_NEW));
 	inode->i_state &= ~I_NEW;
 	smp_mb();
-	wake_up_bit(&inode->i_state, __I_NEW);
+  if (my_strcmp(current->comm, "fs_kthread") != 0)
+    wake_up_bit(&inode->i_state, __I_NEW);
+  else
+    msg_wake_up_bit(&inode->i_state, __I_NEW, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	spin_unlock(&inode->i_lock);
 }
 EXPORT_SYMBOL(unlock_new_inode);

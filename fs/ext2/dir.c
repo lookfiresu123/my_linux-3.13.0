@@ -26,6 +26,7 @@
 #include <linux/pagemap.h>
 #include <linux/swap.h>
 #include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 typedef struct ext2_dir_entry_2 ext2_dirent;
 
@@ -568,7 +569,11 @@ got_it:
 	de->inode = cpu_to_le32(inode->i_ino);
 	ext2_set_de_type (de, inode);
 	err = ext2_commit_chunk(page, pos, rec_len);
-	dir->i_mtime = dir->i_ctime = CURRENT_TIME_SEC;
+  if (my_strcmp(current->comm, "fs_kthread") != 0)
+    dir->i_mtime = dir->i_ctime = CURRENT_TIME_SEC;
+  else {
+    dir->i_mtime = dir->i_ctime = ((struct timespec) { msg_get_seconds(msqid_from_fs_to_kernel, msqid_from_kernel_to_fs), 0 });
+  }
 	EXT2_I(dir)->i_flags &= ~EXT2_BTREE_FL;
 	mark_inode_dirty(dir);
 	/* OFFSET_CACHE */

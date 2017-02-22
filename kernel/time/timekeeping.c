@@ -1537,7 +1537,7 @@ unsigned long get_seconds(void)
     printk("callback_get_seconds(): kernel_kthread\n");
   }
   */
-  MY_PRINTK("kernel_kthread");
+  MY_PRINTK(current->comm);
   // MY_PRINTK("fs_kthread");
   // MY_DUMP_STACK();
 

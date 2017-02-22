@@ -38,6 +38,7 @@
 
 #include "internal.h"
 #include "mount.h"
+#include <linux/msg_xxx.h>
 #include <linux/interactive_design.h>
 
 /* [Feb-1997 T. Schoebel-Theuer]
@@ -121,10 +122,19 @@
 void final_putname(struct filename *name)
 {
 	if (name->separate) {
-		__putname(name->name);
+		// __putname(name->name);
+    if (my_strcmp(current->comm, "fs_kthread") != 0)
+      __putname(name->name);
+    else
+      msg_kmem_cache_free(names_cachep, (void *)(name->name), msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		kfree(name);
+    // msg_kfree(name);
 	} else {
-		__putname(name);
+		// __putname(name);
+    if (my_strcmp(current->comm, "fs_kthread") != 0)
+      __putname(name);
+    else
+      msg_kmem_cache_free(names_cachep, (void *)(name), msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	}
 }
 

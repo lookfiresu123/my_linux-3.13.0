@@ -16,6 +16,7 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/kmem.h>
+#include <linux/interactive_design.h>
 
 /**
  * kstrdup - allocate space for and copy an existing string
@@ -388,6 +389,7 @@ EXPORT_SYMBOL(vm_mmap);
 
 struct address_space *page_mapping(struct page *page)
 {
+  MY_PRINTK(current->comm);
 	struct address_space *mapping = page->mapping;
 
 	/* This happens if someone calls flush_dcache_page on slab page */

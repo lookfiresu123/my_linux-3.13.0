@@ -31,6 +31,7 @@
 #include <asm/uaccess.h>
 #include <asm/tlbflush.h>
 #include <asm/shmparam.h>
+#include <linux/interactive_design.h>
 
 struct vfree_deferred {
 	struct llist_head list;
@@ -1481,6 +1482,7 @@ static void __vunmap(const void *addr, int deallocate_pages)
  */
 void vfree(const void *addr)
 {
+  MY_PRINTK(current->comm);
 	BUG_ON(in_nmi());
 
 	kmemleak_free(addr);

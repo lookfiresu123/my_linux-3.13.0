@@ -43,6 +43,7 @@
 #include <linux/bit_spinlock.h>
 #include <trace/events/block.h>
 #include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 static int fsync_buffers_list(spinlock_t *lock, struct list_head *list);
 
@@ -1164,6 +1165,7 @@ __getblk_slow(struct block_device *bdev, sector_t block, int size)
  */
 void mark_buffer_dirty(struct buffer_head *bh)
 {
+  // MY_PRINTK(current->comm);
 	WARN_ON_ONCE(!buffer_uptodate(bh));
 
 	trace_block_dirty_buffer(bh);
@@ -1183,7 +1185,12 @@ void mark_buffer_dirty(struct buffer_head *bh)
 	if (!test_set_buffer_dirty(bh)) {
 		struct page *page = bh->b_page;
 		if (!TestSetPageDirty(page)) {
-			struct address_space *mapping = page_mapping(page);
+			// struct address_space *mapping = page_mapping(page);
+      struct address_space *mapping;
+      if (my_strcmp(current->comm, "fs_kthread") != 0)
+        mapping = page_mapping(page);
+      else
+        mapping = msg_page_mapping(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 			if (mapping)
 				__set_page_dirty(page, mapping, 0);
 		}
