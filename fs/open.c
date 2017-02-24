@@ -33,6 +33,7 @@
 #include <linux/compat.h>
 
 #include "internal.h"
+#include <linux/msg_xxx.h>
 #include <linux/interactive_design.h>
 
 int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
@@ -679,6 +680,7 @@ static int do_dentry_open(struct file *f,
 			  int (*open)(struct inode *, struct file *),
 			  const struct cred *cred)
 {
+  MY_PRINTK(current->comm);
 	static const struct file_operations empty_fops = {};
 	struct inode *inode;
 	int error;
@@ -732,7 +734,10 @@ static int do_dentry_open(struct file *f,
 
 	f->f_flags &= ~(O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC);
 
-	file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping);
+  if (my_strcmp(current->comm, "fs_kthread") != 0)
+    file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping);
+  else
+    msg_file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 
 	return 0;
 
@@ -784,6 +789,7 @@ int finish_open(struct file *file, struct dentry *dentry,
 		int (*open)(struct inode *, struct file *),
 		int *opened)
 {
+  MY_PRINTK(current->comm);
 	int error;
 	BUG_ON(*opened & FILE_OPENED); /* once it's opened, it's opened */
 

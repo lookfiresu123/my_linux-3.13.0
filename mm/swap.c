@@ -37,6 +37,7 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/pagemap.h>
+#include <linux/interactive_design.h>
 
 /* How many pages do we try to swap or page in/out together? */
 int page_cluster;
@@ -528,6 +529,7 @@ static void __lru_cache_activate_page(struct page *page)
  */
 void mark_page_accessed(struct page *page)
 {
+  MY_PRINTK(current->comm);
 	if (!PageActive(page) && !PageUnevictable(page) &&
 			PageReferenced(page)) {
 

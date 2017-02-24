@@ -34,6 +34,8 @@ static int my_strcmp(const char *cs, const char *ct) {
 #define Pointer(T) typeof(T *)
 #define Array(T, N) typeof(T [N])
 
+typedef void (*action_func_t)(void *);
+
 #define Argus_msg0()                             \
     struct Argus_container0 {                    \
     }

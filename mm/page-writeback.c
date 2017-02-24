@@ -40,6 +40,7 @@
 #include <trace/events/writeback.h>
 
 #include "internal.h"
+#include <linux/interactive_design.h>
 
 /*
  * Sleep at most 200ms at a time in balance_dirty_pages().
@@ -2127,6 +2128,7 @@ int __set_page_dirty_no_writeback(struct page *page)
  */
 void account_page_dirtied(struct page *page, struct address_space *mapping)
 {
+  MY_PRINTK(current->comm);
 	trace_writeback_dirty_page(page, mapping);
 
 	if (mapping_cap_account_dirty(mapping)) {

@@ -19,6 +19,7 @@
 #include <linux/pagemap.h>
 #include <linux/syscalls.h>
 #include <linux/file.h>
+#include <linux/interactive_design.h>
 
 /*
  * Initialise a struct file's readahead state.  Assumes that the caller has
@@ -27,6 +28,7 @@
 void
 file_ra_state_init(struct file_ra_state *ra, struct address_space *mapping)
 {
+  MY_PRINTK(current->comm);
 	ra->ra_pages = mapping->backing_dev_info->ra_pages;
 	ra->prev_pos = -1;
 }

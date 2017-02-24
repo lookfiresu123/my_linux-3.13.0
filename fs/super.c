@@ -1142,6 +1142,14 @@ void __sb_end_write(struct super_block *sb, int level)
 EXPORT_SYMBOL(__sb_end_write);
 
 #ifdef CONFIG_LOCKDEP
+
+/*
+int lock_is_held_gpl(struct lockdep_map *lock) {
+  return lock_is_held(lock);
+}
+EXPORT_SYMBOL(lock_is_held_gpl);
+*/
+
 /*
  * We want lockdep to tell us about possible deadlocks with freezing but
  * it's it bit tricky to properly instrument it. Getting a freeze protection
