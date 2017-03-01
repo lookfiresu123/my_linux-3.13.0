@@ -2128,7 +2128,7 @@ int __set_page_dirty_no_writeback(struct page *page)
  */
 void account_page_dirtied(struct page *page, struct address_space *mapping)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	trace_writeback_dirty_page(page, mapping);
 
 	if (mapping_cap_account_dirty(mapping)) {

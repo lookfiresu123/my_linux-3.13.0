@@ -608,7 +608,7 @@ EXPORT_SYMBOL_GPL(add_page_wait_queue);
  */
 void unlock_page(struct page *page)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	VM_BUG_ON(!PageLocked(page));
 	clear_bit_unlock(PG_locked, &page->flags);
 	smp_mb__after_clear_bit();
@@ -697,7 +697,7 @@ int __lock_page_or_retry(struct page *page, struct mm_struct *mm,
  */
 struct page *find_get_page(struct address_space *mapping, pgoff_t offset)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	void **pagep;
 	struct page *page;
 

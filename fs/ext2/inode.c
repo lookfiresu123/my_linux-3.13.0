@@ -1308,7 +1308,7 @@ void ext2_get_inode_flags(struct ext2_inode_info *ei)
 
 struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 
 	struct ext2_inode_info *ei;
 	struct buffer_head * bh;

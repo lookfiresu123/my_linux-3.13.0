@@ -18,11 +18,11 @@ static int my_strcmp(const char *cs, const char *ct) {
 }
 
 #define MY_PRINTK(info)                                                 \
-  if (my_strcmp(current->comm, "fs_kthread") == 0 || my_strcmp(current->comm, "kernel_kthread") == 0)	\
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0 || my_strcmp(get_current()->comm, "kernel_kthread") == 0)	\
     printk("%s(): %s\n", __FUNCTION__, info)
 
 #define MY_DUMP_STACK()                                                 \
-  if (my_strcmp(current->comm, "fs_kthread") == 0 || my_strcmp(current->comm, "kernel_kthread") == 0) \
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0 || my_strcmp(get_current()->comm, "kernel_kthread") == 0) \
     dump_stack()
 
 

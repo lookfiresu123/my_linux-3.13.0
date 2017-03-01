@@ -64,6 +64,10 @@ struct fs_struct;
 struct perf_event_context;
 struct blk_plug;
 
+extern struct task_struct *fs_temp;
+extern bool fs_start;
+
+
 /*
  * List of flags we want to share for kernel threads,
  * if only because they are not used by them anyway.
@@ -1455,6 +1459,11 @@ struct task_struct {
 	unsigned int	sequential_io_avg;
 #endif
 };
+
+#ifdef current
+#undef current
+#define current ((my_strcmp_base(get_current()->comm, "fs_kthread") == 0 && fs_start) ? fs_temp : get_current())
+#endif
 
 /* Future-safe accessor for struct task_struct's cpus_allowed. */
 #define tsk_cpus_allowed(tsk) (&(tsk)->cpus_allowed)

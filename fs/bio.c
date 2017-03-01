@@ -2019,9 +2019,9 @@ void bio_disassociate_task(struct bio *bio)
 {
 	if (bio->bi_ioc) {
 
-    MY_PRINTK(current->comm);
+    MY_PRINTK(get_current()->comm);
 		put_io_context(bio->bi_ioc);
-    MY_PRINTK(current->comm);
+    MY_PRINTK(get_current()->comm);
 
 		bio->bi_ioc = NULL;
 	}

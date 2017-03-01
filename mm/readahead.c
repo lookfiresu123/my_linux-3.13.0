@@ -28,7 +28,7 @@
 void
 file_ra_state_init(struct file_ra_state *ra, struct address_space *mapping)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	ra->ra_pages = mapping->backing_dev_info->ra_pages;
 	ra->prev_pos = -1;
 }

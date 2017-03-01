@@ -35,6 +35,7 @@
 #include <linux/fsnotify.h>
 #include <linux/lockdep.h>
 #include "internal.h"
+#include <linux/interactive_design.h>
 
 
 LIST_HEAD(super_blocks);
@@ -142,7 +143,9 @@ static void destroy_super(struct super_block *s)
 	list_lru_destroy(&s->s_inode_lru);
 	for (i = 0; i < SB_FREEZE_LEVELS; i++)
 		percpu_counter_destroy(&s->s_writers.counter[i]);
-	security_sb_free(s);
+	// security_sb_free(s);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    security_sb_free(s);
 	WARN_ON(!list_empty(&s->s_mounts));
 	kfree(s->s_subtype);
 	kfree(s->s_options);

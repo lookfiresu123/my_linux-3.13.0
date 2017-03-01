@@ -680,7 +680,7 @@ static int do_dentry_open(struct file *f,
 			  int (*open)(struct inode *, struct file *),
 			  const struct cred *cred)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	static const struct file_operations empty_fops = {};
 	struct inode *inode;
 	int error;
@@ -714,7 +714,11 @@ static int do_dentry_open(struct file *f,
 		goto cleanup_all;
 	}
 
-	error = security_file_open(f, cred);
+	// error = security_file_open(f, cred);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    error = security_file_open(f, cred);
+  else
+    error = 0;
 	if (error)
 		goto cleanup_all;
 
@@ -734,7 +738,7 @@ static int do_dentry_open(struct file *f,
 
 	f->f_flags &= ~(O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC);
 
-  if (my_strcmp(current->comm, "fs_kthread") != 0)
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
     file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping);
   else
     msg_file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
@@ -789,7 +793,7 @@ int finish_open(struct file *file, struct dentry *dentry,
 		int (*open)(struct inode *, struct file *),
 		int *opened)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	int error;
 	BUG_ON(*opened & FILE_OPENED); /* once it's opened, it's opened */
 
@@ -977,7 +981,7 @@ EXPORT_SYMBOL(file_open_root);
 
 long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 
 	struct open_flags op;
 	int fd = build_open_flags(flags, mode, &op);

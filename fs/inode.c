@@ -154,8 +154,10 @@ int inode_init_always(struct super_block *sb, struct inode *inode)
 	inode->i_rdev = 0;
 	inode->dirtied_when = 0;
 
+  /*
 	if (security_inode_alloc(inode))
 		goto out;
+  */
 	spin_lock_init(&inode->i_lock);
 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
 
@@ -204,7 +206,7 @@ EXPORT_SYMBOL(inode_init_always);
 
 static struct inode *alloc_inode(struct super_block *sb)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 
 	struct inode *inode;
 
@@ -236,7 +238,9 @@ EXPORT_SYMBOL(free_inode_nonrcu);
 void __destroy_inode(struct inode *inode)
 {
 	BUG_ON(inode_has_buffers(inode));
-	security_inode_free(inode);
+	// security_inode_free(inode);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    security_inode_free(inode);
 	fsnotify_inode_delete(inode);
 	if (!inode->i_nlink) {
 		WARN_ON(atomic_long_read(&inode->i_sb->s_remove_count) == 0);
@@ -936,14 +940,14 @@ EXPORT_SYMBOL(lockdep_annotate_inode_mutex_key);
  */
 void unlock_new_inode(struct inode *inode)
 {
-  // MY_PRINTK(current->comm);
+  // MY_PRINTK(get_current()->comm);
 
 	lockdep_annotate_inode_mutex_key(inode);
 	spin_lock(&inode->i_lock);
 	WARN_ON(!(inode->i_state & I_NEW));
 	inode->i_state &= ~I_NEW;
 	smp_mb();
-  if (my_strcmp(current->comm, "fs_kthread") != 0)
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
     wake_up_bit(&inode->i_state, __I_NEW);
   else
     msg_wake_up_bit(&inode->i_state, __I_NEW, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
@@ -1081,7 +1085,7 @@ EXPORT_SYMBOL(iget5_locked);
  */
 struct inode *iget_locked(struct super_block *sb, unsigned long ino)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 
 	struct hlist_head *head = inode_hashtable + hash(sb, ino);
 	struct inode *inode;

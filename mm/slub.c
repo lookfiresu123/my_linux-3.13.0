@@ -2459,14 +2459,14 @@ static __always_inline void *slab_alloc(struct kmem_cache *s,
 void *kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags)
 {
   /*
-  if (my_strcmp(current->comm, "fs_kthread") == 0 || my_strcmp(current->comm, "kernel_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0 || my_strcmp(get_current()->comm, "kernel_kthread") == 0) {
     printk("msg_kmem_cache_alloc(): fs_kthread\n");
     printk("callback_kmem_cache_alloc(): kernel_kthread\n");
   }
   */
   // MY_PRINTK("kernel_kthread");
   // MY_PRINTK("fs_kthread");
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
   // MY_DUMP_STACK();
 
 	void *ret = slab_alloc(s, gfpflags, _RET_IP_);
@@ -2687,7 +2687,7 @@ redo:
 
 void kmem_cache_free(struct kmem_cache *s, void *x)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	s = cache_from_obj(s, x);
 	if (!s)
 		return;
@@ -3365,7 +3365,7 @@ EXPORT_SYMBOL(ksize);
 
 void kfree(const void *x)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	struct page *page;
 	void *object = (void *)x;
 

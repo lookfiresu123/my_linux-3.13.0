@@ -123,7 +123,7 @@ void final_putname(struct filename *name)
 {
 	if (name->separate) {
 		// __putname(name->name);
-    if (my_strcmp(current->comm, "fs_kthread") != 0)
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
       __putname(name->name);
     else
       msg_kmem_cache_free(names_cachep, (void *)(name->name), msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
@@ -131,7 +131,7 @@ void final_putname(struct filename *name)
     // msg_kfree(name);
 	} else {
 		// __putname(name);
-    if (my_strcmp(current->comm, "fs_kthread") != 0)
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
       __putname(name);
     else
       msg_kmem_cache_free(names_cachep, (void *)(name), msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
@@ -411,7 +411,11 @@ int __inode_permission(struct inode *inode, int mask)
 	if (retval)
 		return retval;
 
-	return security_inode_permission(inode, mask);
+	// return security_inode_permission(inode, mask);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    return security_inode_permission(inode, mask);
+  else
+    return 0;
 }
 
 /**
@@ -838,7 +842,11 @@ follow_link(struct path *link, struct nameidata *nd, void **p)
 	touch_atime(link);
 	nd_set_link(nd, NULL);
 
-	error = security_inode_follow_link(link->dentry, nd);
+	// error = security_inode_follow_link(link->dentry, nd);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    error = security_inode_follow_link(link->dentry, nd);
+  else
+    error = 0;
 	if (error)
 		goto out_put_nd_path;
 
@@ -1316,7 +1324,7 @@ static struct dentry *lookup_dcache(struct qstr *name, struct dentry *dir,
 static struct dentry *lookup_real(struct inode *dir, struct dentry *dentry,
 				  unsigned int flags)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 
 	struct dentry *old;
 
@@ -2495,7 +2503,7 @@ void unlock_rename(struct dentry *p1, struct dentry *p2)
 int vfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		bool want_excl)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	int error = may_create(dir, dentry);
 	if (error)
 		return error;
@@ -2504,7 +2512,11 @@ int vfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		return -EACCES;	/* shouldn't it be ENOSYS? */
 	mode &= S_IALLUGO;
 	mode |= S_IFREG;
-	error = security_inode_create(dir, dentry, mode);
+	// error = security_inode_create(dir, dentry, mode);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    error = security_inode_create(dir, dentry, mode);
+  else
+    error = 0;
 	if (error)
 		return error;
 	error = dir->i_op->create(dir, dentry, mode, want_excl);
@@ -2576,8 +2588,13 @@ static int handle_truncate(struct file *filp)
 	 * Refuse to truncate files with mandatory locks held on them.
 	 */
 	error = locks_verify_locked(inode);
-	if (!error)
-		error = security_path_truncate(path);
+	if (!error) {
+		// error = security_path_truncate(path);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      error = security_path_truncate(path);
+    else
+      error = 0;
+  }
 	if (!error) {
 		error = do_truncate(path->dentry, 0,
 				    ATTR_MTIME|ATTR_CTIME|ATTR_OPEN,
@@ -2596,7 +2613,12 @@ static inline int open_to_namei_flags(int flag)
 
 static int may_o_create(struct path *dir, struct dentry *dentry, umode_t mode)
 {
-	int error = security_path_mknod(dir, dentry, mode, 0);
+  int error;
+	// int error = security_path_mknod(dir, dentry, mode, 0);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    error = security_path_mknod(dir, dentry, mode, 0);
+  else
+    error = 0;
 	if (error)
 		return error;
 
@@ -2604,7 +2626,11 @@ static int may_o_create(struct path *dir, struct dentry *dentry, umode_t mode)
 	if (error)
 		return error;
 
-	return security_inode_create(dir->dentry->d_inode, dentry, mode);
+	// return security_inode_create(dir->dentry->d_inode, dentry, mode);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    return security_inode_create(dir->dentry->d_inode, dentry, mode);
+  else
+    return 0;
 }
 
 /*
@@ -2842,7 +2868,8 @@ static int lookup_open(struct nameidata *nd, struct path *path,
 			goto out_dput;
 		}
 		*opened |= FILE_CREATED;
-		error = security_path_mknod(&nd->path, dentry, mode, 0);
+		// error = security_path_mknod(&nd->path, dentry, mode, 0);
+    error = 0;
 		if (error)
 			goto out_dput;
 		error = vfs_create(dir->d_inode, dentry, mode,
@@ -2867,7 +2894,7 @@ static int do_last(struct nameidata *nd, struct path *path,
 		   struct file *file, const struct open_flags *op,
 		   int *opened, struct filename *name)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 
 	struct dentry *dir = nd->path.dentry;
 	int open_flag = op->open_flag;
@@ -3054,7 +3081,8 @@ opened:
 	error = open_check_o_direct(file);
 	if (error)
 		goto exit_fput;
-	error = ima_file_check(file, op->acc_mode);
+	// error = ima_file_check(file, op->acc_mode);
+  error = 0;
 	if (error)
 		goto exit_fput;
 
@@ -3160,7 +3188,7 @@ out:
 static struct file *path_openat(int dfd, struct filename *pathname,
 		struct nameidata *nd, const struct open_flags *op, int flags)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 
 	struct file *base = NULL;
 	struct file *file;
@@ -3233,7 +3261,7 @@ out:
 struct file *do_filp_open(int dfd, struct filename *pathname,
 		const struct open_flags *op)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 
 	struct nameidata nd;
 	int flags = op->lookup_flags;

@@ -58,7 +58,7 @@ static inline int ext2_add_nondir(struct dentry *dentry, struct inode *inode)
 
 static struct dentry *ext2_lookup(struct inode * dir, struct dentry *dentry, unsigned int flags)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 
 	struct inode * inode;
 	ino_t ino;
@@ -99,7 +99,7 @@ struct dentry *ext2_get_parent(struct dentry *child)
  */
 static int ext2_create (struct inode * dir, struct dentry * dentry, umode_t mode, bool excl)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	struct inode *inode;
 
 	dquot_initialize(dir);

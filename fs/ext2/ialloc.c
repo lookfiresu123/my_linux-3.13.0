@@ -46,7 +46,7 @@
 static struct buffer_head *
 read_inode_bitmap(struct super_block * sb, unsigned long block_group)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	struct ext2_group_desc *desc;
 	struct buffer_head *bh = NULL;
 

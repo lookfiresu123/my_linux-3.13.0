@@ -128,7 +128,7 @@ static void ioc_release_fn(struct work_struct *work)
  */
 void put_io_context(struct io_context *ioc)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 
 	unsigned long flags;
 	bool free_ioc = false;

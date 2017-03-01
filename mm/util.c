@@ -389,7 +389,7 @@ EXPORT_SYMBOL(vm_mmap);
 
 struct address_space *page_mapping(struct page *page)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	struct address_space *mapping = page->mapping;
 
 	/* This happens if someone calls flush_dcache_page on slab page */

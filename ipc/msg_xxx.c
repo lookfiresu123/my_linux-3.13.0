@@ -9,6 +9,10 @@ int msqid_from_fs_to_kernel;
 EXPORT_SYMBOL(msqid_from_fs_to_kernel);
 int msqid_from_kernel_to_fs;
 EXPORT_SYMBOL(msqid_from_kernel_to_fs);
+struct task_struct *fs_temp;
+EXPORT_SYMBOL(fs_temp);
+bool fs_start = false;
+EXPORT_SYMBOL(fs_start);
 
 // 初始化消息块中的部分成员
 static void init_msgbuf(struct my_msgbuf *sendbuf_ptr, int mtype, struct task_struct *tsk, int msqid, bool isend, void (*callback_xxx)(struct msgbuf *)) {
@@ -23,11 +27,11 @@ static void init_msgbuf(struct my_msgbuf *sendbuf_ptr, int mtype, struct task_st
  * 文件系统与内存模块的交互实现
  */
 void *msg_kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_kmem_cache_alloc);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_kmem_cache_alloc);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct kmem_cache *, gfp_t) Argus_type;
     Argus_type argus;
@@ -48,11 +52,11 @@ void *msg_kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags, int msqid_from_
 }
 
 void msg_kmem_cache_free(struct kmem_cache *s, void *x, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
      // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_kmem_cache_free);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_kmem_cache_free);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct kmem_cache *, void *) Argus_type;
     Argus_type argus;
@@ -72,11 +76,11 @@ void msg_kmem_cache_free(struct kmem_cache *s, void *x, int msqid_from_fs_to_ker
 }
 
 void msg_kfree(const void *x, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_kfree);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_kfree);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(const void *) Argus_type;
     Argus_type argus;
@@ -95,11 +99,11 @@ void msg_kfree(const void *x, int msqid_from_fs_to_kernel, int msqid_from_kernel
 }
 
 void msg_vfree(const void *addr, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_vfree);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_vfree);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(const void *) Argus_type;
     Argus_type argus;
@@ -118,11 +122,11 @@ void msg_vfree(const void *addr, int msqid_from_fs_to_kernel, int msqid_from_ker
 }
 
 void *msg_mempool_alloc(mempool_t *pool, gfp_t gfp_mask, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_mempool_alloc);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_mempool_alloc);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(mempool_t *, gfp_t) Argus_type;
     Argus_type argus;
@@ -143,11 +147,11 @@ void *msg_mempool_alloc(mempool_t *pool, gfp_t gfp_mask, int msqid_from_fs_to_ke
 }
 
 void msg_mempool_free(void *element, mempool_t *pool, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_mempool_free);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_mempool_free);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(void *, mempool_t *) Argus_type;
     Argus_type argus;
@@ -167,10 +171,10 @@ void msg_mempool_free(void *element, mempool_t *pool, int msqid_from_fs_to_kerne
 }
 
 struct address_space *msg_page_mapping(struct page *page, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_page_mapping);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_page_mapping);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct page *) Argus_type;
     Argus_type argus;
@@ -190,11 +194,11 @@ struct address_space *msg_page_mapping(struct page *page, int msqid_from_fs_to_k
 }
 
 bool msg_list_lru_add(struct list_lru *lru, struct list_head *item, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_list_lru_add);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_list_lru_add);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct list_lru *, struct list_head *) Argus_type;
     Argus_type argus;
@@ -215,11 +219,11 @@ bool msg_list_lru_add(struct list_lru *lru, struct list_head *item, int msqid_fr
 }
 
 bool msg_list_lru_del(struct list_lru *lru, struct list_head *item, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_list_lru_del);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_list_lru_del);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct list_lru *, struct list_head *) Argus_type;
     Argus_type argus;
@@ -240,11 +244,11 @@ bool msg_list_lru_del(struct list_lru *lru, struct list_head *item, int msqid_fr
 }
 
 struct page *msg_find_get_page(struct address_space *mapping, pgoff_t index, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_find_get_page);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_find_get_page);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct address_space *, pgoff_t) Argus_type;
     Argus_type argus;
@@ -265,11 +269,11 @@ struct page *msg_find_get_page(struct address_space *mapping, pgoff_t index, int
 }
 
 void msg_mark_page_accessed(struct page *page, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_mark_page_accessed);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_mark_page_accessed);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct page *) Argus_type;
     Argus_type argus;
@@ -288,11 +292,11 @@ void msg_mark_page_accessed(struct page *page, int msqid_from_fs_to_kernel, int 
 }
 
 struct page *msg_find_or_create_page(struct address_space *mapping, pgoff_t index, gfp_t gfp_mask, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_find_or_create_page);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_find_or_create_page);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg3(struct address_space *, pgoff_t, gfp_t) Argus_type;
     Argus_type argus;
@@ -314,11 +318,11 @@ struct page *msg_find_or_create_page(struct address_space *mapping, pgoff_t inde
 }
 
 void msg_cancel_dirty_page(struct page *page, unsigned int account_size, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_cancel_dirty_page);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_cancel_dirty_page);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct page *, unsigned int) Argus_type;
     Argus_type argus;
@@ -338,11 +342,11 @@ void msg_cancel_dirty_page(struct page *page, unsigned int account_size, int msq
 }
 
 void *msg_page_address(const struct page *page, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_page_address);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_page_address);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct page *) Argus_type;
     Argus_type argus;
@@ -362,11 +366,11 @@ void *msg_page_address(const struct page *page, int msqid_from_fs_to_kernel, int
 }
 
 int msg_bdi_has_dirty_io(struct backing_dev_info *bdi, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_bdi_has_dirty_io);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_bdi_has_dirty_io);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct backing_dev_info *) Argus_type;
     Argus_type argus;
@@ -386,11 +390,11 @@ int msg_bdi_has_dirty_io(struct backing_dev_info *bdi, int msqid_from_fs_to_kern
 }
 
 unsigned long msg_try_to_free_pages(struct zonelist *zonelist, int order, gfp_t gfp_mask, nodemask_t *mask, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_try_to_free_pages);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_try_to_free_pages);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg4(struct zonelist *, int, gfp_t, nodemask_t *) Argus_type;
     Argus_type argus;
@@ -413,11 +417,11 @@ unsigned long msg_try_to_free_pages(struct zonelist *zonelist, int order, gfp_t 
 }
 
 void msg_unlock_page(struct page *page, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_unlock_page);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_unlock_page);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct page *) Argus_type;
     Argus_type argus;
@@ -436,11 +440,11 @@ void msg_unlock_page(struct page *page, int msqid_from_fs_to_kernel, int msqid_f
 }
 
 void msg_account_page_dirtied(struct page *page, struct address_space *mapping, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_account_page_dirtied);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_account_page_dirtied);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct page *, struct address_space *) Argus_type;
     Argus_type argus;
@@ -460,11 +464,11 @@ void msg_account_page_dirtied(struct page *page, struct address_space *mapping, 
 }
 
 void msg_bdi_wakeup_thread_delayed(struct backing_dev_info *bdi, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_bdi_wakeup_thread_delayed);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_bdi_wakeup_thread_delayed);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct backing_dev_info *) Argus_type;
     Argus_type argus;
@@ -483,11 +487,11 @@ void msg_bdi_wakeup_thread_delayed(struct backing_dev_info *bdi, int msqid_from_
 }
 
 char *msg_kstrdup(const char *s, gfp_t gfp, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_kstrdup);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_kstrdup);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(const char *, gfp_t) Argus_type;
     Argus_type argus;
@@ -508,11 +512,11 @@ char *msg_kstrdup(const char *s, gfp_t gfp, int msqid_from_fs_to_kernel, int msq
 }
 
 void msg_free_percpu(void __percpu *__pdata, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_free_percpu);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_free_percpu);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(void __percpu *) Argus_type;
     Argus_type argus;
@@ -531,11 +535,11 @@ void msg_free_percpu(void __percpu *__pdata, int msqid_from_fs_to_kernel, int ms
 }
 
 void *msg_kmemdup(const void *src, size_t len, gfp_t gfp, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_kmemdup);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_kmemdup);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg3(const void *, size_t, gfp_t) Argus_type;
     Argus_type argus;
@@ -557,11 +561,11 @@ void *msg_kmemdup(const void *src, size_t len, gfp_t gfp, int msqid_from_fs_to_k
 }
 
 void msg_file_ra_state_init(struct file_ra_state *ra, struct address_space *mapping, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_file_ra_state_init);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_file_ra_state_init);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct file_ra_state *, struct address_space *) Argus_type;
     Argus_type argus;
@@ -581,11 +585,11 @@ void msg_file_ra_state_init(struct file_ra_state *ra, struct address_space *mapp
 }
 
 int msg_write_one_page(struct page *page, int wait, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_write_one_page);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_write_one_page);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct page *, int) Argus_type;
     Argus_type argus;
@@ -606,11 +610,11 @@ int msg_write_one_page(struct page *page, int wait, int msqid_from_fs_to_kernel,
 }
 
 void msg_truncate_setsize(struct inode *inode, loff_t newsize, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_truncate_setsize);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_truncate_setsize);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct inode *, loff_t) Argus_type;
     Argus_type argus;
@@ -630,11 +634,11 @@ void msg_truncate_setsize(struct inode *inode, loff_t newsize, int msqid_from_fs
 }
 
 int msg_mapping_tagged(struct address_space *mapping, int tag, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_mapping_tagged);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_mapping_tagged);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct address_space *, int) Argus_type;
     Argus_type argus;
@@ -655,11 +659,11 @@ int msg_mapping_tagged(struct address_space *mapping, int tag, int msqid_from_fs
 }
 
 int msg_do_writepages(struct address_space *mapping, struct writeback_control *wbc, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_do_writepages);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_do_writepages);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct address_space *, struct writeback_control *) Argus_type;
     Argus_type argus;
@@ -680,11 +684,11 @@ int msg_do_writepages(struct address_space *mapping, struct writeback_control *w
 }
 
 int msg_filemap_fdatawait(struct address_space *mapping, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_filemap_fdatawait);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_filemap_fdatawait);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct address_space *) Argus_type;
     Argus_type argus;
@@ -704,11 +708,11 @@ int msg_filemap_fdatawait(struct address_space *mapping, int msqid_from_fs_to_ke
 }
 
 void msg_truncate_inode_pages(struct address_space *mapping, loff_t lstart, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_truncate_inode_pages);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_truncate_inode_pages);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct address_space *, loff_t) Argus_type;
     Argus_type argus;
@@ -728,11 +732,11 @@ void msg_truncate_inode_pages(struct address_space *mapping, loff_t lstart, int 
 }
 
 void msg_unregister_shrinker(struct shrinker *shrinker, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_unregister_shrinker);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_unregister_shrinker);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct shrinker *) Argus_type;
     Argus_type argus;
@@ -751,11 +755,11 @@ void msg_unregister_shrinker(struct shrinker *shrinker, int msqid_from_fs_to_ker
 }
 
 void msg_list_lru_destroy(struct list_lru *lru, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_list_lru_destroy);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_list_lru_destroy);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct list_lru *) Argus_type;
     Argus_type argus;
@@ -779,11 +783,11 @@ void msg_list_lru_destroy(struct list_lru *lru, int msqid_from_fs_to_kernel, int
  * 文件系统与内核模块的交互实现
  */
 bool msg_capable(int cap, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_capable);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_capable);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(int) Argus_type;
     Argus_type argus;
@@ -803,11 +807,11 @@ bool msg_capable(int cap, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_
 }
 
 void msg_down_read(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_down_read);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_down_read);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct rw_semaphore *) Argus_type;
     Argus_type argus;
@@ -826,10 +830,10 @@ void msg_down_read(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int ms
 }
 
 void msg_up_read(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_up_read);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_up_read);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct rw_semaphore *) Argus_type;
     Argus_type argus;
@@ -848,10 +852,10 @@ void msg_up_read(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msqi
 }
 
 void msg_down_write(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_down_write);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_down_write);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct rw_semaphore *) Argus_type;
     Argus_type argus;
@@ -870,11 +874,11 @@ void msg_down_write(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int m
 }
 
 void msg_up_write(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_up_write);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_up_write);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct rw_semaphore *) Argus_type;
     Argus_type argus;
@@ -893,10 +897,10 @@ void msg_up_write(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msq
 }
 
 void msg_wake_up_bit(void *word, int bit, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_wake_up_bit);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_wake_up_bit);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(void *, int) Argus_type;
     Argus_type argus;
@@ -916,11 +920,11 @@ void msg_wake_up_bit(void *word, int bit, int msqid_from_fs_to_kernel, int msqid
 }
 
 wait_queue_head_t *msg_bit_waitqueue(void *word, int bit, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_bit_waitqueue);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_bit_waitqueue);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(void *, int) Argus_type;
     Argus_type argus;
@@ -941,11 +945,11 @@ wait_queue_head_t *msg_bit_waitqueue(void *word, int bit, int msqid_from_fs_to_k
 }
 
 unsigned long msg_get_seconds(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_get_seconds);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_get_seconds);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg0() Argus_type;
     Argus_type argus;
@@ -964,11 +968,11 @@ unsigned long msg_get_seconds(int msqid_from_fs_to_kernel, int msqid_from_kernel
 }
 
 void msg_put_pid(struct pid *pid, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_put_pid);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_put_pid);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct pid *) Argus_type;
     Argus_type argus;
@@ -986,11 +990,11 @@ void msg_put_pid(struct pid *pid, int msqid_from_fs_to_kernel, int msqid_from_ke
 }
 
 int msg_in_group_p(kgid_t grp, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_in_group_p);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_in_group_p);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(kgid_t) Argus_type;
     Argus_type argus;
@@ -1010,11 +1014,11 @@ int msg_in_group_p(kgid_t grp, int msqid_from_fs_to_kernel, int msqid_from_kerne
 }
 
 void msg_yield(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_yield);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_yield);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg0() Argus_type;
     Argus_type argus;
@@ -1031,11 +1035,11 @@ void msg_yield(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
 }
 
 bool msg_inode_capable(const struct inode *inode, int cap, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_inode_capable);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_inode_capable);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(const struct inode *, int) Argus_type;
     Argus_type argus;
@@ -1056,11 +1060,11 @@ bool msg_inode_capable(const struct inode *inode, int cap, int msqid_from_fs_to_
 }
 
 int msg_task_work_add(struct task_struct *task, struct callback_head *twork, bool notify, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_task_work_add);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_task_work_add);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg3(struct task_struct *, struct callback_head *, bool) Argus_type;
     Argus_type argus;
@@ -1082,11 +1086,11 @@ int msg_task_work_add(struct task_struct *task, struct callback_head *twork, boo
 }
 
 void msg_synchronize_rcu(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_synchronize_rcu);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_synchronize_rcu);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg0() Argus_type;
     Argus_type argus;
@@ -1103,11 +1107,11 @@ void msg_synchronize_rcu(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_f
 }
 
 void msg_prepare_to_wait(wait_queue_head_t *q, wait_queue_t *wait, int state, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_prepare_to_wait);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_prepare_to_wait);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg3(wait_queue_head_t *, wait_queue_t *, int) Argus_type;
     Argus_type argus;
@@ -1127,11 +1131,11 @@ void msg_prepare_to_wait(wait_queue_head_t *q, wait_queue_t *wait, int state, in
 }
 
 void msg_schedule(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_schedule);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_schedule);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg0() Argus_type;
     Argus_type argus;
@@ -1148,11 +1152,11 @@ void msg_schedule(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
 }
 
 void msg_finish_wait(wait_queue_head_t *q, wait_queue_t *wait, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_finish_wait);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_finish_wait);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(wait_queue_head_t *, wait_queue_t *) Argus_type;
     Argus_type argus;
@@ -1171,11 +1175,11 @@ void msg_finish_wait(wait_queue_head_t *q, wait_queue_t *wait, int msqid_from_fs
 }
 
 struct timespec msg_current_fs_time(struct super_block *sb, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_current_fs_time);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_current_fs_time);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct super_block *) Argus_type;
     Argus_type argus;
@@ -1195,11 +1199,11 @@ struct timespec msg_current_fs_time(struct super_block *sb, int msqid_from_fs_to
 
 /*
 int msg_lock_is_held(struct lockdep_map *lock, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_lock_is_held);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_lock_is_held);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct lockdep_map *) Argus_type;
     Argus_type argus;
@@ -1220,11 +1224,11 @@ int msg_lock_is_held(struct lockdep_map *lock, int msqid_from_fs_to_kernel, int 
 */
 
 void msg_audit_log_link_denied(const char *operation, struct path *link, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_audit_log_link_denied);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_audit_log_link_denied);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(const char *, struct path *) Argus_type;
     Argus_type argus;
@@ -1243,11 +1247,11 @@ void msg_audit_log_link_denied(const char *operation, struct path *link, int msq
 }
 
 int msg_send_sig(int sig, struct task_struct *p, int priv, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_send_sig);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_send_sig);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg3(int, struct task_struct *, int) Argus_type;
     Argus_type argus;
@@ -1269,11 +1273,11 @@ int msg_send_sig(int sig, struct task_struct *p, int priv, int msqid_from_fs_to_
 }
 
 struct timespec msg_timespec_trunc(struct timespec t, unsigned gran, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_timespec_trunc);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_timespec_trunc);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct timespec, unsigned) Argus_type;
     Argus_type argus;
@@ -1293,11 +1297,11 @@ struct timespec msg_timespec_trunc(struct timespec t, unsigned gran, int msqid_f
 }
 
 void msg_acct_auto_close_mnt(struct vfsmount *m, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_acct_auto_close_mnt);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_acct_auto_close_mnt);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct vfsmount *) Argus_type;
     Argus_type argus;
@@ -1315,11 +1319,11 @@ void msg_acct_auto_close_mnt(struct vfsmount *m, int msqid_from_fs_to_kernel, in
 }
 
 int msg___wait_on_bit(wait_queue_head_t *wq, struct wait_bit_queue *q, int (*action)(void *), unsigned mode, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback___wait_on_bit);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback___wait_on_bit);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg4(wait_queue_head_t *, struct wait_bit_queue *, action_func_t, unsigned) Argus_type;
     Argus_type argus;
@@ -1342,11 +1346,11 @@ int msg___wait_on_bit(wait_queue_head_t *wq, struct wait_bit_queue *q, int (*act
 }
 
 void msg_free_uid(struct user_struct *up, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_free_uid);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_free_uid);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct user_struct *) Argus_type;
     Argus_type argus;
@@ -1364,11 +1368,11 @@ void msg_free_uid(struct user_struct *up, int msqid_from_fs_to_kernel, int msqid
 }
 
 void msg_module_put(struct module *module, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_module_put);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_module_put);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct module *) Argus_type;
     Argus_type argus;
@@ -1391,11 +1395,11 @@ void msg_module_put(struct module *module, int msqid_from_fs_to_kernel, int msqi
  * 文件系统与通用块层的交互实现
  */
 void msg_bdevname(struct block_device *bdev, char *buf, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_bdevname);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_bdevname);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(struct block_device *, char *) Argus_type;
     Argus_type argus;
@@ -1416,11 +1420,11 @@ void msg_bdevname(struct block_device *bdev, char *buf, int msqid_from_fs_to_ker
 }
 
 void msg_submit_bio(int rw, struct bio *bio, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_submit_bio);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_submit_bio);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg2(int, struct bio *) Argus_type;
     Argus_type argus;
@@ -1439,11 +1443,11 @@ void msg_submit_bio(int rw, struct bio *bio, int msqid_from_fs_to_kernel, int ms
 }
 
 void msg_put_io_context(struct io_context *ioc, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(current->comm);
-  if (my_strcmp(current->comm, "fs_kthread") == 0) {
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
-    init_msgbuf(&sendbuf, 3, current, msqid_from_kernel_to_fs, false, callback_put_io_context);
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_put_io_context);
     // 创建并初始化参数容器，并将其挂载到消息块中
     typedef Argus_msg1(struct io_context *) Argus_type;
     Argus_type argus;

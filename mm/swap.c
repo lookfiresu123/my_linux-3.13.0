@@ -529,7 +529,7 @@ static void __lru_cache_activate_page(struct page *page)
  */
 void mark_page_accessed(struct page *page)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	if (!PageActive(page) && !PageUnevictable(page) &&
 			PageReferenced(page)) {
 

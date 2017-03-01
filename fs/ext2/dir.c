@@ -94,7 +94,7 @@ ext2_last_byte(struct inode *inode, unsigned long page_nr)
 
 static int ext2_commit_chunk(struct page *page, loff_t pos, unsigned len)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	struct address_space *mapping = page->mapping;
 	struct inode *dir = mapping->host;
 	int err = 0;
@@ -112,7 +112,7 @@ static int ext2_commit_chunk(struct page *page, loff_t pos, unsigned len)
 		if (!err)
 			err = sync_inode_metadata(dir, 1);
 	} else {
-    if (my_strcmp(current->comm, "fs_kthread") != 0)
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
       unlock_page(page);
     else
       msg_unlock_page(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
@@ -208,7 +208,7 @@ fail:
 static struct page * ext2_get_page(struct inode *dir, unsigned long n,
 				   int quiet)
 {
-  // MY_PRINTK(current->comm);
+  // MY_PRINTK(get_current()->comm);
 	struct address_space *mapping = dir->i_mapping;
 	struct page *page = read_mapping_page(mapping, n, NULL);
 	if (!IS_ERR(page)) {
@@ -373,7 +373,7 @@ ext2_readdir(struct file *file, struct dir_context *ctx)
 struct ext2_dir_entry_2 *ext2_find_entry (struct inode * dir,
 			struct qstr *child, struct page ** res_page)
 {
-  // MY_PRINTK(current->comm);
+  // MY_PRINTK(get_current()->comm);
 	const char *name = child->name;
 	int namelen = child->len;
 	unsigned reclen = EXT2_DIR_REC_LEN(namelen);
@@ -450,7 +450,7 @@ struct ext2_dir_entry_2 * ext2_dotdot (struct inode *dir, struct page **p)
 
 ino_t ext2_inode_by_name(struct inode *dir, struct qstr *child)
 {
-  // MY_PRINTK(current->comm);
+  // MY_PRINTK(get_current()->comm);
 	ino_t res = 0;
 	struct ext2_dir_entry_2 *de;
 	struct page *page;
@@ -495,7 +495,7 @@ void ext2_set_link(struct inode *dir, struct ext2_dir_entry_2 *de,
  */
 int ext2_add_link (struct dentry *dentry, struct inode *inode)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	struct inode *dir = dentry->d_parent->d_inode;
 	const char *name = dentry->d_name.name;
 	int namelen = dentry->d_name.len;
@@ -576,7 +576,7 @@ got_it:
 	de->inode = cpu_to_le32(inode->i_ino);
 	ext2_set_de_type (de, inode);
 	err = ext2_commit_chunk(page, pos, rec_len);
-  if (my_strcmp(current->comm, "fs_kthread") != 0)
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
     dir->i_mtime = dir->i_ctime = CURRENT_TIME_SEC;
   else {
     dir->i_mtime = dir->i_ctime = ((struct timespec) { msg_get_seconds(msqid_from_fs_to_kernel, msqid_from_kernel_to_fs), 0 });

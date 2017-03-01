@@ -59,7 +59,7 @@ EXPORT_SYMBOL(init_buffer);
 inline void touch_buffer(struct buffer_head *bh)
 {
 	trace_block_touch_buffer(bh);
-  if (my_strcmp(current->comm, "fs_kthread") != 0)
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
     mark_page_accessed(bh->b_page);
   else
     msg_mark_page_accessed(bh->b_page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
@@ -222,7 +222,7 @@ EXPORT_SYMBOL(end_buffer_write_sync);
 static struct buffer_head *
 __find_get_block_slow(struct block_device *bdev, sector_t block)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	struct inode *bd_inode = bdev->bd_inode;
 	struct address_space *bd_mapping = bd_inode->i_mapping;
 	struct buffer_head *ret = NULL;
@@ -233,7 +233,7 @@ __find_get_block_slow(struct block_device *bdev, sector_t block)
 	int all_mapped = 1;
 
 	index = block >> (PAGE_CACHE_SHIFT - bd_inode->i_blkbits);
-  if (my_strcmp(current->comm, "fs_kthread") != 0)
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
     page = find_get_page(bd_mapping, index);
   else
     page = msg_find_get_page(bd_mapping, index, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
@@ -664,11 +664,11 @@ EXPORT_SYMBOL(mark_buffer_dirty_inode);
 static void __set_page_dirty(struct page *page,
 		struct address_space *mapping, int warn)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	spin_lock_irq(&mapping->tree_lock);
 	if (page->mapping) {	/* Race with truncate? */
 		WARN_ON_ONCE(warn && !PageUptodate(page));
-    if (my_strcmp(current->comm, "fs_kthread") != 0)
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
       account_page_dirtied(page, mapping);
     else
       msg_account_page_dirtied(page, mapping, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
@@ -1096,12 +1096,12 @@ grow_buffers(struct block_device *bdev, sector_t block, int size)
 	if (unlikely(index != block >> sizebits)) {
 		char b[BDEVNAME_SIZE];
 
-    MY_PRINTK(current->comm);
+    MY_PRINTK(get_current()->comm);
 		printk(KERN_ERR "%s: requested out-of-range block %llu for "
 			"device %s\n",
 			__func__, (unsigned long long)block,
 			bdevname(bdev, b));
-    MY_PRINTK(current->comm);
+    MY_PRINTK(get_current()->comm);
 		return -EIO;
 	}
 
@@ -1177,7 +1177,7 @@ __getblk_slow(struct block_device *bdev, sector_t block, int size)
  */
 void mark_buffer_dirty(struct buffer_head *bh)
 {
-  // MY_PRINTK(current->comm);
+  // MY_PRINTK(get_current()->comm);
 	WARN_ON_ONCE(!buffer_uptodate(bh));
 
 	trace_block_dirty_buffer(bh);
@@ -1199,7 +1199,7 @@ void mark_buffer_dirty(struct buffer_head *bh)
 		if (!TestSetPageDirty(page)) {
 			// struct address_space *mapping = page_mapping(page);
       struct address_space *mapping;
-      if (my_strcmp(current->comm, "fs_kthread") != 0)
+      if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
         mapping = page_mapping(page);
       else
         mapping = msg_page_mapping(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
@@ -1383,7 +1383,7 @@ lookup_bh_lru(struct block_device *bdev, sector_t block, unsigned size)
 struct buffer_head *
 __find_get_block(struct block_device *bdev, sector_t block, unsigned size)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	struct buffer_head *bh = lookup_bh_lru(bdev, block, size);
 
 	if (bh == NULL) {
@@ -1408,7 +1408,7 @@ EXPORT_SYMBOL(__find_get_block);
 struct buffer_head *
 __getblk(struct block_device *bdev, sector_t block, unsigned size)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	struct buffer_head *bh = __find_get_block(bdev, block, size);
 
 	might_sleep();
@@ -1443,7 +1443,7 @@ EXPORT_SYMBOL(__breadahead);
 struct buffer_head *
 __bread(struct block_device *bdev, sector_t block, unsigned size)
 {
-  MY_PRINTK(current->comm);
+  MY_PRINTK(get_current()->comm);
 	struct buffer_head *bh = __getblk(bdev, block, size);
 
 	if (likely(bh) && !buffer_uptodate(bh))
