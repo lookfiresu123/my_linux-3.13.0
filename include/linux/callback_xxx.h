@@ -68,6 +68,19 @@ extern void callback_truncate_inode_pages(struct my_msgbuf *this);
 extern void callback_unregister_shrinker(struct my_msgbuf *this);
 extern void callback_list_lru_destroy(struct my_msgbuf *this);
 
+// include-mm
+extern void callback_kmem_cache_zalloc(struct my_msgbuf *this);
+extern void callback_page_cache_release(struct my_msgbuf *this);// 宏
+extern void callback_first_zones_zonelist(struct my_msgbuf *this);
+extern void callback_node_zonelist(struct my_msgbuf *this);
+extern void callback_attach_page_buffers(struct my_msgbuf *this);
+extern void callback_alloc_percpu(struct my_msgbuf *this);// 宏
+extern void callback_read_mapping_page(struct my_msgbuf *this);
+extern void callback_zero_user_segments(struct my_msgbuf *this);
+extern void callback_zero_user(struct my_msgbuf *this);
+extern void callback_cleancache_invalidate_fs(struct my_msgbuf *this);
+
+
 
 /* 文件系统与内核模块的交互 */
 extern void callback_capable(struct my_msgbuf *this);
@@ -96,6 +109,46 @@ extern void callback_acct_auto_close_mnt(struct my_msgbuf *this);
 extern void callback___wait_on_bit(struct my_msgbuf *this);
 extern void callback_free_uid(struct my_msgbuf *this);
 extern void callback_module_put(struct my_msgbuf *this);
+
+// include-kernel
+extern void callback_audit_reusename(struct my_msgbuf *this);
+extern void callback_audit_getname(struct my_msgbuf *this);
+extern void callback_current_cred(struct my_msgbuf *this);
+extern void callback_percpu_counter_inc(struct my_msgbuf *this);
+extern void callback_get_cred(struct my_msgbuf *this);
+extern void callback_percpu_counter_dec(struct my_msgbuf *this);
+extern void callback_current_fsuid(struct my_msgbuf *this);
+extern void callback_get_cached_acl_rcu(struct my_msgbuf *this);
+extern void callback_local_irq_disable(struct my_msgbuf *this);
+extern void callback_local_irq_enable(struct my_msgbuf *this);
+extern void callback_might_sleep(struct my_msgbuf *this);
+extern void callback_preempt_disable(struct my_msgbuf *this);
+extern void callback_preempt_enable(struct my_msgbuf *this);
+extern void callback_list_for_each_entry_rcu(struct my_msgbuf *this);
+extern void callback_mod_delayed_work(struct my_msgbuf *this);
+extern void callback_css_put(struct my_msgbuf *this);
+extern void callback_wake_up_all(struct my_msgbuf *this);
+extern void callback_posix_acl_release(struct my_msgbuf *this);
+extern void callback_read_seqbegin(struct my_msgbuf *this);
+extern void callback_schedule_delayed_work(struct my_msgbuf *this);
+extern void callback_dget(struct my_msgbuf *this);
+extern void callback_hlist_bl_for_each_entry_rcu(struct my_msgbuf *this);
+extern void callback_list_entry_rcu(struct my_msgbuf *this);
+extern void callback_cond_resched(struct my_msgbuf *this);
+extern void callback_wake_up_interruptible(struct my_msgbuf *this);
+extern void callback_seqcount_init(struct my_msgbuf *this);
+extern void callback_lockdep_set_class(struct my_msgbuf *this);
+extern void callback_mutex_init(struct my_msgbuf *this);
+extern void callback_wait_event(struct my_msgbuf *this);
+extern void callback_percpu_counter_add(struct my_msgbuf *this);
+extern void callback_fops_get(struct my_msgbuf *this);
+extern void callback_init_waitqueue_head(struct my_msgbuf *this);
+extern void callback_wake_up(struct my_msgbuf *this);
+extern void callback_wait_event_interruptible_timeout(struct my_msgbuf *this);
+extern void callback_audit_inode(struct my_msgbuf *this);
+extern void callback_audit_inode_child(struct my_msgbuf *this);
+extern void callback_srcu_dereference(struct my_msgbuf *this);
+extern void callback_kfree_rcu(struct my_msgbuf *this);
 
 
 /* 文件系统与通用块层的交互 */

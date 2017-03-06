@@ -15,6 +15,8 @@
 #include <linux/audit.h>
 #include <linux/slab.h>
 #include <linux/bug.h>
+#include <linux/time.h>
+#include <linux/interactive_design.h>
 
 /*
  * fsnotify_d_instantiate - instantiate a dentry for inode
@@ -234,8 +236,21 @@ static inline void fsnotify_open(struct file *file)
 	if (S_ISDIR(inode->i_mode))
 		mask |= FS_ISDIR;
 
+  // struct timespec tpstart, tpend;
+  // long timeuse;
+
+  // tpstart = current_kernel_time();
 	fsnotify_parent(path, NULL, mask);
+  // tpend = current_kernel_time();
+  // if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  // printk("fsnotify_parent() cost %ld:%ld - %ld:%ld\n", tpend.tv_sec, tpend.tv_nsec, tpstart.tv_sec, tpstart.tv_nsec);
+
+  // tpstart = current_kernel_time();
 	fsnotify(inode, mask, path, FSNOTIFY_EVENT_PATH, NULL, 0);
+  // tpend = current_kernel_time();
+  // if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  // printk("fsnotify() cost %ld:%ld - %ld:%ld\n", tpend.tv_sec, tpend.tv_nsec, tpstart.tv_sec, tpstart.tv_nsec);
+
 }
 
 /*

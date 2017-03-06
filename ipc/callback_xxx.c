@@ -29,6 +29,20 @@
 #include <linux/audit.h>
 #include <linux/acct.h>
 #include <linux/module.h>
+#include <linux/mmzone.h>
+#include <linux/nodemask.h>
+#include <linux/gfp.h>
+#include <linux/buffer_head.h>
+#include <linux/highmem.h>
+#include <linux/cleancache.h>
+#include <linux/audit.h>
+#include <linux/percpu_counter.h>
+#include <linux/cred.h>
+#include <linux/posix_acl.h>
+#include <linux/workqueue.h>
+#include <linux/cgroup.h>
+#include <linux/seqlock.h>
+#include <linux/dcache.h>
 #include <linux/interactive_design.h>
 
 // extern int lock_is_held(struct lockdep_map *lock);
@@ -388,6 +402,104 @@ void callback_list_lru_destroy(struct my_msgbuf *this) {
   int flag = my_msgsnd(this->msqid, this, sendlength, 0);
 }
 
+// include-mm
+void callback_kmem_cache_zalloc(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct kmem_cache *, gfp_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  void *ret = kmem_cache_zalloc(ptr->argu1, ptr->argu2);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_page_cache_release(struct my_msgbuf *this) {
+
+}
+
+void callback_first_zones_zonelist(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg4(struct zonelist *, enum zone_type, nodemask_t *, struct zone **) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct zoneref *ret = first_zones_zonelist(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_node_zonelist(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(int, gfp_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct zonelist *ret = node_zonelist(ptr->argu1, ptr->argu2);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_attach_page_buffers(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct page *, struct buffer_head *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  attach_page_buffers(ptr->argu1, ptr->argu2);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_alloc_percpu(struct my_msgbuf *this) {
+
+}
+
+void callback_read_mapping_page(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg3(struct address_space *, pgoff_t, void *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct page *ret = read_mapping_page(ptr->argu1, ptr->argu2, ptr->argu3);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_zero_user_segments(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg5(struct page *, unsigned, unsigned, unsigned, unsigned) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  zero_user_segments(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4, ptr->argu5);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_zero_user(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg3(struct page *, unsigned, unsigned) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  zero_user(ptr->argu1, ptr->argu2, ptr->argu3);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_cleancache_invalidate_fs(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct super_block *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  cleancache_invalidate_fs(ptr->argu1);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+
 
 
 /*
@@ -692,6 +804,317 @@ void callback_module_put(struct my_msgbuf *this) {
   int sendlength = sizeof(*this) - sizeof(long);
   int flag = my_msgsnd(this->msqid, this, sendlength, 0);
 }
+
+// include-kernel
+void callback_audit_reusename(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(const __user char *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct filename *ret = audit_reusename(ptr->argu1);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_audit_getname(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct filename *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  audit_getname(ptr->argu1);
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 无参宏
+void callback_current_cred(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  const struct cred *ret = current_cred();
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_percpu_counter_inc(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct percpu_counter *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  percpu_counter_inc(ptr->argu1);
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_get_cred(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(const struct cred *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  const struct cred *ret = get_cred(ptr->argu1);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_percpu_counter_dec(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct percpu_counter *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  percpu_counter_dec(ptr->argu1);
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 无参宏
+void callback_current_fsuid(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  kuid_t ret = current_fsuid();
+  this->object_ptr = kmalloc(sizeof(kuid_t), GFP_KERNEL);
+  *(kuid_t *)(this->object_ptr) = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_get_cached_acl_rcu(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct inode *, int) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct posix_acl *ret = get_cached_acl_rcu(ptr->argu1, ptr->argu2);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_local_irq_disable(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  local_irq_disable();
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_local_irq_enable(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  local_irq_enable();
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_might_sleep(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  might_sleep();
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_preempt_disable(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  preempt_disable();
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_preempt_enable(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  preempt_enable();
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_list_for_each_entry_rcu(struct my_msgbuf *this) {
+
+}
+
+void callback_mod_delayed_work(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg3(struct workqueue_struct *, struct delayed_work *, unsigned long) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  bool ret = mod_delayed_work(ptr->argu1, ptr->argu2, ptr->argu3);
+  this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
+  *(bool *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_css_put(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct cgroup_subsys_state *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  css_put(ptr->argu1);
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_wake_up_all(struct my_msgbuf *this) {
+
+}
+
+void callback_posix_acl_release(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct posix_acl *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  posix_acl_release(ptr->argu1);
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_read_seqbegin(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(const seqlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  unsigned ret = read_seqbegin(ptr->argu1);
+  this->object_ptr = kmalloc(sizeof(unsigned), GFP_KERNEL);
+  *(unsigned *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_schedule_delayed_work(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct delayed_work *, unsigned long) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  bool ret = schedule_delayed_work(ptr->argu1, ptr->argu2);
+  this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
+  *(bool *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_dget(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct dentry *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct dentry *ret = dget(ptr->argu1);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_hlist_bl_for_each_entry_rcu(struct my_msgbuf *this) {
+
+}
+
+void callback_list_entry_rcu(struct my_msgbuf *this) {
+
+}
+
+void callback_cond_resched(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = cond_resched();
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_wake_up_interruptible(struct my_msgbuf *this) {
+
+}
+
+void callback_seqcount_init(struct my_msgbuf *this) {
+
+}
+
+/*
+void callback_lockdep_set_class(struct my_msgbuf *this) {
+
+}
+*/
+
+void callback_mutex_init(struct my_msgbuf *this) {
+
+}
+
+void callback_wait_event(struct my_msgbuf *this) {
+
+}
+
+void callback_percpu_counter_add(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct percpu_counter *, s64) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  percpu_counter_add(ptr->argu1, ptr->argu2);
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_fops_get(struct my_msgbuf *this) {
+
+}
+
+void callback_init_waitqueue_head(struct my_msgbuf *this) {
+
+}
+
+void callback_wake_up(struct my_msgbuf *this) {
+
+}
+
+void callback_wait_event_interruptible_timeout(struct my_msgbuf *this) {
+
+}
+
+void callback_audit_inode(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg3(struct filename *, const struct dentry *, unsigned int) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  audit_inode(ptr->argu1, ptr->argu2, ptr->argu3);
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_audit_inode_child(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg3(const struct inode *, const struct dentry *, const unsigned char) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  audit_inode_child(ptr->argu1, ptr->argu2, ptr->argu3);
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_srcu_dereference(struct my_msgbuf *this) {
+
+}
+
+void callback_kfree_rcu(struct my_msgbuf *this) {
+
+}
+
 
 
 

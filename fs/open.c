@@ -31,6 +31,7 @@
 #include <linux/ima.h>
 #include <linux/dnotify.h>
 #include <linux/compat.h>
+#include <linux/time.h>
 
 #include "internal.h"
 #include <linux/msg_xxx.h>
@@ -982,30 +983,71 @@ EXPORT_SYMBOL(file_open_root);
 long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 {
   MY_PRINTK(get_current()->comm);
+  struct timespec tpstart, tpend;
+  long timeuse;
+
+  getnstimeofday(&tpstart);
 
 	struct open_flags op;
+
 	int fd = build_open_flags(flags, mode, &op);
+
 	struct filename *tmp;
 
 	if (fd)
 		return fd;
 
+  // tpstart = current_kernel_time();
 	tmp = getname(filename);
+  // tpend = current_kernel_time();
+  // if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  // printk("getname() cost %ld:%ld - %ld:%ld\n", tpend.tv_sec, tpend.tv_nsec, tpstart.tv_sec, tpstart.tv_nsec);
+
 	if (IS_ERR(tmp))
 		return PTR_ERR(tmp);
 
+  // tpstart = current_kernel_time();
 	fd = get_unused_fd_flags(flags);
+  // tpend = current_kernel_time();
+  // if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  // printk("get_unused_fd_flags() cost %ld:%ld - %ld:%ld\n", tpend.tv_sec, tpend.tv_nsec, tpstart.tv_sec, tpstart.tv_nsec);
+
+
 	if (fd >= 0) {
+    tpstart = current_kernel_time();
 		struct file *f = do_filp_open(dfd, tmp, &op);
+    tpend = current_kernel_time();
+    if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+      printk("do_filp_open() cost %ld:%ld - %ld:%ld\n", tpend.tv_sec, tpend.tv_nsec, tpstart.tv_sec, tpstart.tv_nsec);
+
+
 		if (IS_ERR(f)) {
 			put_unused_fd(fd);
 			fd = PTR_ERR(f);
 		} else {
 			fsnotify_open(f);
+
+      // tpstart = current_kernel_time();
 			fd_install(fd, f);
+      // tpend = current_kernel_time();
+      // if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+      // printk("fd_install() cost %ld:%ld - %ld:%ld\n", tpend.tv_sec, tpend.tv_nsec, tpstart.tv_sec, tpstart.tv_nsec);
+
 		}
 	}
+
+  // tpstart = current_kernel_time();
 	putname(tmp);
+  // tpend = current_kernel_time();
+  // if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  // printk("putname() cost %ld:%ld - %ld:%ld\n", tpend.tv_sec, tpend.tv_nsec, tpstart.tv_sec, tpstart.tv_nsec);
+
+  getnstimeofday(&tpend);
+  timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+    printk("do_sys_open() cost %ld\n", timeuse);
+
+
 	return fd;
 }
 
