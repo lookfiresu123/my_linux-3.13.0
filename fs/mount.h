@@ -13,10 +13,12 @@ struct mnt_namespace {
 	int event;
 };
 
+/*
 struct mnt_pcp {
 	int mnt_count;
 	int mnt_writers;
 };
+*/
 
 struct mountpoint {
 	struct list_head m_hash;

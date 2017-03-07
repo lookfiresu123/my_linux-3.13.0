@@ -42,10 +42,13 @@
 #include <linux/gfp.h>
 #include <linux/pagemap.h>
 #include <linux/cleancache.h>
+#include <linux/list_bl.h>
 // #include <asm-generic/int-l64.h>
 
 struct workqueue_struct;
 struct mnt_pcp;
+
+typedef struct hlist_bl_head *(*d_hash_t)(const struct dentry *, unsigned int);
 
 /* 文件系统与内存模块的交互 */
 extern void *msg_kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
@@ -86,7 +89,7 @@ extern void msg_page_cache_release(struct page *page, int msqid_from_fs_to_kerne
 extern struct zoneref *msg_first_zones_zonelist(struct zonelist *zonelist, enum zone_type highest_zoneidx, nodemask_t *nodes, struct zone **zone, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern struct zonelist *msg_node_zonelist(int nid, gfp_t flags, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_attach_page_buffers(struct page *page, struct buffer_head *head, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
-extern void msg_alloc_percpu(struct mnt_pcp *mnt_pcp, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
+extern struct mnt_pcp *msg_alloc_percpu(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern struct page *msg_read_mapping_page(struct address_space *mapping, pgoff_t index, void *data, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_zero_user_segments(struct page *page, unsigned start1, unsigned end1, unsigned start2, unsigned end2, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_zero_user(struct page *page, unsigned start, unsigned size, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
@@ -144,8 +147,10 @@ extern void msg_posix_acl_release(struct posix_acl *acl, int msqid_from_fs_to_ke
 extern unsigned msg_read_seqbegin(const seqlock_t *sl, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern bool msg_schedule_delayed_work(struct delayed_work *dwork, unsigned long delay, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern struct dentry *msg_dget(struct dentry *dentry, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
-extern void msg_hlist_bl_for_each_entry_rcu(struct dentry *dentry, struct hlist_bl_node *node, struct hlist_bl_head *b, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);// d_hash是member，直接在内部使用即可
-extern void msg_list_entry_rcu(struct list_head *list, struct dentry *dentry, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);// d_lru是member，直接在内部使用即可
+// extern void msg_hlist_bl_for_each_entry_rcu(struct dentry *dentry, struct hlist_bl_node *node, struct hlist_bl_head *b, d_hash_t d_hash, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);// d_hash是member，直接在内部使用即可
+extern struct hlist_bl_node *msg_hlist_bl_first_rcu(struct hlist_bl_head *h, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
+extern struct hlist_bl_node *msg_rcu_dereference_raw(struct hlist_bl_node *pos, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs); 
+extern struct dentry *msg_list_entry_rcu(struct list_head *list, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);// d_lru是member，直接在内部使用即可
 extern int msg_cond_resched(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_wake_up_interruptible(struct __wait_queue_head *ppoll, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_seqcount_init(seqcount_t *s, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
@@ -153,13 +158,13 @@ extern void msg_seqcount_init(seqcount_t *s, int msqid_from_fs_to_kernel, int ms
 extern void msg_mutex_init(struct mutex *mutex, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_wait_event(struct __wait_queue_head wq, bool condition, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_percpu_counter_add(struct percpu_counter *fbc, s64 amount, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
-extern void msg_fops_get(const struct file_operations	*fops, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
+extern const struct file_operations *msg_fops_get(const struct file_operations	*fops, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_init_waitqueue_head(struct __wait_queue_head *q, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_wake_up(struct __wait_queue_head *q, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
-extern void msg_wait_event_interruptible_timeout(struct __wait_queue_head wq, bool condition, unsigned long timeout, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
+extern int msg_wait_event_interruptible_timeout(struct __wait_queue_head wq, bool condition, unsigned long timeout, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_audit_inode(struct filename *name, const struct dentry *dentry, unsigned int parent, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_audit_inode_child(const struct inode *parent, const struct dentry *dentry, const unsigned char type, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
-extern void msg_srcu_dereference(struct hlist_node *p, struct srcu_struct *sp, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
+extern struct hlist_node *msg_srcu_dereference(struct hlist_node *p, struct srcu_struct *sp, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_kfree_rcu(struct super_block *s, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);// rcu_header是member，直接在内部使用
 
 

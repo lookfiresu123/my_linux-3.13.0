@@ -58,6 +58,11 @@ struct vfsmount {
 	int mnt_flags;
 };
 
+struct mnt_pcp {
+  int mnt_count;
+  int mnt_writers;
+};
+
 struct file; /* forward dec */
 
 extern int mnt_want_write(struct vfsmount *mnt);

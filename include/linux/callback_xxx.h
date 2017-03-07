@@ -32,8 +32,10 @@
 #include <linux/audit.h>
 #include <linux/acct.h>
 #include <linux/module.h>
+#include <linux/list_bl.h>
 #include <linux/interactive_design.h>
 
+typedef struct hlist_bl_head *(*d_hash_t)(const struct dentry *, unsigned int);
 
 /* 文件系统与内存模块的交互 */
 extern void callback_kmem_cache_alloc(struct my_msgbuf *this);
@@ -132,7 +134,9 @@ extern void callback_posix_acl_release(struct my_msgbuf *this);
 extern void callback_read_seqbegin(struct my_msgbuf *this);
 extern void callback_schedule_delayed_work(struct my_msgbuf *this);
 extern void callback_dget(struct my_msgbuf *this);
-extern void callback_hlist_bl_for_each_entry_rcu(struct my_msgbuf *this);
+// extern void callback_hlist_bl_for_each_entry_rcu(struct my_msgbuf *this);
+extern void callback_hlist_bl_first_rcu(struct my_msgbuf *this);
+extern void callback_rcu_dereference_raw(struct my_msgbuf *this);
 extern void callback_list_entry_rcu(struct my_msgbuf *this);
 extern void callback_cond_resched(struct my_msgbuf *this);
 extern void callback_wake_up_interruptible(struct my_msgbuf *this);
