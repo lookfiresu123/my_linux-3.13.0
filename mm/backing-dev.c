@@ -145,8 +145,7 @@ static void bdi_debug_unregister(struct backing_dev_info *bdi)
 static inline void bdi_debug_init(void)
 {
 }
-static inline void bdi_debug_register(struct backing_dev_info *bdi,
-				      const char *name)
+static inline void bdi_debug_register(struct backing_dev_info *bdi, const char *name)
 {
 }
 static inline void bdi_debug_unregister(struct backing_dev_info *bdi)
@@ -154,9 +153,7 @@ static inline void bdi_debug_unregister(struct backing_dev_info *bdi)
 }
 #endif
 
-static ssize_t read_ahead_kb_store(struct device *dev,
-				  struct device_attribute *attr,
-				  const char *buf, size_t count)
+static ssize_t read_ahead_kb_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct backing_dev_info *bdi = dev_get_drvdata(dev);
 	unsigned long read_ahead_kb;
@@ -185,8 +182,7 @@ static DEVICE_ATTR_RW(name);
 
 BDI_SHOW(read_ahead_kb, K(bdi->ra_pages))
 
-static ssize_t min_ratio_store(struct device *dev,
-		struct device_attribute *attr, const char *buf, size_t count)
+static ssize_t min_ratio_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct backing_dev_info *bdi = dev_get_drvdata(dev);
 	unsigned int ratio;
@@ -204,8 +200,7 @@ static ssize_t min_ratio_store(struct device *dev,
 }
 BDI_SHOW(min_ratio, bdi->min_ratio)
 
-static ssize_t max_ratio_store(struct device *dev,
-		struct device_attribute *attr, const char *buf, size_t count)
+static ssize_t max_ratio_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct backing_dev_info *bdi = dev_get_drvdata(dev);
 	unsigned int ratio;
@@ -223,9 +218,7 @@ static ssize_t max_ratio_store(struct device *dev,
 }
 BDI_SHOW(max_ratio, bdi->max_ratio)
 
-static ssize_t stable_pages_required_show(struct device *dev,
-					  struct device_attribute *attr,
-					  char *page)
+static ssize_t stable_pages_required_show(struct device *dev, struct device_attribute *attr, char *page)
 {
 	struct backing_dev_info *bdi = dev_get_drvdata(dev);
 
@@ -312,8 +305,7 @@ static void bdi_remove_from_list(struct backing_dev_info *bdi)
 	INIT_LIST_HEAD(&bdi->bdi_list);
 }
 
-int bdi_register(struct backing_dev_info *bdi, struct device *parent,
-		const char *fmt, ...)
+int bdi_register(struct backing_dev_info *bdi, struct device *parent, const char *fmt, ...)
 {
 	va_list args;
 	struct device *dev;
@@ -513,8 +505,7 @@ EXPORT_SYMBOL(bdi_destroy);
  * For use from filesystems to quickly init and register a bdi associated
  * with dirty writeback
  */
-int bdi_setup_and_register(struct backing_dev_info *bdi, char *name,
-			   unsigned int cap)
+int bdi_setup_and_register(struct backing_dev_info *bdi, char *name, unsigned int cap)
 {
 	int err;
 
@@ -647,8 +638,7 @@ out:
 }
 EXPORT_SYMBOL(wait_iff_congested);
 
-int pdflush_proc_obsolete(struct ctl_table *table, int write,
-			void __user *buffer, size_t *lenp, loff_t *ppos)
+int pdflush_proc_obsolete(struct ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
 {
 	char kbuf[] = "0\n";
 

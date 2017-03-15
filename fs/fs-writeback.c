@@ -28,6 +28,8 @@
 #include <linux/tracepoint.h>
 #include <linux/device.h>
 #include "internal.h"
+#include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 /*
  * 4MB minimal write chunk size
@@ -94,8 +96,7 @@ static inline struct inode *wb_inode(struct list_head *head)
 #define CREATE_TRACE_POINTS
 #include <trace/events/writeback.h>
 
-static void bdi_queue_work(struct backing_dev_info *bdi,
-			   struct wb_writeback_work *work)
+static void bdi_queue_work(struct backing_dev_info *bdi, struct wb_writeback_work *work)
 {
 	trace_writeback_queue(bdi, work);
 
@@ -106,9 +107,7 @@ static void bdi_queue_work(struct backing_dev_info *bdi,
 	mod_delayed_work(bdi_wq, &bdi->wb.dwork, 0);
 }
 
-static void
-__bdi_start_writeback(struct backing_dev_info *bdi, long nr_pages,
-		      bool range_cyclic, enum wb_reason reason)
+static void __bdi_start_writeback(struct backing_dev_info *bdi, long nr_pages, bool range_cyclic, enum wb_reason reason)
 {
 	struct wb_writeback_work *work;
 
@@ -119,7 +118,8 @@ __bdi_start_writeback(struct backing_dev_info *bdi, long nr_pages,
 	work = kzalloc(sizeof(*work), GFP_ATOMIC);
 	if (!work) {
 		trace_writeback_nowork(bdi);
-		mod_delayed_work(bdi_wq, &bdi->wb.dwork, 0);
+		// mod_delayed_work(bdi_wq, &bdi->wb.dwork, 0);
+		msg_mod_delayed_work(bdi_wq, &bdi->wb.dwork, 0, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		return;
 	}
 
@@ -143,8 +143,7 @@ __bdi_start_writeback(struct backing_dev_info *bdi, long nr_pages,
  *   completion. Caller need not hold sb s_umount semaphore.
  *
  */
-void bdi_start_writeback(struct backing_dev_info *bdi, long nr_pages,
-			enum wb_reason reason)
+void bdi_start_writeback(struct backing_dev_info *bdi, long nr_pages, enum wb_reason reason)
 {
 	__bdi_start_writeback(bdi, nr_pages, true, reason);
 }
@@ -241,9 +240,7 @@ static bool inode_dirtied_after(struct inode *inode, unsigned long t)
  * Move expired (dirtied before work->older_than_this) dirty inodes from
  * @delaying_queue to @dispatch_queue.
  */
-static int move_expired_inodes(struct list_head *delaying_queue,
-			       struct list_head *dispatch_queue,
-			       struct wb_writeback_work *work)
+static int move_expired_inodes(struct list_head *delaying_queue, struct list_head *dispatch_queue, struct wb_writeback_work *work)
 {
 	LIST_HEAD(tmp);
 	struct list_head *pos, *node;
@@ -375,8 +372,7 @@ static void inode_sleep_on_writeback(struct inode *inode)
  * processes all inodes in writeback lists and requeueing inodes behind flusher
  * thread's back can have unexpected consequences.
  */
-static void requeue_inode(struct inode *inode, struct bdi_writeback *wb,
-			  struct writeback_control *wbc)
+static void requeue_inode(struct inode *inode, struct bdi_writeback *wb, struct writeback_control *wbc)
 {
 	if (inode->i_state & I_FREEING)
 		return;
@@ -435,8 +431,7 @@ static void requeue_inode(struct inode *inode, struct bdi_writeback *wb,
  * linkage. That is left to the caller. The caller is also responsible for
  * setting I_SYNC flag and calling inode_sync_complete() to clear it.
  */
-static int
-__writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
+static int __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
 {
 	struct address_space *mapping = inode->i_mapping;
 	long nr_to_write = wbc->nr_to_write;
@@ -492,9 +487,7 @@ __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
  * we go e.g. from filesystem. Flusher thread uses __writeback_single_inode()
  * and does more profound writeback list handling in writeback_sb_inodes().
  */
-static int
-writeback_single_inode(struct inode *inode, struct bdi_writeback *wb,
-		       struct writeback_control *wbc)
+static int writeback_single_inode(struct inode *inode, struct bdi_writeback *wb, struct writeback_control *wbc)
 {
 	int ret = 0;
 
@@ -547,8 +540,7 @@ out:
 	return ret;
 }
 
-static long writeback_chunk_size(struct backing_dev_info *bdi,
-				 struct wb_writeback_work *work)
+static long writeback_chunk_size(struct backing_dev_info *bdi, struct wb_writeback_work *work)
 {
 	long pages;
 
@@ -583,9 +575,7 @@ static long writeback_chunk_size(struct backing_dev_info *bdi,
  *
  * Return the number of pages and/or inodes written.
  */
-static long writeback_sb_inodes(struct super_block *sb,
-				struct bdi_writeback *wb,
-				struct wb_writeback_work *work)
+static long writeback_sb_inodes(struct super_block *sb, struct bdi_writeback *wb, struct wb_writeback_work *work)
 {
 	struct writeback_control wbc = {
 		.sync_mode		= work->sync_mode,
@@ -700,8 +690,7 @@ static long writeback_sb_inodes(struct super_block *sb,
 	return wrote;
 }
 
-static long __writeback_inodes_wb(struct bdi_writeback *wb,
-				  struct wb_writeback_work *work)
+static long __writeback_inodes_wb(struct bdi_writeback *wb, struct wb_writeback_work *work)
 {
 	unsigned long start_time = jiffies;
 	long wrote = 0;
@@ -734,8 +723,7 @@ static long __writeback_inodes_wb(struct bdi_writeback *wb,
 	return wrote;
 }
 
-static long writeback_inodes_wb(struct bdi_writeback *wb, long nr_pages,
-				enum wb_reason reason)
+static long writeback_inodes_wb(struct bdi_writeback *wb, long nr_pages, enum wb_reason reason)
 {
 	struct wb_writeback_work work = {
 		.nr_pages	= nr_pages,
@@ -776,8 +764,7 @@ static bool over_bground_thresh(struct backing_dev_info *bdi)
  * Called under wb->list_lock. If there are multiple wb per bdi,
  * only the flusher working on the first wb should do it.
  */
-static void wb_update_bandwidth(struct bdi_writeback *wb,
-				unsigned long start_time)
+static void wb_update_bandwidth(struct bdi_writeback *wb, unsigned long start_time)
 {
 	__bdi_update_bandwidth(wb->bdi, 0, 0, 0, 0, 0, start_time);
 }
@@ -797,8 +784,7 @@ static void wb_update_bandwidth(struct bdi_writeback *wb,
  * older_than_this takes precedence over nr_to_write.  So we'll only write back
  * all dirty pages if they are all attached to "old" mappings.
  */
-static long wb_writeback(struct bdi_writeback *wb,
-			 struct wb_writeback_work *work)
+static long wb_writeback(struct bdi_writeback *wb, struct wb_writeback_work *work)
 {
 	unsigned long wb_start = jiffies;
 	long nr_pages = work->nr_pages;
@@ -896,8 +882,7 @@ static long wb_writeback(struct bdi_writeback *wb,
 /*
  * Return the next wb_writeback_work struct that hasn't been processed yet.
  */
-static struct wb_writeback_work *
-get_next_work_item(struct backing_dev_info *bdi)
+static struct wb_writeback_work *get_next_work_item(struct backing_dev_info *bdi)
 {
 	struct wb_writeback_work *work = NULL;
 
@@ -1279,9 +1264,7 @@ static void wait_sb_inodes(struct super_block *sb)
  * on how many (if any) will be written, and this function does not wait
  * for IO completion of submitted IO.
  */
-void writeback_inodes_sb_nr(struct super_block *sb,
-			    unsigned long nr,
-			    enum wb_reason reason)
+void writeback_inodes_sb_nr(struct super_block *sb, unsigned long nr, enum wb_reason reason)
 {
 	DECLARE_COMPLETION_ONSTACK(done);
 	struct wb_writeback_work work = {
@@ -1325,9 +1308,7 @@ EXPORT_SYMBOL(writeback_inodes_sb);
  * Invoke writeback_inodes_sb_nr if no writeback is currently underway.
  * Returns 1 if writeback was started, 0 if not.
  */
-int try_to_writeback_inodes_sb_nr(struct super_block *sb,
-				  unsigned long nr,
-				  enum wb_reason reason)
+int try_to_writeback_inodes_sb_nr(struct super_block *sb, unsigned long nr, enum wb_reason reason)
 {
 	if (writeback_in_progress(sb->s_bdi))
 		return 1;

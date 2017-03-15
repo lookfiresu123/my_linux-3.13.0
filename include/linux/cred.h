@@ -18,6 +18,7 @@
 #include <linux/selinux.h>
 #include <linux/atomic.h>
 #include <linux/uidgid.h>
+// #include <linux/interactive_design.h>
 
 struct user_struct;
 struct cred;
@@ -224,6 +225,7 @@ static inline struct cred *get_new_cred(struct cred *cred)
  */
 static inline const struct cred *get_cred(const struct cred *cred)
 {
+  // MY_PRINTK(get_current()->comm);
 	struct cred *nonconst_cred = (struct cred *) cred;
 	validate_creds(cred);
 	return get_new_cred(nonconst_cred);

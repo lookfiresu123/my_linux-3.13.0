@@ -31,8 +31,7 @@ EXPORT_SYMBOL(posix_acl_from_mode);
 /*
  * Init a fresh posix_acl
  */
-void
-posix_acl_init(struct posix_acl *acl, int count)
+void posix_acl_init(struct posix_acl *acl, int count)
 {
 	atomic_set(&acl->a_refcount, 1);
 	acl->a_count = count;
@@ -41,8 +40,7 @@ posix_acl_init(struct posix_acl *acl, int count)
 /*
  * Allocate a new ACL with the specified number of entries.
  */
-struct posix_acl *
-posix_acl_alloc(int count, gfp_t flags)
+struct posix_acl *posix_acl_alloc(int count, gfp_t flags)
 {
 	const size_t size = sizeof(struct posix_acl) +
 	                    count * sizeof(struct posix_acl_entry);
@@ -55,8 +53,7 @@ posix_acl_alloc(int count, gfp_t flags)
 /*
  * Clone an ACL.
  */
-static struct posix_acl *
-posix_acl_clone(const struct posix_acl *acl, gfp_t flags)
+static struct posix_acl *posix_acl_clone(const struct posix_acl *acl, gfp_t flags)
 {
 	struct posix_acl *clone = NULL;
 
@@ -73,8 +70,7 @@ posix_acl_clone(const struct posix_acl *acl, gfp_t flags)
 /*
  * Check if an acl is valid. Returns 0 if it is, or -E... otherwise.
  */
-int
-posix_acl_valid(const struct posix_acl *acl)
+int posix_acl_valid(const struct posix_acl *acl)
 {
 	const struct posix_acl_entry *pa, *pe;
 	int state = ACL_USER_OBJ;
@@ -151,8 +147,7 @@ posix_acl_valid(const struct posix_acl *acl)
  * Returns 0 if the acl can be exactly represented in the traditional
  * file mode permission bits, or else 1. Returns -E... on error.
  */
-int
-posix_acl_equiv_mode(const struct posix_acl *acl, umode_t *mode_p)
+int posix_acl_equiv_mode(const struct posix_acl *acl, umode_t *mode_p)
 {
 	const struct posix_acl_entry *pa, *pe;
 	umode_t mode = 0;
@@ -190,8 +185,7 @@ posix_acl_equiv_mode(const struct posix_acl *acl, umode_t *mode_p)
 /*
  * Create an ACL representing the file mode permission bits of an inode.
  */
-struct posix_acl *
-posix_acl_from_mode(umode_t mode, gfp_t flags)
+struct posix_acl *posix_acl_from_mode(umode_t mode, gfp_t flags)
 {
 	struct posix_acl *acl = posix_acl_alloc(3, flags);
 	if (!acl)
@@ -212,8 +206,7 @@ posix_acl_from_mode(umode_t mode, gfp_t flags)
  * Return 0 if current is granted want access to the inode
  * by the acl. Returns -E... otherwise.
  */
-int
-posix_acl_permission(struct inode *inode, const struct posix_acl *acl, int want)
+int posix_acl_permission(struct inode *inode, const struct posix_acl *acl, int want)
 {
 	const struct posix_acl_entry *pa, *pe, *mask_obj;
 	int found = 0;
@@ -383,8 +376,7 @@ static int posix_acl_chmod_masq(struct posix_acl *acl, umode_t mode)
 	return 0;
 }
 
-int
-posix_acl_create(struct posix_acl **acl, gfp_t gfp, umode_t *mode_p)
+int posix_acl_create(struct posix_acl **acl, gfp_t gfp, umode_t *mode_p)
 {
 	struct posix_acl *clone = posix_acl_clone(*acl, gfp);
 	int err = -ENOMEM;
@@ -401,8 +393,7 @@ posix_acl_create(struct posix_acl **acl, gfp_t gfp, umode_t *mode_p)
 }
 EXPORT_SYMBOL(posix_acl_create);
 
-int
-posix_acl_chmod(struct posix_acl **acl, gfp_t gfp, umode_t mode)
+int posix_acl_chmod(struct posix_acl **acl, gfp_t gfp, umode_t mode)
 {
 	struct posix_acl *clone = posix_acl_clone(*acl, gfp);
 	int err = -ENOMEM;

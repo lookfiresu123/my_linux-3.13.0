@@ -308,8 +308,7 @@ static inline int flock_translate_cmd(int cmd) {
 }
 
 /* Fill in a file_lock structure with an appropriate FLOCK lock. */
-static int flock_make_lock(struct file *filp, struct file_lock **lock,
-		unsigned int cmd)
+static int flock_make_lock(struct file *filp, struct file_lock **lock, unsigned int cmd)
 {
 	struct file_lock *fl;
 	int type = flock_translate_cmd(cmd);
@@ -347,8 +346,7 @@ static int assign_type(struct file_lock *fl, long type)
 /* Verify a "struct flock" and copy it to a "struct file_lock" as a POSIX
  * style lock.
  */
-static int flock_to_posix_lock(struct file *filp, struct file_lock *fl,
-			       struct flock *l)
+static int flock_to_posix_lock(struct file *filp, struct file_lock *fl, struct flock *l)
 {
 	off_t start, end;
 
@@ -397,8 +395,7 @@ static int flock_to_posix_lock(struct file *filp, struct file_lock *fl,
 }
 
 #if BITS_PER_LONG == 32
-static int flock64_to_posix_lock(struct file *filp, struct file_lock *fl,
-				 struct flock64 *l)
+static int flock64_to_posix_lock(struct file *filp, struct file_lock *fl, struct flock64 *l)
 {
 	loff_t start;
 
@@ -511,8 +508,7 @@ static int posix_same_owner(struct file_lock *fl1, struct file_lock *fl2)
 }
 
 /* Must be called with the i_lock held! */
-static inline void
-locks_insert_global_locks(struct file_lock *fl)
+static inline void locks_insert_global_locks(struct file_lock *fl)
 {
 	lg_local_lock(&file_lock_lglock);
 	fl->fl_link_cpu = smp_processor_id();
@@ -521,8 +517,7 @@ locks_insert_global_locks(struct file_lock *fl)
 }
 
 /* Must be called with the i_lock held! */
-static inline void
-locks_delete_global_locks(struct file_lock *fl)
+static inline void locks_delete_global_locks(struct file_lock *fl)
 {
 	/*
 	 * Avoid taking lock if already unhashed. This is safe since this check
@@ -536,22 +531,19 @@ locks_delete_global_locks(struct file_lock *fl)
 	lg_local_unlock_cpu(&file_lock_lglock, fl->fl_link_cpu);
 }
 
-static unsigned long
-posix_owner_key(struct file_lock *fl)
+static unsigned long posix_owner_key(struct file_lock *fl)
 {
 	if (fl->fl_lmops && fl->fl_lmops->lm_owner_key)
 		return fl->fl_lmops->lm_owner_key(fl);
 	return (unsigned long)fl->fl_owner;
 }
 
-static inline void
-locks_insert_global_blocked(struct file_lock *waiter)
+static inline void locks_insert_global_blocked(struct file_lock *waiter)
 {
 	hash_add(blocked_hash, &waiter->fl_link, posix_owner_key(waiter));
 }
 
-static inline void
-locks_delete_global_blocked(struct file_lock *waiter)
+static inline void locks_delete_global_blocked(struct file_lock *waiter)
 {
 	hash_del(&waiter->fl_link);
 }
@@ -585,8 +577,7 @@ static void locks_delete_block(struct file_lock *waiter)
  * i_lock is also held on insertions we can avoid taking the blocked_lock_lock
  * in some cases when we see that the fl_block list is empty.
  */
-static void __locks_insert_block(struct file_lock *blocker,
-					struct file_lock *waiter)
+static void __locks_insert_block(struct file_lock *blocker, struct file_lock *waiter)
 {
 	BUG_ON(!list_empty(&waiter->fl_block));
 	waiter->fl_next = blocker;
@@ -596,8 +587,7 @@ static void __locks_insert_block(struct file_lock *blocker,
 }
 
 /* Must be called with i_lock held. */
-static void locks_insert_block(struct file_lock *blocker,
-					struct file_lock *waiter)
+static void locks_insert_block(struct file_lock *blocker, struct file_lock *waiter)
 {
 	spin_lock(&blocked_lock_lock);
 	__locks_insert_block(blocker, waiter);
@@ -788,8 +778,7 @@ static struct file_lock *what_owner_is_waiting_for(struct file_lock *block_fl)
 }
 
 /* Must be called with the blocked_lock_lock held! */
-static int posix_locks_deadlock(struct file_lock *caller_fl,
-				struct file_lock *block_fl)
+static int posix_locks_deadlock(struct file_lock *caller_fl, struct file_lock *block_fl)
 {
 	int i = 0;
 
@@ -1115,8 +1104,7 @@ static int __posix_lock_file(struct inode *inode, struct file_lock *request, str
  * whether or not a lock was successfully freed by testing the return
  * value for -ENOENT.
  */
-int posix_lock_file(struct file *filp, struct file_lock *fl,
-			struct file_lock *conflock)
+int posix_lock_file(struct file *filp, struct file_lock *fl, struct file_lock *conflock)
 {
 	return __posix_lock_file(file_inode(filp), fl, conflock);
 }
@@ -1189,9 +1177,7 @@ int locks_mandatory_locked(struct inode *inode)
  * This function is called from rw_verify_area() and
  * locks_verify_truncate().
  */
-int locks_mandatory_area(int read_write, struct inode *inode,
-			 struct file *filp, loff_t offset,
-			 size_t count)
+int locks_mandatory_area(int read_write, struct inode *inode, struct file *filp, loff_t offset, size_t count)
 {
 	struct file_lock fl;
 	int error;
@@ -2097,8 +2083,7 @@ out:
 /* Apply the lock described by l to an open file descriptor.
  * This implements both the F_SETLK and F_SETLKW commands of fcntl().
  */
-int fcntl_setlk64(unsigned int fd, struct file *filp, unsigned int cmd,
-		struct flock64 __user *l)
+int fcntl_setlk64(unsigned int fd, struct file *filp, unsigned int cmd, struct flock64 __user *l)
 {
 	struct file_lock *file_lock = locks_alloc_lock();
 	struct flock64 flock;
@@ -2298,8 +2283,7 @@ struct locks_iterator {
 	loff_t	li_pos;
 };
 
-static void lock_get_status(struct seq_file *f, struct file_lock *fl,
-			    loff_t id, char *pfx)
+static void lock_get_status(struct seq_file *f, struct file_lock *fl, loff_t id, char *pfx)
 {
 	struct inode *inode = NULL;
 	unsigned int fl_pid;

@@ -207,8 +207,7 @@ out:
  * decent number of pages, less frequently.  To provide nicer use of the
  * L1 cache.
  */
-static inline struct page *dio_get_page(struct dio *dio,
-		struct dio_submit *sdio)
+static inline struct page *dio_get_page(struct dio *dio, struct dio_submit *sdio)
 {
 	if (dio_pages_present(sdio) == 0) {
 		int ret;
@@ -233,8 +232,7 @@ static inline struct page *dio_get_page(struct dio *dio,
  * filesystems can use it to hold additional state between get_block calls and
  * dio_complete.
  */
-static ssize_t dio_complete(struct dio *dio, loff_t offset, ssize_t ret,
-		bool is_async)
+static ssize_t dio_complete(struct dio *dio, loff_t offset, ssize_t ret, bool is_async)
 {
 	ssize_t transferred = 0;
 
@@ -361,10 +359,7 @@ void dio_end_io(struct bio *bio, int error)
 }
 EXPORT_SYMBOL_GPL(dio_end_io);
 
-static inline void
-dio_bio_alloc(struct dio *dio, struct dio_submit *sdio,
-	      struct block_device *bdev,
-	      sector_t first_sector, int nr_vecs)
+static inline void dio_bio_alloc(struct dio *dio, struct dio_submit *sdio, struct block_device *bdev, sector_t first_sector, int nr_vecs)
 {
 	struct bio *bio;
 
@@ -595,8 +590,7 @@ static int dio_set_defer_completion(struct dio *dio)
  * buffer_mapped().  However the direct-io code will only process holes one
  * block at a time - it will repeatedly call get_block() as it walks the hole.
  */
-static int get_more_blocks(struct dio *dio, struct dio_submit *sdio,
-			   struct buffer_head *map_bh)
+static int get_more_blocks(struct dio *dio, struct dio_submit *sdio, struct buffer_head *map_bh)
 {
 	int ret;
 	sector_t fs_startblk;	/* Into file, in filesystem-sized blocks */
@@ -653,8 +647,7 @@ static int get_more_blocks(struct dio *dio, struct dio_submit *sdio,
 /*
  * There is no bio.  Make one now.
  */
-static inline int dio_new_bio(struct dio *dio, struct dio_submit *sdio,
-		sector_t start_sector, struct buffer_head *map_bh)
+static inline int dio_new_bio(struct dio *dio, struct dio_submit *sdio, sector_t start_sector, struct buffer_head *map_bh)
 {
 	sector_t sector;
 	int ret, nr_pages;
@@ -711,8 +704,7 @@ static inline int dio_bio_add_page(struct dio_submit *sdio)
  * The caller of this function is responsible for removing cur_page from the
  * dio, and for dropping the refcount which came from that presence.
  */
-static inline int dio_send_cur_page(struct dio *dio, struct dio_submit *sdio,
-		struct buffer_head *map_bh)
+static inline int dio_send_cur_page(struct dio *dio, struct dio_submit *sdio, struct buffer_head *map_bh)
 {
 	int ret = 0;
 
@@ -775,10 +767,7 @@ out:
  * If that doesn't work out then we put the old page into the bio and add this
  * page to the dio instead.
  */
-static inline int
-submit_page_section(struct dio *dio, struct dio_submit *sdio, struct page *page,
-		    unsigned offset, unsigned len, sector_t blocknr,
-		    struct buffer_head *map_bh)
+static inline int submit_page_section(struct dio *dio, struct dio_submit *sdio, struct page *page, unsigned offset, unsigned len, sector_t blocknr, struct buffer_head *map_bh)
 {
 	int ret = 0;
 
@@ -858,8 +847,7 @@ static void clean_blockdev_aliases(struct dio *dio, struct buffer_head *map_bh)
  * `end' is zero if we're doing the start of the IO, 1 at the end of the
  * IO.
  */
-static inline void dio_zero_block(struct dio *dio, struct dio_submit *sdio,
-		int end, struct buffer_head *map_bh)
+static inline void dio_zero_block(struct dio *dio, struct dio_submit *sdio, int end, struct buffer_head *map_bh)
 {
 	unsigned dio_blocks_per_fs_block;
 	unsigned this_chunk_blocks;	/* In dio_blocks */
@@ -909,8 +897,7 @@ static inline void dio_zero_block(struct dio *dio, struct dio_submit *sdio,
  * it should set b_size to PAGE_SIZE or more inside get_block().  This gives
  * fine alignment but still allows this function to work in PAGE_SIZE units.
  */
-static int do_direct_IO(struct dio *dio, struct dio_submit *sdio,
-			struct buffer_head *map_bh)
+static int do_direct_IO(struct dio *dio, struct dio_submit *sdio, struct buffer_head *map_bh)
 {
 	const unsigned blkbits = sdio->blkbits;
 	const unsigned blocks_per_page = PAGE_SIZE >> blkbits;

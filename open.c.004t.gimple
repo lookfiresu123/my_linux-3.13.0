@@ -1,0 +1,4016 @@
+do_truncate (struct dentry * dentry, loff_t length, unsigned int time_attrs, struct file * filp)
+{
+  int D.40168;
+  unsigned int D.40169;
+  unsigned int D.40172;
+  unsigned int D.40173;
+  unsigned int ret.0;
+  unsigned int D.40177;
+  unsigned int D.40178;
+  struct inode * D.40179;
+  struct mutex * D.40180;
+  int ret;
+  struct iattr newattrs;
+
+  try
+    {
+      if (length < 0) goto <D.40166>; else goto <D.40167>;
+      <D.40166>:
+      D.40168 = -22;
+      return D.40168;
+      <D.40167>:
+      newattrs.ia_size = length;
+      D.40169 = time_attrs | 8;
+      newattrs.ia_valid = D.40169;
+      if (filp != 0B) goto <D.40170>; else goto <D.40171>;
+      <D.40170>:
+      newattrs.ia_file = filp;
+      D.40172 = newattrs.ia_valid;
+      D.40173 = D.40172 | 8192;
+      newattrs.ia_valid = D.40173;
+      <D.40171>:
+      ret = should_remove_suid (dentry);
+      if (ret != 0) goto <D.40174>; else goto <D.40175>;
+      <D.40174>:
+      D.40172 = newattrs.ia_valid;
+      ret.0 = (unsigned int) ret;
+      D.40177 = D.40172 | ret.0;
+      D.40178 = D.40177 | 512;
+      newattrs.ia_valid = D.40178;
+      <D.40175>:
+      D.40179 = dentry->d_inode;
+      D.40180 = &D.40179->i_mutex;
+      mutex_lock (D.40180);
+      ret = notify_change (dentry, &newattrs, 0B);
+      D.40179 = dentry->d_inode;
+      D.40180 = &D.40179->i_mutex;
+      mutex_unlock (D.40180);
+      D.40168 = ret;
+      return D.40168;
+    }
+  finally
+    {
+      newattrs = {CLOBBER};
+    }
+}
+
+
+vfs_truncate (struct path * path, loff_t length)
+{
+  struct dentry * D.40183;
+  short unsigned int D.40184;
+  int D.40185;
+  int D.40186;
+  long int D.40189;
+  struct vfsmount * D.40192;
+  int D.40193;
+  int D.40195;
+  unsigned int D.40197;
+  unsigned int D.40198;
+  int D.40200;
+  int D.40202;
+  int D.40204;
+  int D.40207;
+  int D.40210;
+  struct inode * inode;
+  long int error;
+  void out = <<< error >>>;
+  void mnt_drop_write_and_out = <<< error >>>;
+  void put_write_and_out = <<< error >>>;
+
+  D.40183 = path->dentry;
+  inode = D.40183->d_inode;
+  D.40184 = inode->i_mode;
+  D.40185 = (int) D.40184;
+  D.40186 = D.40185 & 61440;
+  if (D.40186 == 16384) goto <D.40187>; else goto <D.40188>;
+  <D.40187>:
+  D.40189 = -21;
+  return D.40189;
+  <D.40188>:
+  D.40184 = inode->i_mode;
+  D.40185 = (int) D.40184;
+  D.40186 = D.40185 & 61440;
+  if (D.40186 != 32768) goto <D.40190>; else goto <D.40191>;
+  <D.40190>:
+  D.40189 = -22;
+  return D.40189;
+  <D.40191>:
+  D.40192 = path->mnt;
+  D.40193 = mnt_want_write (D.40192);
+  error = (long int) D.40193;
+  if (error != 0) goto out; else goto <D.40194>;
+  <D.40194>:
+  D.40195 = inode_permission (inode, 2);
+  error = (long int) D.40195;
+  if (error != 0) goto mnt_drop_write_and_out; else goto <D.40196>;
+  <D.40196>:
+  error = -1;
+  D.40197 = inode->i_flags;
+  D.40198 = D.40197 & 4;
+  if (D.40198 != 0) goto mnt_drop_write_and_out; else goto <D.40199>;
+  <D.40199>:
+  D.40200 = get_write_access (inode);
+  error = (long int) D.40200;
+  if (error != 0) goto mnt_drop_write_and_out; else goto <D.40201>;
+  <D.40201>:
+  D.40202 = break_lease (inode, 1);
+  error = (long int) D.40202;
+  if (error != 0) goto put_write_and_out; else goto <D.40203>;
+  <D.40203>:
+  D.40204 = locks_verify_truncate (inode, 0B, length);
+  error = (long int) D.40204;
+  if (error == 0) goto <D.40205>; else goto <D.40206>;
+  <D.40205>:
+  D.40207 = security_path_truncate (path);
+  error = (long int) D.40207;
+  <D.40206>:
+  if (error == 0) goto <D.40208>; else goto <D.40209>;
+  <D.40208>:
+  D.40183 = path->dentry;
+  D.40210 = do_truncate (D.40183, length, 0, 0B);
+  error = (long int) D.40210;
+  <D.40209>:
+  put_write_and_out:
+  put_write_access (inode);
+  mnt_drop_write_and_out:
+  D.40192 = path->mnt;
+  mnt_drop_write (D.40192);
+  out:
+  D.40189 = error;
+  return D.40189;
+}
+
+
+get_write_access (struct inode * inode)
+{
+  int D.40212;
+  int iftmp.1;
+  struct atomic_t * D.40214;
+  int D.40215;
+
+  D.40214 = &inode->i_writecount;
+  D.40215 = atomic_inc_unless_negative (D.40214);
+  if (D.40215 != 0) goto <D.40216>; else goto <D.40217>;
+  <D.40216>:
+  iftmp.1 = 0;
+  goto <D.40218>;
+  <D.40217>:
+  iftmp.1 = -26;
+  <D.40218>:
+  D.40212 = iftmp.1;
+  return D.40212;
+}
+
+
+atomic_inc_unless_negative (struct atomic_t * p)
+{
+  int D.40220;
+  _Bool D.40221;
+  long int D.40222;
+  long int D.40223;
+  int D.40226;
+  int v;
+  int v1;
+
+  v = 0;
+  goto <D.6222>;
+  <D.6221>:
+  D.40220 = v + 1;
+  v1 = atomic_cmpxchg (p, v, D.40220);
+  D.40221 = v1 == v;
+  D.40222 = (long int) D.40221;
+  D.40223 = __builtin_expect (D.40222, 1);
+  if (D.40223 != 0) goto <D.40224>; else goto <D.40225>;
+  <D.40224>:
+  D.40226 = 1;
+  return D.40226;
+  <D.40225>:
+  v = v1;
+  <D.6222>:
+  if (v >= 0) goto <D.6221>; else goto <D.6223>;
+  <D.6223>:
+  D.40226 = 0;
+  return D.40226;
+}
+
+
+atomic_cmpxchg (struct atomic_t * v, int old, int new)
+{
+  int D.40228;
+  int D.6071;
+
+  {
+    int __ret;
+    int __old;
+    int __new;
+
+    __old = old;
+    __new = new;
+    {
+      switch (4) <default: <D.6070>, case 1: <D.6061>, case 2: <D.6064>, case 4: <D.6066>, case 8: <D.6068>>
+      <D.6061>:
+      {
+        volatile u8 * __ptr;
+
+        __ptr = &v->counter;
+        __asm__ __volatile__(".pushsection .smp_locks,"a"
+.balign 4
+.long 671f - .
+.popsection
+671:
+	lock; cmpxchgb %2,%1" : "=a" __ret, "=m" *__ptr : "q" __new, "0" __old, "m" *__ptr : "memory");
+        goto <D.6063>;
+      }
+      <D.6064>:
+      {
+        volatile u16 * __ptr;
+
+        __ptr = &v->counter;
+        __asm__ __volatile__(".pushsection .smp_locks,"a"
+.balign 4
+.long 671f - .
+.popsection
+671:
+	lock; cmpxchgw %2,%1" : "=a" __ret, "=m" *__ptr : "r" __new, "0" __old, "m" *__ptr : "memory");
+        goto <D.6063>;
+      }
+      <D.6066>:
+      {
+        volatile u32 * __ptr;
+
+        __ptr = &v->counter;
+        __asm__ __volatile__(".pushsection .smp_locks,"a"
+.balign 4
+.long 671f - .
+.popsection
+671:
+	lock; cmpxchgl %2,%1" : "=a" __ret, "=m" *__ptr : "r" __new, "0" __old, "m" *__ptr : "memory");
+        goto <D.6063>;
+      }
+      <D.6068>:
+      {
+        volatile u64 * __ptr;
+
+        __ptr = &v->counter;
+        __asm__ __volatile__(".pushsection .smp_locks,"a"
+.balign 4
+.long 671f - .
+.popsection
+671:
+	lock; cmpxchgq %2,%1" : "=a" __ret, "=m" *__ptr : "r" __new, "0" __old, "m" *__ptr : "memory");
+        goto <D.6063>;
+      }
+      <D.6070>:
+      __cmpxchg_wrong_size ();
+      <D.6063>:
+    }
+    D.6071 = __ret;
+  }
+  D.40228 = D.6071;
+  return D.40228;
+}
+
+
+break_lease (struct inode * inode, unsigned int mode)
+{
+  struct file_lock * D.40230;
+  int D.40233;
+
+  D.40230 = inode->i_flock;
+  if (D.40230 != 0B) goto <D.40231>; else goto <D.40232>;
+  <D.40231>:
+  D.40233 = __break_lease (inode, mode, 32);
+  return D.40233;
+  <D.40232>:
+  D.40233 = 0;
+  return D.40233;
+}
+
+
+locks_verify_truncate (struct inode * inode, struct file * filp, loff_t size)
+{
+  struct file_lock * D.40235;
+  int D.40238;
+  int D.40241;
+  size_t iftmp.2;
+  long long int D.40243;
+  long long int D.40246;
+  long long int D.40248;
+  long long int D.40249;
+
+  D.40235 = inode->i_flock;
+  if (D.40235 != 0B) goto <D.40236>; else goto <D.40237>;
+  <D.40236>:
+  D.40238 = mandatory_lock (inode);
+  if (D.40238 != 0) goto <D.40239>; else goto <D.40240>;
+  <D.40239>:
+  D.40243 = inode->i_size;
+  if (D.40243 > size) goto <D.40244>; else goto <D.40245>;
+  <D.40244>:
+  D.40243 = inode->i_size;
+  D.40246 = D.40243 - size;
+  iftmp.2 = (size_t) D.40246;
+  goto <D.40247>;
+  <D.40245>:
+  D.40243 = inode->i_size;
+  D.40248 = size - D.40243;
+  iftmp.2 = (size_t) D.40248;
+  <D.40247>:
+  D.40243 = inode->i_size;
+  D.40249 = MIN_EXPR <D.40243, size>;
+  D.40241 = locks_mandatory_area (2, inode, filp, D.40249, iftmp.2);
+  return D.40241;
+  <D.40240>:
+  <D.40237>:
+  D.40241 = 0;
+  return D.40241;
+}
+
+
+mandatory_lock (struct inode * ino)
+{
+  int D.40251;
+  int iftmp.3;
+  struct super_block * D.40255;
+  long unsigned int D.40256;
+  long unsigned int D.40257;
+  int D.40259;
+
+  D.40255 = ino->i_sb;
+  D.40256 = D.40255->s_flags;
+  D.40257 = D.40256 & 64;
+  if (D.40257 != 0) goto <D.40258>; else goto <D.40253>;
+  <D.40258>:
+  D.40259 = __mandatory_lock (ino);
+  if (D.40259 != 0) goto <D.40260>; else goto <D.40253>;
+  <D.40260>:
+  iftmp.3 = 1;
+  goto <D.40254>;
+  <D.40253>:
+  iftmp.3 = 0;
+  <D.40254>:
+  D.40251 = iftmp.3;
+  return D.40251;
+}
+
+
+__mandatory_lock (struct inode * ino)
+{
+  int D.40262;
+  short unsigned int D.40263;
+  int D.40264;
+  int D.40265;
+  _Bool D.40266;
+
+  D.40263 = ino->i_mode;
+  D.40264 = (int) D.40263;
+  D.40265 = D.40264 & 1032;
+  D.40266 = D.40265 == 1024;
+  D.40262 = (int) D.40266;
+  return D.40262;
+}
+
+
+put_write_access (struct inode * inode)
+{
+  struct atomic_t * D.40268;
+
+  D.40268 = &inode->i_writecount;
+  atomic_dec (D.40268);
+}
+
+
+atomic_dec (struct atomic_t * v)
+{
+  __asm__ __volatile__(".pushsection .smp_locks,"a"
+.balign 4
+.long 671f - .
+.popsection
+671:
+	lock; decl %0" : "=m" v->counter : "m" v->counter);
+}
+
+
+SyS_truncate (long int path, long int length)
+{
+  const char * path.4;
+  long int D.40270;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39167;
+} struct struct 
+{
+  <unnamed-signed:0> D.39167;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39170;
+} struct struct 
+{
+  <unnamed-signed:0> D.39170;
+};
+
+  path.4 = (const char *) path;
+  ret = SYSC_truncate (path.4, length);
+  D.40270 = ret;
+  return D.40270;
+}
+
+
+SYSC_truncate (const char * path, long int length)
+{
+  long int D.40272;
+
+  D.40272 = do_sys_truncate (path, length);
+  return D.40272;
+}
+
+
+do_sys_truncate (const char * pathname, loff_t length)
+{
+  long int D.40276;
+  long int D.40279;
+  long int D.40280;
+  _Bool D.40281;
+  unsigned int lookup_flags;
+  struct path path;
+  int error;
+  void retry = <<< error >>>;
+
+  try
+    {
+      lookup_flags = 1;
+      if (length < 0) goto <D.40274>; else goto <D.40275>;
+      <D.40274>:
+      D.40276 = -22;
+      return D.40276;
+      <D.40275>:
+      retry:
+      error = user_path_at (-100, pathname, lookup_flags, &path);
+      if (error == 0) goto <D.40277>; else goto <D.40278>;
+      <D.40277>:
+      D.40279 = vfs_truncate (&path, length);
+      error = (int) D.40279;
+      path_put (&path);
+      <D.40278>:
+      D.40280 = (long int) error;
+      D.40281 = retry_estale (D.40280, lookup_flags);
+      if (D.40281 != 0) goto <D.40282>; else goto <D.40283>;
+      <D.40282>:
+      lookup_flags = lookup_flags | 32;
+      goto retry;
+      <D.40283>:
+      D.40276 = (long int) error;
+      return D.40276;
+    }
+  finally
+    {
+      path = {CLOBBER};
+    }
+}
+
+
+retry_estale (const long int error, const unsigned int flags)
+{
+  bool D.40286;
+  int iftmp.5;
+  unsigned int D.40291;
+
+  if (error == -116) goto <D.40290>; else goto <D.40288>;
+  <D.40290>:
+  D.40291 = flags & 32;
+  if (D.40291 == 0) goto <D.40292>; else goto <D.40288>;
+  <D.40292>:
+  iftmp.5 = 1;
+  goto <D.40289>;
+  <D.40288>:
+  iftmp.5 = 0;
+  <D.40289>:
+  D.40286 = (bool) iftmp.5;
+  return D.40286;
+}
+
+
+compat_SyS_truncate (long int path, long int length)
+{
+  long int D.40294;
+  int D.40295;
+  const char * path.6;
+
+  D.40295 = (int) length;
+  path.6 = (const char *) path;
+  D.40294 = C_SYSC_truncate (path.6, D.40295);
+  return D.40294;
+}
+
+
+C_SYSC_truncate (const char * path, compat_off_t length)
+{
+  long int D.40298;
+  long long int D.40299;
+
+  D.40299 = (long long int) length;
+  D.40298 = do_sys_truncate (path, D.40299);
+  return D.40298;
+}
+
+
+SyS_ftruncate (long int fd, long int length)
+{
+  long unsigned int length.7;
+  unsigned int D.40302;
+  long int D.40303;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39229;
+} struct struct 
+{
+  <unnamed-signed:0> D.39229;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39232;
+} struct struct 
+{
+  <unnamed-signed:0> D.39232;
+};
+
+  length.7 = (long unsigned int) length;
+  D.40302 = (unsigned int) fd;
+  ret = SYSC_ftruncate (D.40302, length.7);
+  D.40303 = ret;
+  return D.40303;
+}
+
+
+SYSC_ftruncate (unsigned int fd, long unsigned int length)
+{
+  long int D.40305;
+  long long int length.8;
+
+  length.8 = (long long int) length;
+  D.40305 = do_sys_ftruncate (fd, length.8, 1);
+  return D.40305;
+}
+
+
+do_sys_ftruncate (unsigned int fd, loff_t length, int small)
+{
+  struct file * D.40309;
+  unsigned int D.40311;
+  unsigned int D.40312;
+  short unsigned int D.40315;
+  int D.40316;
+  int D.40317;
+  unsigned int D.40319;
+  unsigned int D.40320;
+  _Bool D.40322;
+  long long unsigned int length.9;
+  _Bool D.40324;
+  _Bool D.40325;
+  unsigned int D.40327;
+  unsigned int D.40328;
+  struct super_block * D.40330;
+  struct path * D.40333;
+  long int D.40336;
+  struct inode * inode;
+  struct dentry * dentry;
+  struct fd f;
+  int error;
+  void out = <<< error >>>;
+  void out_putf = <<< error >>>;
+
+  try
+    {
+      error = -22;
+      if (length < 0) goto out; else goto <D.40308>;
+      <D.40308>:
+      error = -9;
+      f = fdget (fd);
+      D.40309 = f.file;
+      if (D.40309 == 0B) goto out; else goto <D.40310>;
+      <D.40310>:
+      D.40309 = f.file;
+      D.40311 = D.40309->f_flags;
+      D.40312 = D.40311 & 32768;
+      if (D.40312 != 0) goto <D.40313>; else goto <D.40314>;
+      <D.40313>:
+      small = 0;
+      <D.40314>:
+      D.40309 = f.file;
+      dentry = D.40309->f_path.dentry;
+      inode = dentry->d_inode;
+      error = -22;
+      D.40315 = inode->i_mode;
+      D.40316 = (int) D.40315;
+      D.40317 = D.40316 & 61440;
+      if (D.40317 != 32768) goto out_putf; else goto <D.40318>;
+      <D.40318>:
+      D.40309 = f.file;
+      D.40319 = D.40309->f_mode;
+      D.40320 = D.40319 & 2;
+      if (D.40320 == 0) goto out_putf; else goto <D.40321>;
+      <D.40321>:
+      error = -22;
+      D.40322 = small != 0;
+      length.9 = (long long unsigned int) length;
+      D.40324 = length.9 > 2147483647;
+      D.40325 = D.40322 & D.40324;
+      if (D.40325 != 0) goto out_putf; else goto <D.40326>;
+      <D.40326>:
+      error = -1;
+      D.40327 = inode->i_flags;
+      D.40328 = D.40327 & 4;
+      if (D.40328 != 0) goto out_putf; else goto <D.40329>;
+      <D.40329>:
+      D.40330 = inode->i_sb;
+      sb_start_write (D.40330);
+      D.40309 = f.file;
+      error = locks_verify_truncate (inode, D.40309, length);
+      if (error == 0) goto <D.40331>; else goto <D.40332>;
+      <D.40331>:
+      D.40309 = f.file;
+      D.40333 = &D.40309->f_path;
+      error = security_path_truncate (D.40333);
+      <D.40332>:
+      if (error == 0) goto <D.40334>; else goto <D.40335>;
+      <D.40334>:
+      D.40309 = f.file;
+      error = do_truncate (dentry, length, 96, D.40309);
+      <D.40335>:
+      D.40330 = inode->i_sb;
+      sb_end_write (D.40330);
+      out_putf:
+      fdput (f);
+      out:
+      D.40336 = (long int) error;
+      return D.40336;
+    }
+  finally
+    {
+      f = {CLOBBER};
+    }
+}
+
+
+fdget (unsigned int fd)
+{
+  struct fd D.40339;
+  int b.10;
+  int b;
+  struct file * f;
+
+  try
+    {
+      f = fget_light (fd, &b);
+      b.10 = b;
+      D.40339.file = f;
+      D.40339.need_put = b.10;
+      return D.40339;
+    }
+  finally
+    {
+      b = {CLOBBER};
+    }
+}
+
+
+sb_start_write (struct super_block * sb)
+{
+  __sb_start_write (sb, 1, 1);
+}
+
+
+sb_end_write (struct super_block * sb)
+{
+  __sb_end_write (sb, 1);
+}
+
+
+fdput (struct fd fd)
+{
+  int D.40343;
+  struct file * D.40346;
+
+  D.40343 = fd.need_put;
+  if (D.40343 != 0) goto <D.40344>; else goto <D.40345>;
+  <D.40344>:
+  D.40346 = fd.file;
+  fput (D.40346);
+  <D.40345>:
+}
+
+
+compat_SyS_ftruncate (long int fd, long int length)
+{
+  long int D.40347;
+  unsigned int D.40348;
+  unsigned int D.40349;
+
+  D.40348 = (unsigned int) length;
+  D.40349 = (unsigned int) fd;
+  D.40347 = C_SYSC_ftruncate (D.40349, D.40348);
+  return D.40347;
+}
+
+
+C_SYSC_ftruncate (unsigned int fd, compat_ulong_t length)
+{
+  long int D.40351;
+  long long int D.40352;
+
+  D.40352 = (long long int) length;
+  D.40351 = do_sys_ftruncate (fd, D.40352, 1);
+  return D.40351;
+}
+
+
+do_fallocate (struct file * file, int mode, loff_t offset, loff_t len)
+{
+  _Bool D.40354;
+  _Bool D.40355;
+  _Bool D.40356;
+  int D.40359;
+  int D.40360;
+  unsigned int mode.11;
+  unsigned int D.40364;
+  unsigned int D.40367;
+  unsigned int D.40368;
+  int D.40371;
+  unsigned int D.40374;
+  unsigned int D.40375;
+  unsigned int D.40378;
+  int D.40381;
+  short unsigned int D.40384;
+  int D.40385;
+  int D.40386;
+  int D.40389;
+  _Bool D.40390;
+  _Bool D.40391;
+  _Bool D.40392;
+  long long int D.40397;
+  struct super_block * D.40398;
+  long long int D.40399;
+  const struct file_operations * D.40401;
+  long int (*<T4745>) (struct file *, int, loff_t, loff_t) D.40402;
+  struct inode * inode;
+  long int ret;
+
+  inode = file_inode (file);
+  D.40354 = offset < 0;
+  D.40355 = len <= 0;
+  D.40356 = D.40354 | D.40355;
+  if (D.40356 != 0) goto <D.40357>; else goto <D.40358>;
+  <D.40357>:
+  D.40359 = -22;
+  return D.40359;
+  <D.40358>:
+  D.40360 = mode & -4;
+  if (D.40360 != 0) goto <D.40361>; else goto <D.40362>;
+  <D.40361>:
+  D.40359 = -95;
+  return D.40359;
+  <D.40362>:
+  mode.11 = (unsigned int) mode;
+  D.40364 = mode.11 & 3;
+  if (D.40364 == 2) goto <D.40365>; else goto <D.40366>;
+  <D.40365>:
+  D.40359 = -95;
+  return D.40359;
+  <D.40366>:
+  D.40367 = file->f_mode;
+  D.40368 = D.40367 & 2;
+  if (D.40368 == 0) goto <D.40369>; else goto <D.40370>;
+  <D.40369>:
+  D.40359 = -9;
+  return D.40359;
+  <D.40370>:
+  D.40371 = mode & 2;
+  if (D.40371 != 0) goto <D.40372>; else goto <D.40373>;
+  <D.40372>:
+  D.40374 = inode->i_flags;
+  D.40375 = D.40374 & 4;
+  if (D.40375 != 0) goto <D.40376>; else goto <D.40377>;
+  <D.40376>:
+  D.40359 = -1;
+  return D.40359;
+  <D.40377>:
+  <D.40373>:
+  D.40374 = inode->i_flags;
+  D.40378 = D.40374 & 8;
+  if (D.40378 != 0) goto <D.40379>; else goto <D.40380>;
+  <D.40379>:
+  D.40359 = -1;
+  return D.40359;
+  <D.40380>:
+  D.40381 = security_file_permission (file, 2);
+  ret = (long int) D.40381;
+  if (ret != 0) goto <D.40382>; else goto <D.40383>;
+  <D.40382>:
+  D.40359 = (int) ret;
+  return D.40359;
+  <D.40383>:
+  D.40384 = inode->i_mode;
+  D.40385 = (int) D.40384;
+  D.40386 = D.40385 & 61440;
+  if (D.40386 == 4096) goto <D.40387>; else goto <D.40388>;
+  <D.40387>:
+  D.40359 = -29;
+  return D.40359;
+  <D.40388>:
+  D.40384 = inode->i_mode;
+  D.40385 = (int) D.40384;
+  D.40389 = D.40385 & 61440;
+  D.40390 = D.40389 != 32768;
+  D.40391 = D.40389 != 16384;
+  D.40392 = D.40390 & D.40391;
+  if (D.40392 != 0) goto <D.40393>; else goto <D.40394>;
+  <D.40393>:
+  D.40359 = -19;
+  return D.40359;
+  <D.40394>:
+  D.40397 = offset + len;
+  D.40398 = inode->i_sb;
+  D.40399 = D.40398->s_maxbytes;
+  if (D.40397 > D.40399) goto <D.40395>; else goto <D.40400>;
+  <D.40400>:
+  D.40397 = offset + len;
+  if (D.40397 < 0) goto <D.40395>; else goto <D.40396>;
+  <D.40395>:
+  D.40359 = -27;
+  return D.40359;
+  <D.40396>:
+  D.40401 = file->f_op;
+  D.40402 = D.40401->fallocate;
+  if (D.40402 == 0B) goto <D.40403>; else goto <D.40404>;
+  <D.40403>:
+  D.40359 = -95;
+  return D.40359;
+  <D.40404>:
+  D.40398 = inode->i_sb;
+  sb_start_write (D.40398);
+  D.40401 = file->f_op;
+  D.40402 = D.40401->fallocate;
+  ret = D.40402 (file, mode, offset, len);
+  D.40398 = inode->i_sb;
+  sb_end_write (D.40398);
+  D.40359 = (int) ret;
+  return D.40359;
+}
+
+
+file_inode (struct file * f)
+{
+  struct inode * D.40406;
+
+  D.40406 = f->f_inode;
+  return D.40406;
+}
+
+
+SyS_fallocate (long int fd, long int mode, long long int offset, long long int len)
+{
+  int D.40408;
+  int D.40409;
+  long int D.40410;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39296;
+} struct struct 
+{
+  <unnamed-signed:0> D.39296;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39299;
+} struct struct 
+{
+  <unnamed-signed:0> D.39299;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39302;
+} struct struct 
+{
+  <unnamed-signed:0> D.39302;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39305;
+} struct struct 
+{
+  <unnamed-signed:0> D.39305;
+};
+
+  D.40408 = (int) mode;
+  D.40409 = (int) fd;
+  ret = SYSC_fallocate (D.40409, D.40408, offset, len);
+  D.40410 = ret;
+  return D.40410;
+}
+
+
+SYSC_fallocate (int fd, int mode, loff_t offset, loff_t len)
+{
+  unsigned int fd.12;
+  struct file * D.40413;
+  long int D.40416;
+  struct fd f;
+  int error;
+
+  try
+    {
+      fd.12 = (unsigned int) fd;
+      f = fdget (fd.12);
+      error = -9;
+      D.40413 = f.file;
+      if (D.40413 != 0B) goto <D.40414>; else goto <D.40415>;
+      <D.40414>:
+      D.40413 = f.file;
+      error = do_fallocate (D.40413, mode, offset, len);
+      fdput (f);
+      <D.40415>:
+      D.40416 = (long int) error;
+      return D.40416;
+    }
+  finally
+    {
+      f = {CLOBBER};
+    }
+}
+
+
+SyS_faccessat (long int dfd, long int filename, long int mode)
+{
+  int D.40419;
+  const char * filename.13;
+  int D.40421;
+  long int D.40422;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39344;
+} struct struct 
+{
+  <unnamed-signed:0> D.39344;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39347;
+} struct struct 
+{
+  <unnamed-signed:0> D.39347;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39350;
+} struct struct 
+{
+  <unnamed-signed:0> D.39350;
+};
+
+  D.40419 = (int) mode;
+  filename.13 = (const char *) filename;
+  D.40421 = (int) dfd;
+  ret = SYSC_faccessat (D.40421, filename.13, D.40419);
+  D.40422 = ret;
+  return D.40422;
+}
+
+
+SYSC_faccessat (int dfd, const char * filename, int mode)
+{
+  int D.40424;
+  long int D.40427;
+  const struct cred * D.39363;
+  struct task_struct * iftmp.14;
+  struct task_struct * D.40434;
+  char[16] * D.40435;
+  int D.40436;
+  _Bool fs_start.15;
+  _Bool D.40439;
+  unsigned int D.40440;
+  unsigned int D.40441;
+  struct user_namespace * D.40444;
+  _Bool D.40445;
+  _Bool D.40446;
+  struct dentry * D.40451;
+  int D.40452;
+  short unsigned int D.40455;
+  int D.40456;
+  int D.40457;
+  struct vfsmount * D.40460;
+  int D.40461;
+  int D.40462;
+  int D.40464;
+  int D.40466;
+  int D.40468;
+  _Bool D.40469;
+  _Bool D.40470;
+  _Bool D.40471;
+  int D.40475;
+  long int D.40478;
+  _Bool D.40479;
+  const struct cred * old_cred;
+  struct cred * override_cred;
+  struct path path;
+  struct inode * inode;
+  int res;
+  unsigned int lookup_flags;
+  void retry = <<< error >>>;
+  void out = <<< error >>>;
+  void out_path_release = <<< error >>>;
+
+  try
+    {
+      lookup_flags = 1;
+      D.40424 = mode & -8;
+      if (D.40424 != 0) goto <D.40425>; else goto <D.40426>;
+      <D.40425>:
+      D.40427 = -22;
+      return D.40427;
+      <D.40426>:
+      override_cred = prepare_creds ();
+      if (override_cred == 0B) goto <D.40428>; else goto <D.40429>;
+      <D.40428>:
+      D.40427 = -12;
+      return D.40427;
+      <D.40429>:
+      override_cred->fsuid = override_cred->uid;
+      override_cred->fsgid = override_cred->gid;
+      {
+        {
+
+        }
+        D.40434 = get_current ();
+        D.40435 = &D.40434->comm;
+        D.40436 = my_strcmp_base (D.40435, "fs_kthread");
+        if (D.40436 != 0) goto <D.40431>; else goto <D.40437>;
+        <D.40437>:
+        fs_start.15 = fs_start;
+        D.40439 = ~fs_start.15;
+        if (D.40439 != 0) goto <D.40431>; else goto <D.40432>;
+        <D.40431>:
+        iftmp.14 = get_current ();
+        goto <D.40433>;
+        <D.40432>:
+        iftmp.14 = fs_temp;
+        <D.40433>:
+        D.39363 = iftmp.14->cred;
+      }
+      D.40440 = D.39363->securebits;
+      D.40441 = D.40440 & 4;
+      if (D.40441 == 0) goto <D.40442>; else goto <D.40443>;
+      <D.40442>:
+      {
+        struct kuid_t root_uid;
+
+        try
+          {
+            D.40444 = override_cred->user_ns;
+            root_uid = make_kuid (D.40444, 0);
+            D.40445 = uid_eq (override_cred->uid, root_uid);
+            D.40446 = ~D.40445;
+            if (D.40446 != 0) goto <D.40447>; else goto <D.40448>;
+            <D.40447>:
+            override_cred->cap_effective = __cap_empty_set;
+            goto <D.40449>;
+            <D.40448>:
+            override_cred->cap_effective = override_cred->cap_permitted;
+            <D.40449>:
+          }
+        finally
+          {
+            root_uid = {CLOBBER};
+          }
+      }
+      <D.40443>:
+      old_cred = override_creds (override_cred);
+      retry:
+      res = user_path_at (dfd, filename, lookup_flags, &path);
+      if (res != 0) goto out; else goto <D.40450>;
+      <D.40450>:
+      D.40451 = path.dentry;
+      inode = D.40451->d_inode;
+      D.40452 = mode & 1;
+      if (D.40452 != 0) goto <D.40453>; else goto <D.40454>;
+      <D.40453>:
+      D.40455 = inode->i_mode;
+      D.40456 = (int) D.40455;
+      D.40457 = D.40456 & 61440;
+      if (D.40457 == 32768) goto <D.40458>; else goto <D.40459>;
+      <D.40458>:
+      res = -13;
+      D.40460 = path.mnt;
+      D.40461 = D.40460->mnt_flags;
+      D.40462 = D.40461 & 4;
+      if (D.40462 != 0) goto out_path_release; else goto <D.40463>;
+      <D.40463>:
+      <D.40459>:
+      <D.40454>:
+      D.40464 = mode | 16;
+      res = inode_permission (inode, D.40464);
+      if (res != 0) goto out_path_release; else goto <D.40465>;
+      <D.40465>:
+      D.40466 = mode & 2;
+      if (D.40466 == 0) goto out_path_release; else goto <D.40467>;
+      <D.40467>:
+      D.40455 = inode->i_mode;
+      D.40456 = (int) D.40455;
+      D.40468 = D.40456 & 61440;
+      D.40469 = D.40468 == 8192;
+      D.40470 = D.40468 == 24576;
+      D.40471 = D.40469 | D.40470;
+      if (D.40471 != 0) goto out_path_release; else goto <D.40472>;
+      <D.40472>:
+      D.40455 = inode->i_mode;
+      D.40456 = (int) D.40455;
+      D.40457 = D.40456 & 61440;
+      if (D.40457 == 4096) goto out_path_release; else goto <D.40473>;
+      <D.40473>:
+      D.40455 = inode->i_mode;
+      D.40456 = (int) D.40455;
+      D.40457 = D.40456 & 61440;
+      if (D.40457 == 49152) goto out_path_release; else goto <D.40474>;
+      <D.40474>:
+      D.40460 = path.mnt;
+      D.40475 = __mnt_is_readonly (D.40460);
+      if (D.40475 != 0) goto <D.40476>; else goto <D.40477>;
+      <D.40476>:
+      res = -30;
+      <D.40477>:
+      out_path_release:
+      path_put (&path);
+      D.40478 = (long int) res;
+      D.40479 = retry_estale (D.40478, lookup_flags);
+      if (D.40479 != 0) goto <D.40480>; else goto <D.40481>;
+      <D.40480>:
+      lookup_flags = lookup_flags | 32;
+      goto retry;
+      <D.40481>:
+      out:
+      revert_creds (old_cred);
+      put_cred (override_cred);
+      D.40427 = (long int) res;
+      return D.40427;
+    }
+  finally
+    {
+      path = {CLOBBER};
+    }
+}
+
+
+my_strcmp_base (const char * cs, const char * ct)
+{
+  const char * cs.16;
+  char D.40485;
+  const char * ct.17;
+  char D.40487;
+  int D.40490;
+  int iftmp.18;
+  unsigned char c1;
+  unsigned char c2;
+
+  <D.3811>:
+  cs.16 = cs;
+  cs = cs.16 + 1;
+  D.40485 = *cs.16;
+  c1 = (unsigned char) D.40485;
+  ct.17 = ct;
+  ct = ct.17 + 1;
+  D.40487 = *ct.17;
+  c2 = (unsigned char) D.40487;
+  if (c1 != c2) goto <D.40488>; else goto <D.40489>;
+  <D.40488>:
+  if (c1 < c2) goto <D.40492>; else goto <D.40493>;
+  <D.40492>:
+  iftmp.18 = -1;
+  goto <D.40494>;
+  <D.40493>:
+  iftmp.18 = 1;
+  <D.40494>:
+  D.40490 = iftmp.18;
+  return D.40490;
+  <D.40489>:
+  if (c1 == 0) goto <D.3810>; else goto <D.40495>;
+  <D.40495>:
+  goto <D.3811>;
+  <D.3810>:
+  D.40490 = 0;
+  return D.40490;
+}
+
+
+get_current ()
+{
+  struct task_struct * D.40497;
+  struct task_struct * D.3803;
+
+  {
+    struct task_struct * pfo_ret__;
+
+    {
+      switch (8) <default: <D.3802>, case 1: <D.3797>, case 2: <D.3799>, case 4: <D.3800>, case 8: <D.3801>>
+      <D.3797>:
+      __asm__("movb %%gs:%P1,%0" : "=q" pfo_ret__ : "p" &current_task);
+      goto <D.3798>;
+      <D.3799>:
+      __asm__("movw %%gs:%P1,%0" : "=r" pfo_ret__ : "p" &current_task);
+      goto <D.3798>;
+      <D.3800>:
+      __asm__("movl %%gs:%P1,%0" : "=r" pfo_ret__ : "p" &current_task);
+      goto <D.3798>;
+      <D.3801>:
+      __asm__("movq %%gs:%P1,%0" : "=r" pfo_ret__ : "p" &current_task);
+      goto <D.3798>;
+      <D.3802>:
+      __bad_percpu_size ();
+      <D.3798>:
+    }
+    D.3803 = pfo_ret__;
+  }
+  D.40497 = D.3803;
+  return D.40497;
+}
+
+
+uid_eq (struct kuid_t left, struct kuid_t right)
+{
+  bool D.40499;
+  unsigned int D.40500;
+  unsigned int D.40501;
+
+  D.40500 = __kuid_val (left);
+  D.40501 = __kuid_val (right);
+  D.40499 = D.40500 == D.40501;
+  return D.40499;
+}
+
+
+__kuid_val (struct kuid_t uid)
+{
+  uid_t D.40503;
+
+  D.40503 = uid.val;
+  return D.40503;
+}
+
+
+put_cred (const struct cred * _cred)
+{
+  struct atomic_t * D.40505;
+  int D.40506;
+  struct cred * cred;
+
+  cred = _cred;
+  validate_creds (cred);
+  D.40505 = &cred->usage;
+  D.40506 = atomic_dec_and_test (D.40505);
+  if (D.40506 != 0) goto <D.40507>; else goto <D.40508>;
+  <D.40507>:
+  __put_cred (cred);
+  <D.40508>:
+}
+
+
+validate_creds (const struct cred * cred)
+{
+
+}
+
+
+atomic_dec_and_test (struct atomic_t * v)
+{
+  int D.40509;
+  void cc_label = <<< error >>>;
+
+  __asm__ __volatile__ goto(".pushsection .smp_locks,"a"
+.balign 4
+.long 671f - .
+.popsection
+671:
+	lock; decl %0; je %l1" :  : "m" v->counter : "memory" : "cc_label" cc_label);
+  D.40509 = 0;
+  return D.40509;
+  cc_label:
+  D.40509 = 1;
+  return D.40509;
+}
+
+
+SyS_access (long int filename, long int mode)
+{
+  int D.40511;
+  const char * filename.19;
+  long int D.40513;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39393;
+} struct struct 
+{
+  <unnamed-signed:0> D.39393;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39396;
+} struct struct 
+{
+  <unnamed-signed:0> D.39396;
+};
+
+  D.40511 = (int) mode;
+  filename.19 = (const char *) filename;
+  ret = SYSC_access (filename.19, D.40511);
+  D.40513 = ret;
+  return D.40513;
+}
+
+
+SYSC_access (const char * filename, int mode)
+{
+  long int D.40515;
+
+  D.40515 = sys_faccessat (-100, filename, mode);
+  return D.40515;
+}
+
+
+SyS_chdir (long int filename)
+{
+  const char * filename.20;
+  long int D.40518;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39423;
+} struct struct 
+{
+  <unnamed-signed:0> D.39423;
+};
+
+  filename.20 = (const char *) filename;
+  ret = SYSC_chdir (filename.20);
+  D.40518 = ret;
+  return D.40518;
+}
+
+
+SYSC_chdir (const char * filename)
+{
+  struct dentry * D.40521;
+  struct inode * D.40522;
+  struct task_struct * iftmp.21;
+  struct task_struct * D.40528;
+  char[16] * D.40529;
+  int D.40530;
+  _Bool fs_start.22;
+  _Bool D.40533;
+  struct fs_struct * D.40534;
+  long int D.40535;
+  _Bool D.40536;
+  long int D.40539;
+  struct path path;
+  int error;
+  unsigned int lookup_flags;
+  void retry = <<< error >>>;
+  void out = <<< error >>>;
+  void dput_and_out = <<< error >>>;
+
+  try
+    {
+      lookup_flags = 3;
+      retry:
+      error = user_path_at (-100, filename, lookup_flags, &path);
+      if (error != 0) goto out; else goto <D.40520>;
+      <D.40520>:
+      D.40521 = path.dentry;
+      D.40522 = D.40521->d_inode;
+      error = inode_permission (D.40522, 65);
+      if (error != 0) goto dput_and_out; else goto <D.40523>;
+      <D.40523>:
+      D.40528 = get_current ();
+      D.40529 = &D.40528->comm;
+      D.40530 = my_strcmp_base (D.40529, "fs_kthread");
+      if (D.40530 != 0) goto <D.40525>; else goto <D.40531>;
+      <D.40531>:
+      fs_start.22 = fs_start;
+      D.40533 = ~fs_start.22;
+      if (D.40533 != 0) goto <D.40525>; else goto <D.40526>;
+      <D.40525>:
+      iftmp.21 = get_current ();
+      goto <D.40527>;
+      <D.40526>:
+      iftmp.21 = fs_temp;
+      <D.40527>:
+      D.40534 = iftmp.21->fs;
+      set_fs_pwd (D.40534, &path);
+      dput_and_out:
+      path_put (&path);
+      D.40535 = (long int) error;
+      D.40536 = retry_estale (D.40535, lookup_flags);
+      if (D.40536 != 0) goto <D.40537>; else goto <D.40538>;
+      <D.40537>:
+      lookup_flags = lookup_flags | 32;
+      goto retry;
+      <D.40538>:
+      out:
+      D.40539 = (long int) error;
+      return D.40539;
+    }
+  finally
+    {
+      path = {CLOBBER};
+    }
+}
+
+
+SyS_fchdir (long int fd)
+{
+  unsigned int D.40542;
+  long int D.40543;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39455;
+} struct struct 
+{
+  <unnamed-signed:0> D.39455;
+};
+
+  D.40542 = (unsigned int) fd;
+  ret = SYSC_fchdir (D.40542);
+  D.40543 = ret;
+  return D.40543;
+}
+
+
+SYSC_fchdir (unsigned int fd)
+{
+  struct file * D.40545;
+  short unsigned int D.40547;
+  int D.40548;
+  int D.40549;
+  struct path * D.40553;
+  struct task_struct * iftmp.23;
+  struct task_struct * D.40558;
+  char[16] * D.40559;
+  int D.40560;
+  _Bool fs_start.24;
+  _Bool D.40563;
+  struct fs_struct * D.40564;
+  long int D.40565;
+  struct fd f;
+  struct inode * inode;
+  int error;
+  void out = <<< error >>>;
+  void out_putf = <<< error >>>;
+
+  try
+    {
+      f = fdget_raw (fd);
+      error = -9;
+      error = -9;
+      D.40545 = f.file;
+      if (D.40545 == 0B) goto out; else goto <D.40546>;
+      <D.40546>:
+      D.40545 = f.file;
+      inode = file_inode (D.40545);
+      error = -20;
+      D.40547 = inode->i_mode;
+      D.40548 = (int) D.40547;
+      D.40549 = D.40548 & 61440;
+      if (D.40549 != 16384) goto out_putf; else goto <D.40550>;
+      <D.40550>:
+      error = inode_permission (inode, 65);
+      if (error == 0) goto <D.40551>; else goto <D.40552>;
+      <D.40551>:
+      D.40545 = f.file;
+      D.40553 = &D.40545->f_path;
+      D.40558 = get_current ();
+      D.40559 = &D.40558->comm;
+      D.40560 = my_strcmp_base (D.40559, "fs_kthread");
+      if (D.40560 != 0) goto <D.40555>; else goto <D.40561>;
+      <D.40561>:
+      fs_start.24 = fs_start;
+      D.40563 = ~fs_start.24;
+      if (D.40563 != 0) goto <D.40555>; else goto <D.40556>;
+      <D.40555>:
+      iftmp.23 = get_current ();
+      goto <D.40557>;
+      <D.40556>:
+      iftmp.23 = fs_temp;
+      <D.40557>:
+      D.40564 = iftmp.23->fs;
+      set_fs_pwd (D.40564, D.40553);
+      <D.40552>:
+      out_putf:
+      fdput (f);
+      out:
+      D.40565 = (long int) error;
+      return D.40565;
+    }
+  finally
+    {
+      f = {CLOBBER};
+    }
+}
+
+
+fdget_raw (unsigned int fd)
+{
+  struct fd D.40568;
+  int b.25;
+  int b;
+  struct file * f;
+
+  try
+    {
+      f = fget_raw_light (fd, &b);
+      b.25 = b;
+      D.40568.file = f;
+      D.40568.need_put = b.25;
+      return D.40568;
+    }
+  finally
+    {
+      b = {CLOBBER};
+    }
+}
+
+
+SyS_chroot (long int filename)
+{
+  const char * filename.26;
+  long int D.40573;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39486;
+} struct struct 
+{
+  <unnamed-signed:0> D.39486;
+};
+
+  filename.26 = (const char *) filename;
+  ret = SYSC_chroot (filename.26);
+  D.40573 = ret;
+  return D.40573;
+}
+
+
+SYSC_chroot (const char * filename)
+{
+  struct dentry * D.40576;
+  struct inode * D.40577;
+  const struct cred * D.39497;
+  struct task_struct * iftmp.27;
+  struct task_struct * D.40583;
+  char[16] * D.40584;
+  int D.40585;
+  _Bool fs_start.28;
+  _Bool D.40588;
+  struct user_namespace * D.40589;
+  _Bool D.40590;
+  _Bool D.40591;
+  struct task_struct * iftmp.29;
+  struct task_struct * D.40598;
+  char[16] * D.40599;
+  int D.40600;
+  struct fs_struct * D.40602;
+  long int D.40603;
+  _Bool D.40604;
+  long int D.40607;
+  struct path path;
+  int error;
+  unsigned int lookup_flags;
+  void retry = <<< error >>>;
+  void out = <<< error >>>;
+  void dput_and_out = <<< error >>>;
+
+  try
+    {
+      lookup_flags = 3;
+      retry:
+      error = user_path_at (-100, filename, lookup_flags, &path);
+      if (error != 0) goto out; else goto <D.40575>;
+      <D.40575>:
+      D.40576 = path.dentry;
+      D.40577 = D.40576->d_inode;
+      error = inode_permission (D.40577, 65);
+      if (error != 0) goto dput_and_out; else goto <D.40578>;
+      <D.40578>:
+      error = -1;
+      {
+        {
+
+        }
+        D.40583 = get_current ();
+        D.40584 = &D.40583->comm;
+        D.40585 = my_strcmp_base (D.40584, "fs_kthread");
+        if (D.40585 != 0) goto <D.40580>; else goto <D.40586>;
+        <D.40586>:
+        fs_start.28 = fs_start;
+        D.40588 = ~fs_start.28;
+        if (D.40588 != 0) goto <D.40580>; else goto <D.40581>;
+        <D.40580>:
+        iftmp.27 = get_current ();
+        goto <D.40582>;
+        <D.40581>:
+        iftmp.27 = fs_temp;
+        <D.40582>:
+        D.39497 = iftmp.27->cred;
+      }
+      D.40589 = D.39497->user_ns;
+      D.40590 = ns_capable (D.40589, 18);
+      D.40591 = ~D.40590;
+      if (D.40591 != 0) goto dput_and_out; else goto <D.40592>;
+      <D.40592>:
+      error = security_path_chroot (&path);
+      if (error != 0) goto dput_and_out; else goto <D.40593>;
+      <D.40593>:
+      D.40598 = get_current ();
+      D.40599 = &D.40598->comm;
+      D.40600 = my_strcmp_base (D.40599, "fs_kthread");
+      if (D.40600 != 0) goto <D.40595>; else goto <D.40601>;
+      <D.40601>:
+      fs_start.28 = fs_start;
+      D.40588 = ~fs_start.28;
+      if (D.40588 != 0) goto <D.40595>; else goto <D.40596>;
+      <D.40595>:
+      iftmp.29 = get_current ();
+      goto <D.40597>;
+      <D.40596>:
+      iftmp.29 = fs_temp;
+      <D.40597>:
+      D.40602 = iftmp.29->fs;
+      set_fs_root (D.40602, &path);
+      error = 0;
+      dput_and_out:
+      path_put (&path);
+      D.40603 = (long int) error;
+      D.40604 = retry_estale (D.40603, lookup_flags);
+      if (D.40604 != 0) goto <D.40605>; else goto <D.40606>;
+      <D.40605>:
+      lookup_flags = lookup_flags | 32;
+      goto retry;
+      <D.40606>:
+      out:
+      D.40607 = (long int) error;
+      return D.40607;
+    }
+  finally
+    {
+      path = {CLOBBER};
+    }
+}
+
+
+SyS_fchmod (long int fd, long int mode)
+{
+  short unsigned int D.40610;
+  int D.40611;
+  unsigned int D.40612;
+  long int D.40613;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39533;
+} struct struct 
+{
+  <unnamed-signed:0> D.39533;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39536;
+} struct struct 
+{
+  <unnamed-signed:0> D.39536;
+};
+
+  D.40610 = (short unsigned int) mode;
+  D.40611 = (int) D.40610;
+  D.40612 = (unsigned int) fd;
+  ret = SYSC_fchmod (D.40612, D.40611);
+  D.40613 = ret;
+  return D.40613;
+}
+
+
+SYSC_fchmod (unsigned int fd, umode_t mode)
+{
+  struct file * D.40615;
+  struct dentry * D.40618;
+  int D.40619;
+  struct path * D.40620;
+  long int D.40621;
+  struct fd f;
+  int err;
+
+  try
+    {
+      f = fdget (fd);
+      err = -9;
+      D.40615 = f.file;
+      if (D.40615 != 0B) goto <D.40616>; else goto <D.40617>;
+      <D.40616>:
+      D.40615 = f.file;
+      D.40618 = D.40615->f_path.dentry;
+      audit_inode (0B, D.40618, 0);
+      D.40619 = (int) mode;
+      D.40615 = f.file;
+      D.40620 = &D.40615->f_path;
+      err = chmod_common (D.40620, D.40619);
+      fdput (f);
+      <D.40617>:
+      D.40621 = (long int) err;
+      return D.40621;
+    }
+  finally
+    {
+      f = {CLOBBER};
+    }
+}
+
+
+audit_inode (struct filename * name, const struct dentry * dentry, unsigned int parent)
+{
+  struct task_struct * D.40626;
+  char[16] * D.40627;
+  int D.40628;
+  struct task_struct * D.40630;
+  char[16] * D.40631;
+  int D.40632;
+  struct task_struct * D.40633;
+  char[16] * D.40634;
+  int D.40635;
+  _Bool D.40636;
+  long int D.40637;
+  long int D.40638;
+  static const char __func__[12] = "audit_inode";
+
+  D.40626 = get_current ();
+  D.40627 = &D.40626->comm;
+  D.40628 = my_strcmp (D.40627, "fs_kthread");
+  if (D.40628 == 0) goto <D.40624>; else goto <D.40629>;
+  <D.40629>:
+  D.40630 = get_current ();
+  D.40631 = &D.40630->comm;
+  D.40632 = my_strcmp (D.40631, "kernel_kthread");
+  if (D.40632 == 0) goto <D.40624>; else goto <D.40625>;
+  <D.40624>:
+  D.40633 = get_current ();
+  D.40634 = &D.40633->comm;
+  printk ("%s(): %s\n", &__func__, D.40634);
+  <D.40625>:
+  D.40635 = audit_dummy_context ();
+  D.40636 = D.40635 == 0;
+  D.40637 = (long int) D.40636;
+  D.40638 = __builtin_expect (D.40637, 0);
+  if (D.40638 != 0) goto <D.40639>; else goto <D.40640>;
+  <D.40639>:
+  {
+    unsigned int flags;
+
+    flags = 0;
+    if (parent != 0) goto <D.40641>; else goto <D.40642>;
+    <D.40641>:
+    flags = flags | 1;
+    <D.40642>:
+    __audit_inode (name, dentry, flags);
+  }
+  <D.40640>:
+}
+
+
+my_strcmp (const char * cs, const char * ct)
+{
+  const char * cs.30;
+  char D.40644;
+  const char * ct.31;
+  char D.40646;
+  int D.40649;
+  int iftmp.32;
+  unsigned char c1;
+  unsigned char c2;
+
+  <D.21129>:
+  cs.30 = cs;
+  cs = cs.30 + 1;
+  D.40644 = *cs.30;
+  c1 = (unsigned char) D.40644;
+  ct.31 = ct;
+  ct = ct.31 + 1;
+  D.40646 = *ct.31;
+  c2 = (unsigned char) D.40646;
+  if (c1 != c2) goto <D.40647>; else goto <D.40648>;
+  <D.40647>:
+  if (c1 < c2) goto <D.40651>; else goto <D.40652>;
+  <D.40651>:
+  iftmp.32 = -1;
+  goto <D.40653>;
+  <D.40652>:
+  iftmp.32 = 1;
+  <D.40653>:
+  D.40649 = iftmp.32;
+  return D.40649;
+  <D.40648>:
+  if (c1 == 0) goto <D.21128>; else goto <D.40654>;
+  <D.40654>:
+  goto <D.21129>;
+  <D.21128>:
+  D.40649 = 0;
+  return D.40649;
+}
+
+
+audit_dummy_context ()
+{
+  struct task_struct * iftmp.33;
+  struct task_struct * D.40660;
+  char[16] * D.40661;
+  int D.40662;
+  _Bool fs_start.34;
+  _Bool D.40665;
+  int D.40666;
+  int iftmp.35;
+  int D.40672;
+  void * p;
+
+  D.40660 = get_current ();
+  D.40661 = &D.40660->comm;
+  D.40662 = my_strcmp_base (D.40661, "fs_kthread");
+  if (D.40662 != 0) goto <D.40657>; else goto <D.40663>;
+  <D.40663>:
+  fs_start.34 = fs_start;
+  D.40665 = ~fs_start.34;
+  if (D.40665 != 0) goto <D.40657>; else goto <D.40658>;
+  <D.40657>:
+  iftmp.33 = get_current ();
+  goto <D.40659>;
+  <D.40658>:
+  iftmp.33 = fs_temp;
+  <D.40659>:
+  p = iftmp.33->audit_context;
+  if (p == 0B) goto <D.40668>; else goto <D.40671>;
+  <D.40671>:
+  D.40672 = MEM[(int *)p];
+  if (D.40672 != 0) goto <D.40668>; else goto <D.40669>;
+  <D.40668>:
+  iftmp.35 = 1;
+  goto <D.40670>;
+  <D.40669>:
+  iftmp.35 = 0;
+  <D.40670>:
+  D.40666 = iftmp.35;
+  return D.40666;
+}
+
+
+chmod_common (struct path * path, umode_t mode)
+{
+  struct dentry * D.40674;
+  struct vfsmount * D.40675;
+  int D.40678;
+  struct mutex * D.40679;
+  int D.40680;
+  signed short mode.36;
+  signed short D.40683;
+  short unsigned int D.40684;
+  signed short D.40685;
+  signed short D.40686;
+  signed short D.40687;
+  short unsigned int D.40688;
+  struct inode * delegated_inode.37;
+  struct inode * inode;
+  struct inode * delegated_inode;
+  struct iattr newattrs;
+  int error;
+  void retry_deleg = <<< error >>>;
+  void out_unlock = <<< error >>>;
+
+  try
+    {
+      D.40674 = path->dentry;
+      inode = D.40674->d_inode;
+      delegated_inode = 0B;
+      D.40675 = path->mnt;
+      error = mnt_want_write (D.40675);
+      if (error != 0) goto <D.40676>; else goto <D.40677>;
+      <D.40676>:
+      D.40678 = error;
+      return D.40678;
+      <D.40677>:
+      retry_deleg:
+      D.40679 = &inode->i_mutex;
+      mutex_lock (D.40679);
+      D.40680 = (int) mode;
+      error = security_path_chmod (path, D.40680);
+      if (error != 0) goto out_unlock; else goto <D.40681>;
+      <D.40681>:
+      mode.36 = (signed short) mode;
+      D.40683 = mode.36 & 4095;
+      D.40684 = inode->i_mode;
+      D.40685 = (signed short) D.40684;
+      D.40686 = D.40685 & -4096;
+      D.40687 = D.40683 | D.40686;
+      D.40688 = (short unsigned int) D.40687;
+      newattrs.ia_mode = D.40688;
+      newattrs.ia_valid = 65;
+      D.40674 = path->dentry;
+      error = notify_change (D.40674, &newattrs, &delegated_inode);
+      out_unlock:
+      D.40679 = &inode->i_mutex;
+      mutex_unlock (D.40679);
+      delegated_inode.37 = delegated_inode;
+      if (delegated_inode.37 != 0B) goto <D.40690>; else goto <D.40691>;
+      <D.40690>:
+      error = break_deleg_wait (&delegated_inode);
+      if (error == 0) goto retry_deleg; else goto <D.40692>;
+      <D.40692>:
+      <D.40691>:
+      D.40675 = path->mnt;
+      mnt_drop_write (D.40675);
+      D.40678 = error;
+      return D.40678;
+    }
+  finally
+    {
+      delegated_inode = {CLOBBER};
+      newattrs = {CLOBBER};
+    }
+}
+
+
+break_deleg_wait (struct inode * * delegated_inode)
+{
+  struct inode * D.40695;
+  int D.40696;
+  int ret;
+
+  D.40695 = *delegated_inode;
+  ret = break_deleg (D.40695, 1);
+  D.40695 = *delegated_inode;
+  iput (D.40695);
+  *delegated_inode = 0B;
+  D.40696 = ret;
+  return D.40696;
+}
+
+
+break_deleg (struct inode * inode, unsigned int mode)
+{
+  struct file_lock * D.40698;
+  int D.40701;
+
+  D.40698 = inode->i_flock;
+  if (D.40698 != 0B) goto <D.40699>; else goto <D.40700>;
+  <D.40699>:
+  D.40701 = __break_lease (inode, mode, 4);
+  return D.40701;
+  <D.40700>:
+  D.40701 = 0;
+  return D.40701;
+}
+
+
+SyS_fchmodat (long int dfd, long int filename, long int mode)
+{
+  short unsigned int D.40703;
+  int D.40704;
+  const char * filename.38;
+  int D.40706;
+  long int D.40707;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39573;
+} struct struct 
+{
+  <unnamed-signed:0> D.39573;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39576;
+} struct struct 
+{
+  <unnamed-signed:0> D.39576;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39579;
+} struct struct 
+{
+  <unnamed-signed:0> D.39579;
+};
+
+  D.40703 = (short unsigned int) mode;
+  D.40704 = (int) D.40703;
+  filename.38 = (const char *) filename;
+  D.40706 = (int) dfd;
+  ret = SYSC_fchmodat (D.40706, filename.38, D.40704);
+  D.40707 = ret;
+  return D.40707;
+}
+
+
+SYSC_fchmodat (int dfd, const char * filename, umode_t mode)
+{
+  int D.40711;
+  long int D.40712;
+  _Bool D.40713;
+  long int D.40716;
+  struct path path;
+  int error;
+  unsigned int lookup_flags;
+  void retry = <<< error >>>;
+
+  try
+    {
+      lookup_flags = 1;
+      retry:
+      error = user_path_at (dfd, filename, lookup_flags, &path);
+      if (error == 0) goto <D.40709>; else goto <D.40710>;
+      <D.40709>:
+      D.40711 = (int) mode;
+      error = chmod_common (&path, D.40711);
+      path_put (&path);
+      D.40712 = (long int) error;
+      D.40713 = retry_estale (D.40712, lookup_flags);
+      if (D.40713 != 0) goto <D.40714>; else goto <D.40715>;
+      <D.40714>:
+      lookup_flags = lookup_flags | 32;
+      goto retry;
+      <D.40715>:
+      <D.40710>:
+      D.40716 = (long int) error;
+      return D.40716;
+    }
+  finally
+    {
+      path = {CLOBBER};
+    }
+}
+
+
+SyS_chmod (long int filename, long int mode)
+{
+  short unsigned int D.40719;
+  int D.40720;
+  const char * filename.39;
+  long int D.40722;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39615;
+} struct struct 
+{
+  <unnamed-signed:0> D.39615;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39618;
+} struct struct 
+{
+  <unnamed-signed:0> D.39618;
+};
+
+  D.40719 = (short unsigned int) mode;
+  D.40720 = (int) D.40719;
+  filename.39 = (const char *) filename;
+  ret = SYSC_chmod (filename.39, D.40720);
+  D.40722 = ret;
+  return D.40722;
+}
+
+
+SYSC_chmod (const char * filename, umode_t mode)
+{
+  long int D.40724;
+  int D.40725;
+
+  D.40725 = (int) mode;
+  D.40724 = sys_fchmodat (-100, filename, D.40725);
+  return D.40724;
+}
+
+
+SyS_fchownat (long int dfd, long int filename, long int user, long int group, long int flag)
+{
+  int D.40727;
+  unsigned int D.40728;
+  unsigned int D.40729;
+  const char * filename.40;
+  int D.40731;
+  long int D.40732;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39675;
+} struct struct 
+{
+  <unnamed-signed:0> D.39675;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39678;
+} struct struct 
+{
+  <unnamed-signed:0> D.39678;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39681;
+} struct struct 
+{
+  <unnamed-signed:0> D.39681;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39684;
+} struct struct 
+{
+  <unnamed-signed:0> D.39684;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39687;
+} struct struct 
+{
+  <unnamed-signed:0> D.39687;
+};
+
+  D.40727 = (int) flag;
+  D.40728 = (unsigned int) group;
+  D.40729 = (unsigned int) user;
+  filename.40 = (const char *) filename;
+  D.40731 = (int) dfd;
+  ret = SYSC_fchownat (D.40731, filename.40, D.40729, D.40728, D.40727);
+  D.40732 = ret;
+  return D.40732;
+}
+
+
+SYSC_fchownat (int dfd, const char * filename, uid_t user, gid_t group, int flag)
+{
+  int D.40734;
+  int D.40736;
+  _Bool D.40737;
+  int D.40738;
+  unsigned int lookup_flags.41;
+  struct vfsmount * D.40743;
+  unsigned int lookup_flags.42;
+  long int D.40746;
+  _Bool D.40747;
+  long int D.40750;
+  struct path path;
+  int error;
+  int lookup_flags;
+  void out = <<< error >>>;
+  void retry = <<< error >>>;
+  void out_release = <<< error >>>;
+
+  try
+    {
+      error = -22;
+      D.40734 = flag & -4353;
+      if (D.40734 != 0) goto out; else goto <D.40735>;
+      <D.40735>:
+      D.40736 = flag & 256;
+      D.40737 = D.40736 == 0;
+      lookup_flags = (int) D.40737;
+      D.40738 = flag & 4096;
+      if (D.40738 != 0) goto <D.40739>; else goto <D.40740>;
+      <D.40739>:
+      lookup_flags = lookup_flags | 16384;
+      <D.40740>:
+      retry:
+      lookup_flags.41 = (unsigned int) lookup_flags;
+      error = user_path_at (dfd, filename, lookup_flags.41, &path);
+      if (error != 0) goto out; else goto <D.40742>;
+      <D.40742>:
+      D.40743 = path.mnt;
+      error = mnt_want_write (D.40743);
+      if (error != 0) goto out_release; else goto <D.40744>;
+      <D.40744>:
+      error = chown_common (&path, user, group);
+      D.40743 = path.mnt;
+      mnt_drop_write (D.40743);
+      out_release:
+      path_put (&path);
+      lookup_flags.42 = (unsigned int) lookup_flags;
+      D.40746 = (long int) error;
+      D.40747 = retry_estale (D.40746, lookup_flags.42);
+      if (D.40747 != 0) goto <D.40748>; else goto <D.40749>;
+      <D.40748>:
+      lookup_flags = lookup_flags | 32;
+      goto retry;
+      <D.40749>:
+      out:
+      D.40750 = (long int) error;
+      return D.40750;
+    }
+  finally
+    {
+      path = {CLOBBER};
+    }
+}
+
+
+chown_common (struct path * path, uid_t user, gid_t group)
+{
+  struct dentry * D.40753;
+  const struct cred * D.39635;
+  struct task_struct * iftmp.43;
+  struct task_struct * D.40758;
+  char[16] * D.40759;
+  int D.40760;
+  _Bool fs_start.44;
+  _Bool D.40763;
+  struct user_namespace * D.40764;
+  const struct cred * D.39636;
+  struct task_struct * iftmp.45;
+  struct task_struct * D.40769;
+  char[16] * D.40770;
+  int D.40771;
+  struct user_namespace * D.40773;
+  _Bool D.40776;
+  _Bool D.40777;
+  int D.40780;
+  unsigned int D.40781;
+  unsigned int D.40782;
+  _Bool D.40785;
+  _Bool D.40786;
+  unsigned int D.40789;
+  short unsigned int D.40790;
+  int D.40791;
+  int D.40792;
+  unsigned int D.40795;
+  struct mutex * D.40796;
+  struct inode * delegated_inode.46;
+  struct inode * inode;
+  struct inode * delegated_inode;
+  int error;
+  struct iattr newattrs;
+  struct kuid_t uid;
+  struct kgid_t gid;
+  void retry_deleg = <<< error >>>;
+
+  try
+    {
+      D.40753 = path->dentry;
+      inode = D.40753->d_inode;
+      delegated_inode = 0B;
+      {
+        {
+
+        }
+        D.40758 = get_current ();
+        D.40759 = &D.40758->comm;
+        D.40760 = my_strcmp_base (D.40759, "fs_kthread");
+        if (D.40760 != 0) goto <D.40755>; else goto <D.40761>;
+        <D.40761>:
+        fs_start.44 = fs_start;
+        D.40763 = ~fs_start.44;
+        if (D.40763 != 0) goto <D.40755>; else goto <D.40756>;
+        <D.40755>:
+        iftmp.43 = get_current ();
+        goto <D.40757>;
+        <D.40756>:
+        iftmp.43 = fs_temp;
+        <D.40757>:
+        D.39635 = iftmp.43->cred;
+      }
+      D.40764 = D.39635->user_ns;
+      uid = make_kuid (D.40764, user);
+      {
+        {
+
+        }
+        D.40769 = get_current ();
+        D.40770 = &D.40769->comm;
+        D.40771 = my_strcmp_base (D.40770, "fs_kthread");
+        if (D.40771 != 0) goto <D.40766>; else goto <D.40772>;
+        <D.40772>:
+        fs_start.44 = fs_start;
+        D.40763 = ~fs_start.44;
+        if (D.40763 != 0) goto <D.40766>; else goto <D.40767>;
+        <D.40766>:
+        iftmp.45 = get_current ();
+        goto <D.40768>;
+        <D.40767>:
+        iftmp.45 = fs_temp;
+        <D.40768>:
+        D.39636 = iftmp.45->cred;
+      }
+      D.40773 = D.39636->user_ns;
+      gid = make_kgid (D.40773, group);
+      newattrs.ia_valid = 64;
+      if (user != 4294967295) goto <D.40774>; else goto <D.40775>;
+      <D.40774>:
+      D.40776 = uid_valid (uid);
+      D.40777 = ~D.40776;
+      if (D.40777 != 0) goto <D.40778>; else goto <D.40779>;
+      <D.40778>:
+      D.40780 = -22;
+      return D.40780;
+      <D.40779>:
+      D.40781 = newattrs.ia_valid;
+      D.40782 = D.40781 | 2;
+      newattrs.ia_valid = D.40782;
+      newattrs.ia_uid = uid;
+      <D.40775>:
+      if (group != 4294967295) goto <D.40783>; else goto <D.40784>;
+      <D.40783>:
+      D.40785 = gid_valid (gid);
+      D.40786 = ~D.40785;
+      if (D.40786 != 0) goto <D.40787>; else goto <D.40788>;
+      <D.40787>:
+      D.40780 = -22;
+      return D.40780;
+      <D.40788>:
+      D.40781 = newattrs.ia_valid;
+      D.40789 = D.40781 | 4;
+      newattrs.ia_valid = D.40789;
+      newattrs.ia_gid = gid;
+      <D.40784>:
+      D.40790 = inode->i_mode;
+      D.40791 = (int) D.40790;
+      D.40792 = D.40791 & 61440;
+      if (D.40792 != 16384) goto <D.40793>; else goto <D.40794>;
+      <D.40793>:
+      D.40781 = newattrs.ia_valid;
+      D.40795 = D.40781 | 22528;
+      newattrs.ia_valid = D.40795;
+      <D.40794>:
+      retry_deleg:
+      D.40796 = &inode->i_mutex;
+      mutex_lock (D.40796);
+      error = security_path_chown (path, uid, gid);
+      if (error == 0) goto <D.40797>; else goto <D.40798>;
+      <D.40797>:
+      D.40753 = path->dentry;
+      error = notify_change (D.40753, &newattrs, &delegated_inode);
+      <D.40798>:
+      D.40796 = &inode->i_mutex;
+      mutex_unlock (D.40796);
+      delegated_inode.46 = delegated_inode;
+      if (delegated_inode.46 != 0B) goto <D.40800>; else goto <D.40801>;
+      <D.40800>:
+      error = break_deleg_wait (&delegated_inode);
+      if (error == 0) goto retry_deleg; else goto <D.40802>;
+      <D.40802>:
+      <D.40801>:
+      D.40780 = error;
+      return D.40780;
+    }
+  finally
+    {
+      delegated_inode = {CLOBBER};
+      newattrs = {CLOBBER};
+      uid = {CLOBBER};
+      gid = {CLOBBER};
+    }
+}
+
+
+uid_valid (struct kuid_t uid)
+{
+  bool D.40805;
+  struct kuid_t D.17519;
+  _Bool D.40806;
+  int D.40807;
+  _Bool D.40808;
+  _Bool D.40809;
+  int D.40810;
+
+  D.17519.val = 4294967295;
+  D.40806 = uid_eq (uid, D.17519);
+  D.40807 = (int) D.40806;
+  D.40808 = D.40807 != 0;
+  D.40809 = ~D.40808;
+  D.40810 = (int) D.40809;
+  D.40805 = (bool) D.40810;
+  return D.40805;
+}
+
+
+gid_valid (struct kgid_t gid)
+{
+  bool D.40812;
+  struct kgid_t D.17523;
+  _Bool D.40813;
+  int D.40814;
+  _Bool D.40815;
+  _Bool D.40816;
+  int D.40817;
+
+  D.17523.val = 4294967295;
+  D.40813 = gid_eq (gid, D.17523);
+  D.40814 = (int) D.40813;
+  D.40815 = D.40814 != 0;
+  D.40816 = ~D.40815;
+  D.40817 = (int) D.40816;
+  D.40812 = (bool) D.40817;
+  return D.40812;
+}
+
+
+gid_eq (struct kgid_t left, struct kgid_t right)
+{
+  bool D.40819;
+  unsigned int D.40820;
+  unsigned int D.40821;
+
+  D.40820 = __kgid_val (left);
+  D.40821 = __kgid_val (right);
+  D.40819 = D.40820 == D.40821;
+  return D.40819;
+}
+
+
+__kgid_val (struct kgid_t gid)
+{
+  gid_t D.40823;
+
+  D.40823 = gid.val;
+  return D.40823;
+}
+
+
+SyS_chown (long int filename, long int user, long int group)
+{
+  unsigned int D.40825;
+  unsigned int D.40826;
+  const char * filename.47;
+  long int D.40828;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39731;
+} struct struct 
+{
+  <unnamed-signed:0> D.39731;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39734;
+} struct struct 
+{
+  <unnamed-signed:0> D.39734;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39737;
+} struct struct 
+{
+  <unnamed-signed:0> D.39737;
+};
+
+  D.40825 = (unsigned int) group;
+  D.40826 = (unsigned int) user;
+  filename.47 = (const char *) filename;
+  ret = SYSC_chown (filename.47, D.40826, D.40825);
+  D.40828 = ret;
+  return D.40828;
+}
+
+
+SYSC_chown (const char * filename, uid_t user, gid_t group)
+{
+  long int D.40830;
+
+  D.40830 = sys_fchownat (-100, filename, user, group, 0);
+  return D.40830;
+}
+
+
+SyS_lchown (long int filename, long int user, long int group)
+{
+  unsigned int D.40832;
+  unsigned int D.40833;
+  const char * filename.48;
+  long int D.40835;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39773;
+} struct struct 
+{
+  <unnamed-signed:0> D.39773;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39776;
+} struct struct 
+{
+  <unnamed-signed:0> D.39776;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39779;
+} struct struct 
+{
+  <unnamed-signed:0> D.39779;
+};
+
+  D.40832 = (unsigned int) group;
+  D.40833 = (unsigned int) user;
+  filename.48 = (const char *) filename;
+  ret = SYSC_lchown (filename.48, D.40833, D.40832);
+  D.40835 = ret;
+  return D.40835;
+}
+
+
+SYSC_lchown (const char * filename, uid_t user, gid_t group)
+{
+  long int D.40837;
+
+  D.40837 = sys_fchownat (-100, filename, user, group, 256);
+  return D.40837;
+}
+
+
+SyS_fchown (long int fd, long int user, long int group)
+{
+  unsigned int D.40839;
+  unsigned int D.40840;
+  unsigned int D.40841;
+  long int D.40842;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39815;
+} struct struct 
+{
+  <unnamed-signed:0> D.39815;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39818;
+} struct struct 
+{
+  <unnamed-signed:0> D.39818;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39821;
+} struct struct 
+{
+  <unnamed-signed:0> D.39821;
+};
+
+  D.40839 = (unsigned int) group;
+  D.40840 = (unsigned int) user;
+  D.40841 = (unsigned int) fd;
+  ret = SYSC_fchown (D.40841, D.40840, D.40839);
+  D.40842 = ret;
+  return D.40842;
+}
+
+
+SYSC_fchown (unsigned int fd, uid_t user, gid_t group)
+{
+  struct file * D.40844;
+  struct dentry * D.40847;
+  struct path * D.40848;
+  long int D.40849;
+  struct fd f;
+  int error;
+  void out = <<< error >>>;
+  void out_fput = <<< error >>>;
+
+  try
+    {
+      f = fdget (fd);
+      error = -9;
+      D.40844 = f.file;
+      if (D.40844 == 0B) goto out; else goto <D.40845>;
+      <D.40845>:
+      D.40844 = f.file;
+      error = mnt_want_write_file (D.40844);
+      if (error != 0) goto out_fput; else goto <D.40846>;
+      <D.40846>:
+      D.40844 = f.file;
+      D.40847 = D.40844->f_path.dentry;
+      audit_inode (0B, D.40847, 0);
+      D.40844 = f.file;
+      D.40848 = &D.40844->f_path;
+      error = chown_common (D.40848, user, group);
+      D.40844 = f.file;
+      mnt_drop_write_file (D.40844);
+      out_fput:
+      fdput (f);
+      out:
+      D.40849 = (long int) error;
+      return D.40849;
+    }
+  finally
+    {
+      f = {CLOBBER};
+    }
+}
+
+
+open_check_o_direct (struct file * f)
+{
+  unsigned int D.40852;
+  unsigned int D.40853;
+  struct address_space * D.40858;
+  const struct address_space_operations * D.40859;
+  ssize_t (*<T460a>) (int, struct kiocb *, const struct iovec *, loff_t, long unsigned int) D.40861;
+  int (*<T460d>) (struct address_space *, long unsigned int, int, void * *, long unsigned int *) D.40863;
+  int D.40864;
+
+  D.40852 = f->f_flags;
+  D.40853 = D.40852 & 16384;
+  if (D.40853 != 0) goto <D.40854>; else goto <D.40855>;
+  <D.40854>:
+  D.40858 = f->f_mapping;
+  D.40859 = D.40858->a_ops;
+  if (D.40859 == 0B) goto <D.40856>; else goto <D.40860>;
+  <D.40860>:
+  D.40858 = f->f_mapping;
+  D.40859 = D.40858->a_ops;
+  D.40861 = D.40859->direct_IO;
+  if (D.40861 == 0B) goto <D.40862>; else goto <D.40857>;
+  <D.40862>:
+  D.40858 = f->f_mapping;
+  D.40859 = D.40858->a_ops;
+  D.40863 = D.40859->get_xip_mem;
+  if (D.40863 == 0B) goto <D.40856>; else goto <D.40857>;
+  <D.40856>:
+  D.40864 = -22;
+  return D.40864;
+  <D.40857>:
+  <D.40855>:
+  D.40864 = 0;
+  return D.40864;
+}
+
+
+finish_open (struct file * file, struct dentry * dentry, int (*<T4722>) (struct inode *, struct file *) open, int * opened)
+{
+  struct task_struct * D.40868;
+  char[16] * D.40869;
+  int D.40870;
+  struct task_struct * D.40872;
+  char[16] * D.40873;
+  int D.40874;
+  struct task_struct * D.40875;
+  char[16] * D.40876;
+  int D.40877;
+  int D.40878;
+  _Bool D.40879;
+  long int D.40880;
+  long int D.40881;
+  const struct cred * D.39865;
+  struct task_struct * iftmp.49;
+  struct task_struct * D.40888;
+  char[16] * D.40889;
+  int D.40890;
+  _Bool fs_start.50;
+  _Bool D.40893;
+  int D.40896;
+  int D.40897;
+  static const char __func__[12] = "finish_open";
+  int error;
+
+  D.40868 = get_current ();
+  D.40869 = &D.40868->comm;
+  D.40870 = my_strcmp (D.40869, "fs_kthread");
+  if (D.40870 == 0) goto <D.40866>; else goto <D.40871>;
+  <D.40871>:
+  D.40872 = get_current ();
+  D.40873 = &D.40872->comm;
+  D.40874 = my_strcmp (D.40873, "kernel_kthread");
+  if (D.40874 == 0) goto <D.40866>; else goto <D.40867>;
+  <D.40866>:
+  D.40875 = get_current ();
+  D.40876 = &D.40875->comm;
+  printk ("%s(): %s\n", &__func__, D.40876);
+  <D.40867>:
+  D.40877 = *opened;
+  D.40878 = D.40877 & 2;
+  D.40879 = D.40878 != 0;
+  D.40880 = (long int) D.40879;
+  D.40881 = __builtin_expect (D.40880, 0);
+  if (D.40881 != 0) goto <D.40882>; else goto <D.40883>;
+  <D.40882>:
+  __asm__ __volatile__("1:	ud2
+.pushsection __bug_table,"a"
+2:	.long 1b - 2b, %c0 - 2b
+	.word %c1, 0
+	.org 2b+%c2
+.popsection" :  : "i" "fs/open.c", "i" 793, "i" 12);
+  __builtin_unreachable ();
+  <D.40883>:
+  file->f_path.dentry = dentry;
+  {
+    {
+
+    }
+    D.40888 = get_current ();
+    D.40889 = &D.40888->comm;
+    D.40890 = my_strcmp_base (D.40889, "fs_kthread");
+    if (D.40890 != 0) goto <D.40885>; else goto <D.40891>;
+    <D.40891>:
+    fs_start.50 = fs_start;
+    D.40893 = ~fs_start.50;
+    if (D.40893 != 0) goto <D.40885>; else goto <D.40886>;
+    <D.40885>:
+    iftmp.49 = get_current ();
+    goto <D.40887>;
+    <D.40886>:
+    iftmp.49 = fs_temp;
+    <D.40887>:
+    D.39865 = iftmp.49->cred;
+  }
+  error = do_dentry_open (file, open, D.39865);
+  if (error == 0) goto <D.40894>; else goto <D.40895>;
+  <D.40894>:
+  D.40877 = *opened;
+  D.40896 = D.40877 | 2;
+  *opened = D.40896;
+  <D.40895>:
+  D.40897 = error;
+  return D.40897;
+}
+
+
+do_dentry_open (struct file * f, int (*<T4722>) (struct inode *, struct file *) open, const struct cred * cred)
+{
+  struct task_struct * D.40901;
+  char[16] * D.40902;
+  int D.40903;
+  struct task_struct * D.40905;
+  char[16] * D.40906;
+  int D.40907;
+  struct task_struct * D.40908;
+  char[16] * D.40909;
+  unsigned int D.40910;
+  unsigned int D.40911;
+  unsigned int D.40912;
+  unsigned int D.40913;
+  unsigned int D.40914;
+  unsigned int D.40915;
+  unsigned int D.40916;
+  _Bool D.40917;
+  long int D.40918;
+  long int D.40919;
+  struct path * D.40922;
+  struct dentry * D.40923;
+  struct inode * D.40924;
+  unsigned int D.40925;
+  unsigned int D.40926;
+  struct vfsmount * D.40929;
+  short unsigned int D.40931;
+  int D.40932;
+  int D.40933;
+  _Bool D.40934;
+  _Bool D.40935;
+  _Bool D.40936;
+  int D.40939;
+  struct address_space * D.40944;
+  unsigned int D.40945;
+  _Bool D.40946;
+  long int D.40947;
+  long int D.40948;
+  int D.40951;
+  const struct file_operations * iftmp.51;
+  const struct file_operations * D.40955;
+  struct module * D.40957;
+  _Bool D.40958;
+  long int D.39853;
+  const struct file_operations * D.40960;
+  _Bool D.40961;
+  _Bool D.40962;
+  long int D.40963;
+  long int D.40964;
+  _Bool D.40967;
+  long int D.40968;
+  long int D.40969;
+  struct task_struct * D.40972;
+  char[16] * D.40973;
+  int D.40974;
+  unsigned int D.40985;
+  unsigned int D.40988;
+  struct task_struct * D.40989;
+  char[16] * D.40990;
+  int D.40991;
+  struct address_space * D.40994;
+  struct inode * D.40995;
+  struct address_space * D.40996;
+  struct file_ra_state * D.40997;
+  int msqid_from_kernel_to_fs.52;
+  int msqid_from_fs_to_kernel.53;
+  struct module * D.41003;
+  int D.41006;
+  _Bool D.41007;
+  _Bool D.41008;
+  _Bool D.41009;
+  static const char __func__[15] = "do_dentry_open";
+  static const struct file_operations empty_fops = {};
+  struct inode * inode;
+  int error;
+  void cleanup_file = <<< error >>>;
+  void cleanup_all = <<< error >>>;
+
+  D.40901 = get_current ();
+  D.40902 = &D.40901->comm;
+  D.40903 = my_strcmp (D.40902, "fs_kthread");
+  if (D.40903 == 0) goto <D.40899>; else goto <D.40904>;
+  <D.40904>:
+  D.40905 = get_current ();
+  D.40906 = &D.40905->comm;
+  D.40907 = my_strcmp (D.40906, "kernel_kthread");
+  if (D.40907 == 0) goto <D.40899>; else goto <D.40900>;
+  <D.40899>:
+  D.40908 = get_current ();
+  D.40909 = &D.40908->comm;
+  printk ("%s(): %s\n", &__func__, D.40909);
+  <D.40900>:
+  D.40910 = f->f_flags;
+  D.40911 = D.40910 + 1;
+  D.40912 = D.40911 & 3;
+  D.40910 = f->f_flags;
+  D.40913 = D.40910 & 16777216;
+  D.40914 = D.40912 | D.40913;
+  D.40915 = D.40914 | 28;
+  f->f_mode = D.40915;
+  D.40910 = f->f_flags;
+  D.40916 = D.40910 & 2097152;
+  D.40917 = D.40916 != 0;
+  D.40918 = (long int) D.40917;
+  D.40919 = __builtin_expect (D.40918, 0);
+  if (D.40919 != 0) goto <D.40920>; else goto <D.40921>;
+  <D.40920>:
+  f->f_mode = 16384;
+  <D.40921>:
+  D.40922 = &f->f_path;
+  path_get (D.40922);
+  D.40923 = f->f_path.dentry;
+  D.40924 = D.40923->d_inode;
+  f->f_inode = D.40924;
+  inode = f->f_inode;
+  D.40925 = f->f_mode;
+  D.40926 = D.40925 & 2;
+  if (D.40926 != 0) goto <D.40927>; else goto <D.40928>;
+  <D.40927>:
+  D.40929 = f->f_path.mnt;
+  error = __get_file_write_access (inode, D.40929);
+  if (error != 0) goto cleanup_file; else goto <D.40930>;
+  <D.40930>:
+  D.40931 = inode->i_mode;
+  D.40932 = (int) D.40931;
+  D.40933 = D.40932 & 61440;
+  D.40934 = D.40933 != 8192;
+  D.40935 = D.40933 != 24576;
+  D.40936 = D.40934 & D.40935;
+  if (D.40936 != 0) goto <D.40937>; else goto <D.40938>;
+  <D.40937>:
+  D.40931 = inode->i_mode;
+  D.40932 = (int) D.40931;
+  D.40939 = D.40932 & 61440;
+  if (D.40939 != 4096) goto <D.40940>; else goto <D.40941>;
+  <D.40940>:
+  D.40931 = inode->i_mode;
+  D.40932 = (int) D.40931;
+  D.40939 = D.40932 & 61440;
+  if (D.40939 != 49152) goto <D.40942>; else goto <D.40943>;
+  <D.40942>:
+  file_take_write (f);
+  <D.40943>:
+  <D.40941>:
+  <D.40938>:
+  <D.40928>:
+  D.40944 = inode->i_mapping;
+  f->f_mapping = D.40944;
+  D.40925 = f->f_mode;
+  D.40945 = D.40925 & 16384;
+  D.40946 = D.40945 != 0;
+  D.40947 = (long int) D.40946;
+  D.40948 = __builtin_expect (D.40947, 0);
+  if (D.40948 != 0) goto <D.40949>; else goto <D.40950>;
+  <D.40949>:
+  f->f_op = &empty_fops;
+  D.40951 = 0;
+  return D.40951;
+  <D.40950>:
+  D.40955 = inode->i_fop;
+  if (D.40955 != 0B) goto <D.40956>; else goto <D.40953>;
+  <D.40956>:
+  D.40955 = inode->i_fop;
+  D.40957 = D.40955->owner;
+  D.40958 = try_module_get (D.40957);
+  if (D.40958 != 0) goto <D.40959>; else goto <D.40953>;
+  <D.40959>:
+  iftmp.51 = inode->i_fop;
+  goto <D.40954>;
+  <D.40953>:
+  iftmp.51 = 0B;
+  <D.40954>:
+  f->f_op = iftmp.51;
+  {
+    int __ret_warn_on;
+
+    D.40960 = f->f_op;
+    D.40961 = D.40960 == 0B;
+    __ret_warn_on = (int) D.40961;
+    {
+      D.40962 = __ret_warn_on != 0;
+      D.40963 = (long int) D.40962;
+      D.40964 = __builtin_expect (D.40963, 0);
+      if (D.40964 != 0) goto <D.40965>; else goto <D.40966>;
+      <D.40965>:
+      warn_slowpath_null ("fs/open.c", 709);
+      <D.40966>:
+    }
+    D.40962 = __ret_warn_on != 0;
+    D.40963 = (long int) D.40962;
+    D.39853 = __builtin_expect (D.40963, 0);
+  }
+  D.40967 = D.39853 != 0;
+  D.40968 = (long int) D.40967;
+  D.40969 = __builtin_expect (D.40968, 0);
+  if (D.40969 != 0) goto <D.40970>; else goto <D.40971>;
+  <D.40970>:
+  error = -19;
+  goto cleanup_all;
+  <D.40971>:
+  D.40972 = get_current ();
+  D.40973 = &D.40972->comm;
+  D.40974 = my_strcmp (D.40973, "fs_kthread");
+  if (D.40974 != 0) goto <D.40975>; else goto <D.40976>;
+  <D.40975>:
+  error = security_file_open (f, cred);
+  goto <D.40977>;
+  <D.40976>:
+  error = 0;
+  <D.40977>:
+  if (error != 0) goto cleanup_all; else goto <D.40978>;
+  <D.40978>:
+  D.40910 = f->f_flags;
+  error = break_lease (inode, D.40910);
+  if (error != 0) goto cleanup_all; else goto <D.40979>;
+  <D.40979>:
+  if (open == 0B) goto <D.40980>; else goto <D.40981>;
+  <D.40980>:
+  D.40960 = f->f_op;
+  open = D.40960->open;
+  <D.40981>:
+  if (open != 0B) goto <D.40982>; else goto <D.40983>;
+  <D.40982>:
+  error = open (inode, f);
+  if (error != 0) goto cleanup_all; else goto <D.40984>;
+  <D.40984>:
+  <D.40983>:
+  D.40925 = f->f_mode;
+  D.40985 = D.40925 & 3;
+  if (D.40985 == 1) goto <D.40986>; else goto <D.40987>;
+  <D.40986>:
+  i_readcount_inc (inode);
+  <D.40987>:
+  D.40910 = f->f_flags;
+  D.40988 = D.40910 & 4294966335;
+  f->f_flags = D.40988;
+  D.40989 = get_current ();
+  D.40990 = &D.40989->comm;
+  D.40991 = my_strcmp (D.40990, "fs_kthread");
+  if (D.40991 != 0) goto <D.40992>; else goto <D.40993>;
+  <D.40992>:
+  D.40994 = f->f_mapping;
+  D.40995 = D.40994->host;
+  D.40996 = D.40995->i_mapping;
+  D.40997 = &f->f_ra;
+  file_ra_state_init (D.40997, D.40996);
+  goto <D.40998>;
+  <D.40993>:
+  msqid_from_kernel_to_fs.52 = msqid_from_kernel_to_fs;
+  msqid_from_fs_to_kernel.53 = msqid_from_fs_to_kernel;
+  D.40994 = f->f_mapping;
+  D.40995 = D.40994->host;
+  D.40996 = D.40995->i_mapping;
+  D.40997 = &f->f_ra;
+  msg_file_ra_state_init (D.40997, D.40996, msqid_from_fs_to_kernel.53, msqid_from_kernel_to_fs.52);
+  <D.40998>:
+  D.40951 = 0;
+  return D.40951;
+  cleanup_all:
+  D.40960 = f->f_op;
+  if (D.40960 != 0B) goto <D.41001>; else goto <D.41002>;
+  <D.41001>:
+  D.40960 = f->f_op;
+  D.41003 = D.40960->owner;
+  module_put (D.41003);
+  <D.41002>:
+  D.40925 = f->f_mode;
+  D.40926 = D.40925 & 2;
+  if (D.40926 != 0) goto <D.41004>; else goto <D.41005>;
+  <D.41004>:
+  put_write_access (inode);
+  D.40931 = inode->i_mode;
+  D.40932 = (int) D.40931;
+  D.41006 = D.40932 & 61440;
+  D.41007 = D.41006 != 8192;
+  D.41008 = D.41006 != 24576;
+  D.41009 = D.41007 & D.41008;
+  if (D.41009 != 0) goto <D.41010>; else goto <D.41011>;
+  <D.41010>:
+  D.40931 = inode->i_mode;
+  D.40932 = (int) D.40931;
+  D.40939 = D.40932 & 61440;
+  if (D.40939 != 4096) goto <D.41012>; else goto <D.41013>;
+  <D.41012>:
+  D.40931 = inode->i_mode;
+  D.40932 = (int) D.40931;
+  D.40939 = D.40932 & 61440;
+  if (D.40939 != 49152) goto <D.41014>; else goto <D.41015>;
+  <D.41014>:
+  file_reset_write (f);
+  D.40929 = f->f_path.mnt;
+  __mnt_drop_write (D.40929);
+  <D.41015>:
+  <D.41013>:
+  <D.41011>:
+  <D.41005>:
+  cleanup_file:
+  D.40922 = &f->f_path;
+  path_put (D.40922);
+  f->f_path.mnt = 0B;
+  f->f_path.dentry = 0B;
+  f->f_inode = 0B;
+  D.40951 = error;
+  return D.40951;
+}
+
+
+__get_file_write_access (struct inode * inode, struct vfsmount * mnt)
+{
+  int D.41019;
+  short unsigned int D.41020;
+  int D.41021;
+  int D.41022;
+  _Bool D.41023;
+  _Bool D.41024;
+  _Bool D.41025;
+  int D.41028;
+  int error;
+
+  error = get_write_access (inode);
+  if (error != 0) goto <D.41017>; else goto <D.41018>;
+  <D.41017>:
+  D.41019 = error;
+  return D.41019;
+  <D.41018>:
+  D.41020 = inode->i_mode;
+  D.41021 = (int) D.41020;
+  D.41022 = D.41021 & 61440;
+  D.41023 = D.41022 != 8192;
+  D.41024 = D.41022 != 24576;
+  D.41025 = D.41023 & D.41024;
+  if (D.41025 != 0) goto <D.41026>; else goto <D.41027>;
+  <D.41026>:
+  D.41020 = inode->i_mode;
+  D.41021 = (int) D.41020;
+  D.41028 = D.41021 & 61440;
+  if (D.41028 != 4096) goto <D.41029>; else goto <D.41030>;
+  <D.41029>:
+  D.41020 = inode->i_mode;
+  D.41021 = (int) D.41020;
+  D.41028 = D.41021 & 61440;
+  if (D.41028 != 49152) goto <D.41031>; else goto <D.41032>;
+  <D.41031>:
+  error = __mnt_want_write (mnt);
+  if (error != 0) goto <D.41033>; else goto <D.41034>;
+  <D.41033>:
+  put_write_access (inode);
+  <D.41034>:
+  <D.41032>:
+  <D.41030>:
+  <D.41027>:
+  D.41019 = error;
+  return D.41019;
+}
+
+
+file_take_write (struct file * filp)
+{
+
+}
+
+
+i_readcount_inc (struct inode * inode)
+{
+  struct atomic_t * D.41036;
+
+  D.41036 = &inode->i_readcount;
+  atomic_inc (D.41036);
+}
+
+
+atomic_inc (struct atomic_t * v)
+{
+  __asm__ __volatile__(".pushsection .smp_locks,"a"
+.balign 4
+.long 671f - .
+.popsection
+671:
+	lock; incl %0" : "=m" v->counter : "m" v->counter);
+}
+
+
+file_reset_write (struct file * filp)
+{
+
+}
+
+
+finish_no_open (struct file * file, struct dentry * dentry)
+{
+  int D.41037;
+
+  file->f_path.dentry = dentry;
+  D.41037 = 1;
+  return D.41037;
+}
+
+
+dentry_open (const struct path * path, int flags, const struct cred * cred)
+{
+  struct vfsmount * D.41039;
+  _Bool D.41040;
+  long int D.41041;
+  long int D.41042;
+  long int D.41045;
+  unsigned int flags.54;
+  long int D.41053;
+  struct file * D.41055;
+  int error;
+  struct file * f;
+
+  validate_creds (cred);
+  D.41039 = path->mnt;
+  D.41040 = D.41039 == 0B;
+  D.41041 = (long int) D.41040;
+  D.41042 = __builtin_expect (D.41041, 0);
+  if (D.41042 != 0) goto <D.41043>; else goto <D.41044>;
+  <D.41043>:
+  __asm__ __volatile__("1:	ud2
+.pushsection __bug_table,"a"
+2:	.long 1b - 2b, %c0 - 2b
+	.word %c1, 0
+	.org 2b+%c2
+.popsection" :  : "i" "fs/open.c", "i" 834, "i" 12);
+  __builtin_unreachable ();
+  <D.41044>:
+  f = get_empty_filp ();
+  D.41045 = IS_ERR (f);
+  if (D.41045 == 0) goto <D.41046>; else goto <D.41047>;
+  <D.41046>:
+  flags.54 = (unsigned int) flags;
+  f->f_flags = flags.54;
+  f->f_path = *path;
+  error = do_dentry_open (f, 0B, cred);
+  if (error == 0) goto <D.41049>; else goto <D.41050>;
+  <D.41049>:
+  error = open_check_o_direct (f);
+  if (error != 0) goto <D.41051>; else goto <D.41052>;
+  <D.41051>:
+  fput (f);
+  D.41053 = (long int) error;
+  f = ERR_PTR (D.41053);
+  <D.41052>:
+  goto <D.41054>;
+  <D.41050>:
+  put_filp (f);
+  D.41053 = (long int) error;
+  f = ERR_PTR (D.41053);
+  <D.41054>:
+  <D.41047>:
+  D.41055 = f;
+  return D.41055;
+}
+
+
+IS_ERR (const void * ptr)
+{
+  long int D.41057;
+  long unsigned int ptr.55;
+  _Bool D.41059;
+  long int D.41060;
+
+  ptr.55 = (long unsigned int) ptr;
+  D.41059 = ptr.55 > 18446744073709547520;
+  D.41060 = (long int) D.41059;
+  D.41057 = __builtin_expect (D.41060, 0);
+  return D.41057;
+}
+
+
+ERR_PTR (long int error)
+{
+  void * D.41062;
+
+  D.41062 = (void *) error;
+  return D.41062;
+}
+
+
+file_open_name (struct filename * name, int flags, umode_t mode)
+{
+  int D.41064;
+  struct file * D.41065;
+  struct file * iftmp.56;
+  long int D.41069;
+  struct open_flags op;
+  int err;
+
+  try
+    {
+      D.41064 = (int) mode;
+      err = build_open_flags (flags, D.41064, &op);
+      if (err != 0) goto <D.41067>; else goto <D.41068>;
+      <D.41067>:
+      D.41069 = (long int) err;
+      iftmp.56 = ERR_PTR (D.41069);
+      goto <D.41070>;
+      <D.41068>:
+      iftmp.56 = do_filp_open (-100, name, &op);
+      <D.41070>:
+      D.41065 = iftmp.56;
+      return D.41065;
+    }
+  finally
+    {
+      op = {CLOBBER};
+    }
+}
+
+
+build_open_flags (int flags, umode_t mode, struct open_flags * op)
+{
+  int D.41073;
+  signed short mode.57;
+  signed short D.41077;
+  signed short D.41078;
+  short unsigned int D.41079;
+  int D.41081;
+  int D.41084;
+  int D.41087;
+  int D.41090;
+  int D.41091;
+  char D.41092;
+  signed char D.41093;
+  int D.41094;
+  int D.41098;
+  int D.41102;
+  int D.41105;
+  int iftmp.58;
+  int D.41112;
+  int D.41115;
+  int D.41116;
+  int D.41117;
+  int D.41120;
+  int D.41121;
+  int D.41124;
+  int lookup_flags;
+  int acc_mode;
+
+  lookup_flags = 0;
+  D.41073 = flags & 4194368;
+  if (D.41073 != 0) goto <D.41074>; else goto <D.41075>;
+  <D.41074>:
+  mode.57 = (signed short) mode;
+  D.41077 = mode.57 & 4095;
+  D.41078 = D.41077 | -32768;
+  D.41079 = (short unsigned int) D.41078;
+  op->mode = D.41079;
+  goto <D.41080>;
+  <D.41075>:
+  op->mode = 0;
+  <D.41080>:
+  flags = flags & -17301505;
+  D.41081 = flags & 1048576;
+  if (D.41081 != 0) goto <D.41082>; else goto <D.41083>;
+  <D.41082>:
+  flags = flags | 4096;
+  <D.41083>:
+  D.41084 = flags & 4194304;
+  if (D.41084 != 0) goto <D.41085>; else goto <D.41086>;
+  <D.41085>:
+  D.41087 = flags & 4259904;
+  if (D.41087 != 4259840) goto <D.41088>; else goto <D.41089>;
+  <D.41088>:
+  D.41090 = -22;
+  return D.41090;
+  <D.41089>:
+  D.41091 = flags & 3;
+  D.41092 = "\4\2\6\6"[D.41091];
+  D.41093 = D.41092 | 32;
+  acc_mode = (int) D.41093;
+  D.41094 = acc_mode & 2;
+  if (D.41094 == 0) goto <D.41095>; else goto <D.41096>;
+  <D.41095>:
+  D.41090 = -22;
+  return D.41090;
+  <D.41096>:
+  goto <D.41097>;
+  <D.41086>:
+  D.41098 = flags & 2097152;
+  if (D.41098 != 0) goto <D.41099>; else goto <D.41100>;
+  <D.41099>:
+  flags = flags & 2293760;
+  acc_mode = 0;
+  goto <D.41101>;
+  <D.41100>:
+  D.41091 = flags & 3;
+  D.41092 = "\4\2\6\6"[D.41091];
+  D.41093 = D.41092 | 32;
+  acc_mode = (int) D.41093;
+  <D.41101>:
+  <D.41097>:
+  op->open_flag = flags;
+  D.41102 = flags & 512;
+  if (D.41102 != 0) goto <D.41103>; else goto <D.41104>;
+  <D.41103>:
+  acc_mode = acc_mode | 2;
+  <D.41104>:
+  D.41105 = flags & 1024;
+  if (D.41105 != 0) goto <D.41106>; else goto <D.41107>;
+  <D.41106>:
+  acc_mode = acc_mode | 8;
+  <D.41107>:
+  op->acc_mode = acc_mode;
+  D.41098 = flags & 2097152;
+  if (D.41098 != 0) goto <D.41109>; else goto <D.41110>;
+  <D.41109>:
+  iftmp.58 = 0;
+  goto <D.41111>;
+  <D.41110>:
+  iftmp.58 = 256;
+  <D.41111>:
+  op->intent = iftmp.58;
+  D.41112 = flags & 64;
+  if (D.41112 != 0) goto <D.41113>; else goto <D.41114>;
+  <D.41113>:
+  D.41115 = op->intent;
+  D.41116 = D.41115 | 512;
+  op->intent = D.41116;
+  D.41117 = flags & 128;
+  if (D.41117 != 0) goto <D.41118>; else goto <D.41119>;
+  <D.41118>:
+  D.41115 = op->intent;
+  D.41120 = D.41115 | 1024;
+  op->intent = D.41120;
+  <D.41119>:
+  <D.41114>:
+  D.41121 = flags & 65536;
+  if (D.41121 != 0) goto <D.41122>; else goto <D.41123>;
+  <D.41122>:
+  lookup_flags = lookup_flags | 2;
+  <D.41123>:
+  D.41124 = flags & 131072;
+  if (D.41124 == 0) goto <D.41125>; else goto <D.41126>;
+  <D.41125>:
+  lookup_flags = lookup_flags | 1;
+  <D.41126>:
+  op->lookup_flags = lookup_flags;
+  D.41090 = 0;
+  return D.41090;
+}
+
+
+filp_open (const char * filename, int flags, umode_t mode)
+{
+  struct file * D.41128;
+  int D.41129;
+  struct filename name;
+
+  try
+    {
+      name = {};
+      name.name = filename;
+      D.41129 = (int) mode;
+      D.41128 = file_open_name (&name, flags, D.41129);
+      return D.41128;
+    }
+  finally
+    {
+      name = {CLOBBER};
+    }
+}
+
+
+file_open_root (struct dentry * dentry, struct vfsmount * mnt, const char * filename, int flags)
+{
+  struct file * D.41134;
+  long int D.41135;
+  int D.41136;
+  int D.41141;
+  struct inode * D.41144;
+  const struct inode_operations * D.41145;
+  struct dentry * (*<T474a>) (struct inode *, struct dentry *, unsigned int) D.41146;
+  struct open_flags op;
+  int err;
+
+  try
+    {
+      err = build_open_flags (flags, 0, &op);
+      if (err != 0) goto <D.41132>; else goto <D.41133>;
+      <D.41132>:
+      D.41135 = (long int) err;
+      D.41134 = ERR_PTR (D.41135);
+      return D.41134;
+      <D.41133>:
+      D.41136 = flags & 64;
+      if (D.41136 != 0) goto <D.41137>; else goto <D.41138>;
+      <D.41137>:
+      D.41134 = ERR_PTR (-22);
+      return D.41134;
+      <D.41138>:
+      if (filename == 0B) goto <D.41139>; else goto <D.41140>;
+      <D.41139>:
+      D.41141 = flags & 65536;
+      if (D.41141 != 0) goto <D.41142>; else goto <D.41143>;
+      <D.41142>:
+      D.41144 = dentry->d_inode;
+      D.41145 = D.41144->i_op;
+      D.41146 = D.41145->lookup;
+      if (D.41146 == 0B) goto <D.41147>; else goto <D.41148>;
+      <D.41147>:
+      D.41134 = ERR_PTR (-20);
+      return D.41134;
+      <D.41148>:
+      <D.41143>:
+      <D.41140>:
+      D.41134 = do_file_open_root (dentry, mnt, filename, &op);
+      return D.41134;
+    }
+  finally
+    {
+      op = {CLOBBER};
+    }
+}
+
+
+do_sys_open (int dfd, const char * filename, int flags, umode_t mode)
+{
+  struct task_struct * D.41153;
+  char[16] * D.41154;
+  int D.41155;
+  struct task_struct * D.41157;
+  char[16] * D.41158;
+  int D.41159;
+  struct task_struct * D.41160;
+  char[16] * D.41161;
+  int D.41162;
+  long int D.41165;
+  long int D.41166;
+  unsigned int flags.59;
+  struct task_struct * D.41172;
+  char[16] * D.41173;
+  int D.41174;
+  long int D.41177;
+  long int D.41178;
+  long int D.41179;
+  long int D.41180;
+  long int D.41181;
+  unsigned int fd.60;
+  long int D.41185;
+  long int D.41187;
+  long int D.41188;
+  long int D.41189;
+  struct task_struct * D.41190;
+  char[16] * D.41191;
+  int D.41192;
+  static const char __func__[12] = "do_sys_open";
+  struct timespec tpstart;
+  struct timespec tpend;
+  long int timeuse;
+  struct open_flags op;
+  int fd;
+  struct filename * tmp;
+
+  try
+    {
+      D.41153 = get_current ();
+      D.41154 = &D.41153->comm;
+      D.41155 = my_strcmp (D.41154, "fs_kthread");
+      if (D.41155 == 0) goto <D.41151>; else goto <D.41156>;
+      <D.41156>:
+      D.41157 = get_current ();
+      D.41158 = &D.41157->comm;
+      D.41159 = my_strcmp (D.41158, "kernel_kthread");
+      if (D.41159 == 0) goto <D.41151>; else goto <D.41152>;
+      <D.41151>:
+      D.41160 = get_current ();
+      D.41161 = &D.41160->comm;
+      printk ("%s(): %s\n", &__func__, D.41161);
+      <D.41152>:
+      getnstimeofday (&tpstart);
+      D.41162 = (int) mode;
+      fd = build_open_flags (flags, D.41162, &op);
+      if (fd != 0) goto <D.41163>; else goto <D.41164>;
+      <D.41163>:
+      D.41165 = (long int) fd;
+      return D.41165;
+      <D.41164>:
+      tmp = getname (filename);
+      D.41166 = IS_ERR (tmp);
+      if (D.41166 != 0) goto <D.41167>; else goto <D.41168>;
+      <D.41167>:
+      D.41165 = PTR_ERR (tmp);
+      return D.41165;
+      <D.41168>:
+      flags.59 = (unsigned int) flags;
+      fd = get_unused_fd_flags (flags.59);
+      if (fd >= 0) goto <D.41170>; else goto <D.41171>;
+      <D.41170>:
+      {
+        struct file * f;
+
+        tpstart = current_kernel_time ();
+        f = do_filp_open (dfd, tmp, &op);
+        tpend = current_kernel_time ();
+        D.41172 = get_current ();
+        D.41173 = &D.41172->comm;
+        D.41174 = my_strcmp (D.41173, "fs_kthread");
+        if (D.41174 == 0) goto <D.41175>; else goto <D.41176>;
+        <D.41175>:
+        D.41177 = tpstart.tv_nsec;
+        D.41178 = tpstart.tv_sec;
+        D.41179 = tpend.tv_nsec;
+        D.41180 = tpend.tv_sec;
+        printk ("do_filp_open() cost %ld:%ld - %ld:%ld\n", D.41180, D.41179, D.41178, D.41177);
+        <D.41176>:
+        D.41181 = IS_ERR (f);
+        if (D.41181 != 0) goto <D.41182>; else goto <D.41183>;
+        <D.41182>:
+        fd.60 = (unsigned int) fd;
+        put_unused_fd (fd.60);
+        D.41185 = PTR_ERR (f);
+        fd = (int) D.41185;
+        goto <D.41186>;
+        <D.41183>:
+        fsnotify_open (f);
+        fd.60 = (unsigned int) fd;
+        fd_install (fd.60, f);
+        <D.41186>:
+      }
+      <D.41171>:
+      putname (tmp);
+      getnstimeofday (&tpend);
+      D.41180 = tpend.tv_sec;
+      D.41178 = tpstart.tv_sec;
+      D.41187 = D.41180 - D.41178;
+      D.41188 = D.41187 * 1000000000;
+      D.41179 = tpend.tv_nsec;
+      D.41177 = tpstart.tv_nsec;
+      D.41189 = D.41179 - D.41177;
+      timeuse = D.41188 + D.41189;
+      D.41190 = get_current ();
+      D.41191 = &D.41190->comm;
+      D.41192 = my_strcmp (D.41191, "fs_kthread");
+      if (D.41192 == 0) goto <D.41193>; else goto <D.41194>;
+      <D.41193>:
+      printk ("do_sys_open() cost %ld\n", timeuse);
+      <D.41194>:
+      D.41165 = (long int) fd;
+      return D.41165;
+    }
+  finally
+    {
+      tpstart = {CLOBBER};
+      tpend = {CLOBBER};
+      op = {CLOBBER};
+    }
+}
+
+
+PTR_ERR (const void * ptr)
+{
+  long int D.41197;
+
+  D.41197 = (long int) ptr;
+  return D.41197;
+}
+
+
+fsnotify_open (struct file * file)
+{
+  short unsigned int D.41199;
+  int D.41200;
+  int D.41201;
+  struct path * path;
+  struct inode * inode;
+  __u32 mask;
+
+  path = &file->f_path;
+  inode = file_inode (file);
+  mask = 32;
+  D.41199 = inode->i_mode;
+  D.41200 = (int) D.41199;
+  D.41201 = D.41200 & 61440;
+  if (D.41201 == 16384) goto <D.41202>; else goto <D.41203>;
+  <D.41202>:
+  mask = mask | 1073741824;
+  <D.41203>:
+  fsnotify_parent (path, 0B, mask);
+  fsnotify (inode, mask, path, 1, 0B, 0);
+}
+
+
+fsnotify_parent (struct path * path, struct dentry * dentry, __u32 mask)
+{
+  int D.41206;
+
+  if (dentry == 0B) goto <D.41204>; else goto <D.41205>;
+  <D.41204>:
+  dentry = path->dentry;
+  <D.41205>:
+  D.41206 = __fsnotify_parent (path, dentry, mask);
+  return D.41206;
+}
+
+
+SyS_open (long int filename, long int flags, long int mode)
+{
+  short unsigned int D.41208;
+  int D.41209;
+  int D.41210;
+  const char * filename.61;
+  long int D.41212;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.39989;
+} struct struct 
+{
+  <unnamed-signed:0> D.39989;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39992;
+} struct struct 
+{
+  <unnamed-signed:0> D.39992;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.39995;
+} struct struct 
+{
+  <unnamed-signed:0> D.39995;
+};
+
+  D.41208 = (short unsigned int) mode;
+  D.41209 = (int) D.41208;
+  D.41210 = (int) flags;
+  filename.61 = (const char *) filename;
+  ret = SYSC_open (filename.61, D.41210, D.41209);
+  D.41212 = ret;
+  return D.41212;
+}
+
+
+SYSC_open (const char * filename, int flags, umode_t mode)
+{
+  long int D.41216;
+  int D.41217;
+
+  if (1 != 0) goto <D.41214>; else goto <D.41215>;
+  <D.41214>:
+  flags = flags | 32768;
+  <D.41215>:
+  D.41217 = (int) mode;
+  D.41216 = do_sys_open (-100, filename, flags, D.41217);
+  return D.41216;
+}
+
+
+SyS_openat (long int dfd, long int filename, long int flags, long int mode)
+{
+  short unsigned int D.41219;
+  int D.41220;
+  int D.41221;
+  const char * filename.62;
+  int D.41223;
+  long int D.41224;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.40035;
+} struct struct 
+{
+  <unnamed-signed:0> D.40035;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.40038;
+} struct struct 
+{
+  <unnamed-signed:0> D.40038;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.40041;
+} struct struct 
+{
+  <unnamed-signed:0> D.40041;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.40044;
+} struct struct 
+{
+  <unnamed-signed:0> D.40044;
+};
+
+  D.41219 = (short unsigned int) mode;
+  D.41220 = (int) D.41219;
+  D.41221 = (int) flags;
+  filename.62 = (const char *) filename;
+  D.41223 = (int) dfd;
+  ret = SYSC_openat (D.41223, filename.62, D.41221, D.41220);
+  D.41224 = ret;
+  return D.41224;
+}
+
+
+SYSC_openat (int dfd, const char * filename, int flags, umode_t mode)
+{
+  long int D.41228;
+  int D.41229;
+
+  if (1 != 0) goto <D.41226>; else goto <D.41227>;
+  <D.41226>:
+  flags = flags | 32768;
+  <D.41227>:
+  D.41229 = (int) mode;
+  D.41228 = do_sys_open (dfd, filename, flags, D.41229);
+  return D.41228;
+}
+
+
+SyS_creat (long int pathname, long int mode)
+{
+  short unsigned int D.41231;
+  int D.41232;
+  const char * pathname.63;
+  long int D.41234;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.40077;
+} struct struct 
+{
+  <unnamed-signed:0> D.40077;
+};
+  typedef struct 
+{
+  <unnamed-signed:0> D.40080;
+} struct struct 
+{
+  <unnamed-signed:0> D.40080;
+};
+
+  D.41231 = (short unsigned int) mode;
+  D.41232 = (int) D.41231;
+  pathname.63 = (const char *) pathname;
+  ret = SYSC_creat (pathname.63, D.41232);
+  D.41234 = ret;
+  return D.41234;
+}
+
+
+SYSC_creat (const char * pathname, umode_t mode)
+{
+  long int D.41236;
+  int D.41237;
+
+  D.41237 = (int) mode;
+  D.41236 = sys_open (pathname, 577, D.41237);
+  return D.41236;
+}
+
+
+filp_close (struct file * filp, struct files_struct * id)
+{
+  struct atomic_long_t * D.41239;
+  long int D.41240;
+  int D.41243;
+  const struct file_operations * D.41244;
+  int (*<T4725>) (struct file *, struct files_struct *) D.41245;
+  unsigned int D.41248;
+  unsigned int D.41249;
+  _Bool D.41250;
+  long int D.41251;
+  long int D.41252;
+  int retval;
+
+  retval = 0;
+  D.41239 = &filp->f_count;
+  D.41240 = atomic_long_read (D.41239);
+  if (D.41240 == 0) goto <D.41241>; else goto <D.41242>;
+  <D.41241>:
+  printk ("\13VFS: Close: file count is 0\n");
+  D.41243 = 0;
+  return D.41243;
+  <D.41242>:
+  D.41244 = filp->f_op;
+  D.41245 = D.41244->flush;
+  if (D.41245 != 0B) goto <D.41246>; else goto <D.41247>;
+  <D.41246>:
+  D.41244 = filp->f_op;
+  D.41245 = D.41244->flush;
+  retval = D.41245 (filp, id);
+  <D.41247>:
+  D.41248 = filp->f_mode;
+  D.41249 = D.41248 & 16384;
+  D.41250 = D.41249 == 0;
+  D.41251 = (long int) D.41250;
+  D.41252 = __builtin_expect (D.41251, 1);
+  if (D.41252 != 0) goto <D.41253>; else goto <D.41254>;
+  <D.41253>:
+  dnotify_flush (filp, id);
+  locks_remove_posix (filp, id);
+  <D.41254>:
+  fput (filp);
+  D.41243 = retval;
+  return D.41243;
+}
+
+
+atomic_long_read (struct atomic_long_t * l)
+{
+  long int D.41256;
+  struct atomic64_t * v;
+
+  v = l;
+  D.41256 = atomic64_read (v);
+  return D.41256;
+}
+
+
+atomic64_read (const struct atomic64_t * v)
+{
+  long int D.41258;
+  const long int * D.41259;
+
+  D.41259 = &v->counter;
+  D.41258 = MEM[(volatile long int *)D.41259];
+  return D.41258;
+}
+
+
+SyS_close (long int fd)
+{
+  unsigned int D.41261;
+  long int D.41262;
+  long int ret;
+  typedef struct 
+{
+  <unnamed-signed:0> D.40119;
+} struct struct 
+{
+  <unnamed-signed:0> D.40119;
+};
+
+  D.41261 = (unsigned int) fd;
+  ret = SYSC_close (D.41261);
+  D.41262 = ret;
+  return D.41262;
+}
+
+
+SYSC_close (unsigned int fd)
+{
+  struct task_struct * iftmp.64;
+  struct task_struct * D.41268;
+  char[16] * D.41269;
+  int D.41270;
+  _Bool fs_start.65;
+  _Bool D.41273;
+  struct files_struct * D.41274;
+  unsigned int retval.66;
+  unsigned int D.41278;
+  _Bool D.41279;
+  long int D.41280;
+  long int D.41281;
+  _Bool D.41283;
+  _Bool D.41284;
+  _Bool D.41285;
+  long int D.41286;
+  long int D.41287;
+  long int D.41288;
+  int retval;
+
+  D.41268 = get_current ();
+  D.41269 = &D.41268->comm;
+  D.41270 = my_strcmp_base (D.41269, "fs_kthread");
+  if (D.41270 != 0) goto <D.41265>; else goto <D.41271>;
+  <D.41271>:
+  fs_start.65 = fs_start;
+  D.41273 = ~fs_start.65;
+  if (D.41273 != 0) goto <D.41265>; else goto <D.41266>;
+  <D.41265>:
+  iftmp.64 = get_current ();
+  goto <D.41267>;
+  <D.41266>:
+  iftmp.64 = fs_temp;
+  <D.41267>:
+  D.41274 = iftmp.64->files;
+  retval = __close_fd (D.41274, fd);
+  retval.66 = (unsigned int) retval;
+  D.41278 = retval.66 + 513;
+  D.41279 = D.41278 <= 1;
+  D.41280 = (long int) D.41279;
+  D.41281 = __builtin_expect (D.41280, 0);
+  if (D.41281 != 0) goto <D.41275>; else goto <D.41282>;
+  <D.41282>:
+  D.41283 = retval == -514;
+  D.41284 = retval == -516;
+  D.41285 = D.41283 | D.41284;
+  D.41286 = (long int) D.41285;
+  D.41287 = __builtin_expect (D.41286, 0);
+  if (D.41287 != 0) goto <D.41275>; else goto <D.41276>;
+  <D.41275>:
+  retval = -4;
+  <D.41276>:
+  D.41288 = (long int) retval;
+  return D.41288;
+}
+
+
+sys_vhangup ()
+{
+  _Bool D.41290;
+  long int D.41293;
+
+  D.41290 = capable (26);
+  if (D.41290 != 0) goto <D.41291>; else goto <D.41292>;
+  <D.41291>:
+  tty_vhangup_self ();
+  D.41293 = 0;
+  return D.41293;
+  <D.41292>:
+  D.41293 = -1;
+  return D.41293;
+}
+
+
+generic_file_open (struct inode * inode, struct file * filp)
+{
+  unsigned int D.41295;
+  unsigned int D.41296;
+  long long int D.41299;
+  long long unsigned int D.41300;
+  int D.41303;
+
+  D.41295 = filp->f_flags;
+  D.41296 = D.41295 & 32768;
+  if (D.41296 == 0) goto <D.41297>; else goto <D.41298>;
+  <D.41297>:
+  D.41299 = i_size_read (inode);
+  D.41300 = (long long unsigned int) D.41299;
+  if (D.41300 > 2147483647) goto <D.41301>; else goto <D.41302>;
+  <D.41301>:
+  D.41303 = -75;
+  return D.41303;
+  <D.41302>:
+  <D.41298>:
+  D.41303 = 0;
+  return D.41303;
+}
+
+
+i_size_read (const struct inode * inode)
+{
+  loff_t D.41305;
+
+  D.41305 = inode->i_size;
+  return D.41305;
+}
+
+
+nonseekable_open (struct inode * inode, struct file * filp)
+{
+  unsigned int D.41307;
+  unsigned int D.41308;
+  int D.41309;
+
+  D.41307 = filp->f_mode;
+  D.41308 = D.41307 & 4294967267;
+  filp->f_mode = D.41308;
+  D.41309 = 0;
+  return D.41309;
+}
+
+

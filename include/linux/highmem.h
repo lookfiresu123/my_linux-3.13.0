@@ -9,6 +9,7 @@
 #include <linux/hardirq.h>
 
 #include <asm/cacheflush.h>
+#include <linux/interactive_design.h>
 
 #ifndef ARCH_HAS_FLUSH_ANON_PAGE
 static inline void flush_anon_page(struct vm_area_struct *vma, struct page *page, unsigned long vmaddr)
@@ -193,6 +194,7 @@ static inline void zero_user_segments(struct page *page,
 	unsigned start1, unsigned end1,
 	unsigned start2, unsigned end2)
 {
+  MY_PRINTK(get_current()->comm);
 	void *kaddr = kmap_atomic(page);
 
 	BUG_ON(end1 > PAGE_SIZE || end2 > PAGE_SIZE);
@@ -216,6 +218,7 @@ static inline void zero_user_segment(struct page *page,
 static inline void zero_user(struct page *page,
 	unsigned start, unsigned size)
 {
+  MY_PRINTK(get_current()->comm);
 	zero_user_segments(page, start, start + size, 0, 0);
 }
 

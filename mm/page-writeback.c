@@ -356,9 +356,7 @@ bool zone_dirty_ok(struct zone *zone)
 	       zone_page_state(zone, NR_WRITEBACK) <= limit;
 }
 
-int dirty_background_ratio_handler(struct ctl_table *table, int write,
-		void __user *buffer, size_t *lenp,
-		loff_t *ppos)
+int dirty_background_ratio_handler(struct ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
 {
 	int ret;
 
@@ -368,9 +366,7 @@ int dirty_background_ratio_handler(struct ctl_table *table, int write,
 	return ret;
 }
 
-int dirty_background_bytes_handler(struct ctl_table *table, int write,
-		void __user *buffer, size_t *lenp,
-		loff_t *ppos)
+int dirty_background_bytes_handler(struct ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
 {
 	int ret;
 
@@ -380,9 +376,7 @@ int dirty_background_bytes_handler(struct ctl_table *table, int write,
 	return ret;
 }
 
-int dirty_ratio_handler(struct ctl_table *table, int write,
-		void __user *buffer, size_t *lenp,
-		loff_t *ppos)
+int dirty_ratio_handler(struct ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
 {
 	int old_ratio = vm_dirty_ratio;
 	int ret;
@@ -395,9 +389,7 @@ int dirty_ratio_handler(struct ctl_table *table, int write,
 	return ret;
 }
 
-int dirty_bytes_handler(struct ctl_table *table, int write,
-		void __user *buffer, size_t *lenp,
-		loff_t *ppos)
+int dirty_bytes_handler(struct ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
 {
 	unsigned long old_bytes = vm_dirty_bytes;
 	int ret;
@@ -454,11 +446,9 @@ EXPORT_SYMBOL_GPL(bdi_writeout_inc);
 /*
  * Obtain an accurate fraction of the BDI's portion.
  */
-static void bdi_writeout_fraction(struct backing_dev_info *bdi,
-		long *numerator, long *denominator)
+static void bdi_writeout_fraction(struct backing_dev_info *bdi, long *numerator, long *denominator)
 {
-	fprop_fraction_percpu(&writeout_completions, &bdi->completions,
-				numerator, denominator);
+	fprop_fraction_percpu(&writeout_completions, &bdi->completions, numerator, denominator);
 }
 
 /*
@@ -531,8 +521,7 @@ int bdi_set_max_ratio(struct backing_dev_info *bdi, unsigned max_ratio)
 }
 EXPORT_SYMBOL(bdi_set_max_ratio);
 
-static unsigned long dirty_freerun_ceiling(unsigned long thresh,
-					   unsigned long bg_thresh)
+static unsigned long dirty_freerun_ceiling(unsigned long thresh, unsigned long bg_thresh)
 {
 	return (thresh + bg_thresh) / 2;
 }
@@ -599,9 +588,7 @@ unsigned long bdi_dirty_limit(struct backing_dev_info *bdi, unsigned long dirty)
  * (5) the closer to setpoint, the smaller |df/dx| (and the reverse)
  *     => fast response on large errors; small oscillation near setpoint
  */
-static inline long long pos_ratio_polynom(unsigned long setpoint,
-					  unsigned long dirty,
-					  unsigned long limit)
+static inline long long pos_ratio_polynom(unsigned long setpoint, unsigned long dirty, unsigned long limit)
 {
 	long long pos_ratio;
 	long x;
@@ -691,12 +678,7 @@ static inline long long pos_ratio_polynom(unsigned long setpoint,
  *   card's bdi_dirty may rush to many times higher than bdi_setpoint.
  * - the bdi dirty thresh drops quickly due to change of JBOD workload
  */
-static unsigned long bdi_position_ratio(struct backing_dev_info *bdi,
-					unsigned long thresh,
-					unsigned long bg_thresh,
-					unsigned long dirty,
-					unsigned long bdi_thresh,
-					unsigned long bdi_dirty)
+static unsigned long bdi_position_ratio(struct backing_dev_info *bdi, unsigned long thresh, unsigned long bg_thresh, unsigned long dirty, unsigned long bdi_thresh, unsigned long bdi_dirty)
 {
 	unsigned long write_bw = bdi->avg_write_bandwidth;
 	unsigned long freerun = dirty_freerun_ceiling(thresh, bg_thresh);
@@ -869,9 +851,7 @@ static unsigned long bdi_position_ratio(struct backing_dev_info *bdi,
 	return pos_ratio;
 }
 
-static void bdi_update_write_bandwidth(struct backing_dev_info *bdi,
-				       unsigned long elapsed,
-				       unsigned long written)
+static void bdi_update_write_bandwidth(struct backing_dev_info *bdi, unsigned long elapsed, unsigned long written)
 {
 	const unsigned long period = roundup_pow_of_two(3 * HZ);
 	unsigned long avg = bdi->avg_write_bandwidth;
@@ -944,9 +924,7 @@ update:
 	global_dirty_limit = limit;
 }
 
-static void global_update_bandwidth(unsigned long thresh,
-				    unsigned long dirty,
-				    unsigned long now)
+static void global_update_bandwidth(unsigned long thresh, unsigned long dirty, unsigned long now)
 {
 	static DEFINE_SPINLOCK(dirty_lock);
 	static unsigned long update_time;
@@ -971,14 +949,7 @@ static void global_update_bandwidth(unsigned long thresh,
  * Normal bdi tasks will be curbed at or below it in long term.
  * Obviously it should be around (write_bw / N) when there are N dd tasks.
  */
-static void bdi_update_dirty_ratelimit(struct backing_dev_info *bdi,
-				       unsigned long thresh,
-				       unsigned long bg_thresh,
-				       unsigned long dirty,
-				       unsigned long bdi_thresh,
-				       unsigned long bdi_dirty,
-				       unsigned long dirtied,
-				       unsigned long elapsed)
+static void bdi_update_dirty_ratelimit(struct backing_dev_info *bdi, unsigned long thresh, unsigned long bg_thresh, unsigned long dirty, unsigned long bdi_thresh, unsigned long bdi_dirty, unsigned long dirtied, unsigned long elapsed)
 {
 	unsigned long freerun = dirty_freerun_ceiling(thresh, bg_thresh);
 	unsigned long limit = hard_dirty_limit(thresh);
@@ -1362,8 +1333,7 @@ static inline void bdi_dirty_limits(struct backing_dev_info *bdi,
  * If we're over `background_thresh' then the writeback threads are woken to
  * perform some writeout.
  */
-static void balance_dirty_pages(struct address_space *mapping,
-				unsigned long pages_dirtied)
+static void balance_dirty_pages(struct address_space *mapping, unsigned long pages_dirtied)
 {
 	unsigned long nr_reclaimable;	/* = file_dirty + unstable_nfs */
 	unsigned long nr_dirty;  /* = file_dirty + writeback + unstable_nfs */
@@ -1688,8 +1658,7 @@ void throttle_vm_writeout(gfp_t gfp_mask)
 /*
  * sysctl handler for /proc/sys/vm/dirty_writeback_centisecs
  */
-int dirty_writeback_centisecs_handler(ctl_table *table, int write,
-	void __user *buffer, size_t *length, loff_t *ppos)
+int dirty_writeback_centisecs_handler(ctl_table *table, int write, void __user *buffer, size_t *length, loff_t *ppos)
 {
 	proc_dointvec(table, write, buffer, length, ppos);
 	return 0;
@@ -1761,9 +1730,7 @@ void writeback_set_ratelimit(void)
 		ratelimit_pages = 16;
 }
 
-static int
-ratelimit_handler(struct notifier_block *self, unsigned long action,
-		  void *hcpu)
+static int ratelimit_handler(struct notifier_block *self, unsigned long action, void *hcpu)
 {
 
 	switch (action & ~CPU_TASKS_FROZEN) {
@@ -1824,8 +1791,7 @@ void __init page_writeback_init(void)
 /*
  * We tag pages in batches of WRITEBACK_TAG_BATCH to reduce tree_lock latency.
  */
-void tag_pages_for_writeback(struct address_space *mapping,
-			     pgoff_t start, pgoff_t end)
+void tag_pages_for_writeback(struct address_space *mapping, pgoff_t start, pgoff_t end)
 {
 #define WRITEBACK_TAG_BATCH 4096
 	unsigned long tagged;
@@ -1865,9 +1831,7 @@ EXPORT_SYMBOL(tag_pages_for_writeback);
  * tag we set). The rule we follow is that TOWRITE tag can be cleared only
  * by the process clearing the DIRTY tag (and submitting the page for IO).
  */
-int write_cache_pages(struct address_space *mapping,
-		      struct writeback_control *wbc, writepage_t writepage,
-		      void *data)
+int write_cache_pages(struct address_space *mapping, struct writeback_control *wbc, writepage_t writepage, void *data)
 {
 	int ret = 0;
 	int done = 0;
@@ -2025,8 +1989,7 @@ EXPORT_SYMBOL(write_cache_pages);
  * Function used by generic_writepages to call the real writepage
  * function and set the mapping flags on error
  */
-static int __writepage(struct page *page, struct writeback_control *wbc,
-		       void *data)
+static int __writepage(struct page *page, struct writeback_control *wbc, void *data)
 {
 	struct address_space *mapping = data;
 	int ret = mapping->a_ops->writepage(page, wbc);
@@ -2042,8 +2005,7 @@ static int __writepage(struct page *page, struct writeback_control *wbc,
  * This is a library function, which implements the writepages()
  * address_space_operation.
  */
-int generic_writepages(struct address_space *mapping,
-		       struct writeback_control *wbc)
+int generic_writepages(struct address_space *mapping, struct writeback_control *wbc)
 {
 	struct blk_plug plug;
 	int ret;

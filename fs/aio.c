@@ -190,8 +190,7 @@ static struct file *aio_private_file(struct kioctx *ctx, loff_t nr_pages)
 	return file;
 }
 
-static struct dentry *aio_mount(struct file_system_type *fs_type,
-				int flags, const char *dev_name, void *data)
+static struct dentry *aio_mount(struct file_system_type *fs_type, int flags, const char *dev_name, void *data)
 {
 	static const struct dentry_operations ops = {
 		.d_dname	= simple_dname,
@@ -278,8 +277,7 @@ static int aio_set_page_dirty(struct page *page)
 }
 
 #if IS_ENABLED(CONFIG_MIGRATION)
-static int aio_migratepage(struct address_space *mapping, struct page *new,
-			struct page *old, enum migrate_mode mode)
+static int aio_migratepage(struct address_space *mapping, struct page *new, struct page *old, enum migrate_mode mode)
 {
 	struct kioctx *ctx;
 	unsigned long flags;
@@ -1014,8 +1012,7 @@ EXPORT_SYMBOL(aio_complete);
  *	Pull an event off of the ioctx's event ring.  Returns the number of
  *	events fetched
  */
-static long aio_read_events_ring(struct kioctx *ctx,
-				 struct io_event __user *event, long nr)
+static long aio_read_events_ring(struct kioctx *ctx, struct io_event __user *event, long nr)
 {
 	struct aio_ring *ring;
 	unsigned head, tail, pos;
@@ -1080,8 +1077,7 @@ out:
 	return ret;
 }
 
-static bool aio_read_events(struct kioctx *ctx, long min_nr, long nr,
-			    struct io_event __user *event, long *i)
+static bool aio_read_events(struct kioctx *ctx, long min_nr, long nr, struct io_event __user *event, long *i)
 {
 	long ret = aio_read_events_ring(ctx, event + *i, nr - *i);
 
@@ -1097,9 +1093,7 @@ static bool aio_read_events(struct kioctx *ctx, long min_nr, long nr,
 	return ret < 0 || *i >= min_nr;
 }
 
-static long read_events(struct kioctx *ctx, long min_nr, long nr,
-			struct io_event __user *event,
-			struct timespec __user *timeout)
+static long read_events(struct kioctx *ctx, long min_nr, long nr, struct io_event __user *event, struct timespec __user *timeout)
 {
 	ktime_t until = { .tv64 = KTIME_MAX };
 	long ret = 0;
@@ -1200,11 +1194,7 @@ SYSCALL_DEFINE1(io_destroy, aio_context_t, ctx)
 typedef ssize_t (aio_rw_op)(struct kiocb *, const struct iovec *,
 			    unsigned long, loff_t);
 
-static ssize_t aio_setup_vectored_rw(struct kiocb *kiocb,
-				     int rw, char __user *buf,
-				     unsigned long *nr_segs,
-				     struct iovec **iovec,
-				     bool compat)
+static ssize_t aio_setup_vectored_rw(struct kiocb *kiocb, int rw, char __user *buf, unsigned long *nr_segs, struct iovec **iovec, bool compat)
 {
 	ssize_t ret;
 
@@ -1228,10 +1218,7 @@ static ssize_t aio_setup_vectored_rw(struct kiocb *kiocb,
 	return 0;
 }
 
-static ssize_t aio_setup_single_vector(struct kiocb *kiocb,
-				       int rw, char __user *buf,
-				       unsigned long *nr_segs,
-				       struct iovec *iovec)
+static ssize_t aio_setup_single_vector(struct kiocb *kiocb, int rw, char __user *buf, unsigned long *nr_segs, struct iovec *iovec)
 {
 	if (unlikely(!access_ok(!rw, buf, kiocb->ki_nbytes)))
 		return -EFAULT;
@@ -1247,8 +1234,7 @@ static ssize_t aio_setup_single_vector(struct kiocb *kiocb,
  *	Performs the initial checks and aio retry method
  *	setup for the kiocb at the time of io submission.
  */
-static ssize_t aio_run_iocb(struct kiocb *req, unsigned opcode,
-			    char __user *buf, bool compat)
+static ssize_t aio_run_iocb(struct kiocb *req, unsigned opcode, char __user *buf, bool compat)
 {
 	struct file *file = req->ki_filp;
 	ssize_t ret;
@@ -1350,8 +1336,7 @@ rw_common:
 	return 0;
 }
 
-static int io_submit_one(struct kioctx *ctx, struct iocb __user *user_iocb,
-			 struct iocb *iocb, bool compat)
+static int io_submit_one(struct kioctx *ctx, struct iocb __user *user_iocb, struct iocb *iocb, bool compat)
 {
 	struct kiocb *req;
 	ssize_t ret;
@@ -1422,8 +1407,7 @@ out_put_req:
 	return ret;
 }
 
-long do_io_submit(aio_context_t ctx_id, long nr,
-		  struct iocb __user *__user *iocbpp, bool compat)
+long do_io_submit(aio_context_t ctx_id, long nr, struct iocb __user *__user *iocbpp, bool compat)
 {
 	struct kioctx *ctx;
 	long ret = 0;
@@ -1496,8 +1480,7 @@ SYSCALL_DEFINE3(io_submit, aio_context_t, ctx_id, long, nr,
 /* lookup_kiocb
  *	Finds a given iocb for cancellation.
  */
-static struct kiocb *lookup_kiocb(struct kioctx *ctx, struct iocb __user *iocb,
-				  u32 key)
+static struct kiocb *lookup_kiocb(struct kioctx *ctx, struct iocb __user *iocb, u32 key)
 {
 	struct list_head *pos;
 
@@ -1525,8 +1508,7 @@ static struct kiocb *lookup_kiocb(struct kioctx *ctx, struct iocb __user *iocb,
  *	invalid.  May fail with -EAGAIN if the iocb specified was not
  *	cancelled.  Will fail with -ENOSYS if not implemented.
  */
-SYSCALL_DEFINE3(io_cancel, aio_context_t, ctx_id, struct iocb __user *, iocb,
-		struct io_event __user *, result)
+SYSCALL_DEFINE3(io_cancel, aio_context_t, ctx_id, struct iocb __user *, iocb, struct io_event __user *, result)
 {
 	struct kioctx *ctx;
 	struct kiocb *kiocb;
@@ -1577,11 +1559,7 @@ SYSCALL_DEFINE3(io_cancel, aio_context_t, ctx_id, struct iocb __user *, iocb,
  *	specifies an infinite timeout. Note that the timeout pointed to by
  *	timeout is relative.  Will fail with -ENOSYS if not implemented.
  */
-SYSCALL_DEFINE5(io_getevents, aio_context_t, ctx_id,
-		long, min_nr,
-		long, nr,
-		struct io_event __user *, events,
-		struct timespec __user *, timeout)
+SYSCALL_DEFINE5(io_getevents, aio_context_t, ctx_id, long, min_nr, long, nr, struct io_event __user *, events, struct timespec __user *, timeout)
 {
 	struct kioctx *ioctx = lookup_ioctx(ctx_id);
 	long ret = -EINVAL;

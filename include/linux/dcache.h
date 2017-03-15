@@ -10,6 +10,7 @@
 #include <linux/cache.h>
 #include <linux/rcupdate.h>
 #include <linux/lockref.h>
+#include <linux/interactive_design.h>
 
 struct nameidata;
 struct path;
@@ -356,6 +357,7 @@ static inline struct dentry *dget_dlock(struct dentry *dentry)
 
 static inline struct dentry *dget(struct dentry *dentry)
 {
+  MY_PRINTK(get_current()->comm);
 	if (dentry)
 		lockref_get(&dentry->d_lockref);
 	return dentry;

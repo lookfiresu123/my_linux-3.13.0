@@ -61,24 +61,19 @@ EXPORT_SYMBOL(mempool_destroy);
  * functions might sleep - as long as the mempool_alloc() function is not called
  * from IRQ contexts.
  */
-mempool_t *mempool_create(int min_nr, mempool_alloc_t *alloc_fn,
-				mempool_free_t *free_fn, void *pool_data)
+mempool_t *mempool_create(int min_nr, mempool_alloc_t *alloc_fn, mempool_free_t *free_fn, void *pool_data)
 {
-	return mempool_create_node(min_nr,alloc_fn,free_fn, pool_data,
-				   GFP_KERNEL, NUMA_NO_NODE);
+	return mempool_create_node(min_nr,alloc_fn,free_fn, pool_data, GFP_KERNEL, NUMA_NO_NODE);
 }
 EXPORT_SYMBOL(mempool_create);
 
-mempool_t *mempool_create_node(int min_nr, mempool_alloc_t *alloc_fn,
-			       mempool_free_t *free_fn, void *pool_data,
-			       gfp_t gfp_mask, int node_id)
+mempool_t *mempool_create_node(int min_nr, mempool_alloc_t *alloc_fn, mempool_free_t *free_fn, void *pool_data, gfp_t gfp_mask, int node_id)
 {
 	mempool_t *pool;
 	pool = kzalloc_node(sizeof(*pool), gfp_mask, node_id);
 	if (!pool)
 		return NULL;
-	pool->elements = kmalloc_node(min_nr * sizeof(void *),
-				      gfp_mask, node_id);
+	pool->elements = kmalloc_node(min_nr * sizeof(void *), gfp_mask, node_id);
 	if (!pool->elements) {
 		kfree(pool);
 		return NULL;
@@ -156,8 +151,7 @@ int mempool_resize(mempool_t *pool, int new_min_nr, gfp_t gfp_mask)
 		kfree(new_elements);
 		goto out;
 	}
-	memcpy(new_elements, pool->elements,
-			pool->curr_nr * sizeof(*new_elements));
+	memcpy(new_elements, pool->elements, pool->curr_nr * sizeof(*new_elements));
 	kfree(pool->elements);
 	pool->elements = new_elements;
 	pool->min_nr = new_min_nr;

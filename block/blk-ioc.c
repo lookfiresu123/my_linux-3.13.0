@@ -286,8 +286,7 @@ int create_task_io_context(struct task_struct *task, gfp_t gfp_flags, int node)
  * This function always goes through task_lock() and it's better to use
  * %current->io_context + get_io_context() for %current.
  */
-struct io_context *get_task_io_context(struct task_struct *task,
-				       gfp_t gfp_flags, int node)
+struct io_context *get_task_io_context(struct task_struct *task, gfp_t gfp_flags, int node)
 {
 	struct io_context *ioc;
 
@@ -356,8 +355,7 @@ EXPORT_SYMBOL(ioc_lookup_icq);
  * The caller is responsible for ensuring @ioc won't go away and @q is
  * alive and will stay alive until this function returns.
  */
-struct io_cq *ioc_create_icq(struct io_context *ioc, struct request_queue *q,
-			     gfp_t gfp_mask)
+struct io_cq *ioc_create_icq(struct io_context *ioc, struct request_queue *q, gfp_t gfp_mask)
 {
 	struct elevator_type *et = q->elevator->type;
 	struct io_cq *icq;
@@ -402,8 +400,7 @@ struct io_cq *ioc_create_icq(struct io_context *ioc, struct request_queue *q,
 
 static int __init blk_ioc_init(void)
 {
-	iocontext_cachep = kmem_cache_create("blkdev_ioc",
-			sizeof(struct io_context), 0, SLAB_PANIC, NULL);
+	iocontext_cachep = kmem_cache_create("blkdev_ioc", sizeof(struct io_context), 0, SLAB_PANIC, NULL);
 	return 0;
 }
 subsys_initcall(blk_ioc_init);

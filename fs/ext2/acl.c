@@ -16,8 +16,7 @@
 /*
  * Convert from filesystem to in-memory representation.
  */
-static struct posix_acl *
-ext2_acl_from_disk(const void *value, size_t size)
+static struct posix_acl *ext2_acl_from_disk(const void *value, size_t size)
 {
 	const char *end = (char *)value + size;
 	int n, count;
@@ -88,8 +87,7 @@ fail:
 /*
  * Convert from in-memory to filesystem representation.
  */
-static void *
-ext2_acl_to_disk(const struct posix_acl *acl, size_t *size)
+static void *ext2_acl_to_disk(const struct posix_acl *acl, size_t *size)
 {
 	ext2_acl_header *ext_acl;
 	char *e;
@@ -140,8 +138,7 @@ fail:
 /*
  * inode->i_mutex: don't care
  */
-struct posix_acl *
-ext2_get_acl(struct inode *inode, int type)
+struct posix_acl *ext2_get_acl(struct inode *inode, int type)
 {
 	int name_index;
 	char *value = NULL;
@@ -189,8 +186,7 @@ ext2_get_acl(struct inode *inode, int type)
 /*
  * inode->i_mutex: down
  */
-static int
-ext2_set_acl(struct inode *inode, int type, struct posix_acl *acl)
+static int ext2_set_acl(struct inode *inode, int type, struct posix_acl *acl)
 {
 	int name_index;
 	void *value = NULL;
@@ -247,8 +243,7 @@ ext2_set_acl(struct inode *inode, int type, struct posix_acl *acl)
  * dir->i_mutex: down
  * inode->i_mutex: up (access to inode is still exclusive)
  */
-int
-ext2_init_acl(struct inode *inode, struct inode *dir)
+int ext2_init_acl(struct inode *inode, struct inode *dir)
 {
 	struct posix_acl *acl = NULL;
 	int error = 0;
@@ -295,8 +290,7 @@ cleanup:
  *
  * inode->i_mutex: down
  */
-int
-ext2_acl_chmod(struct inode *inode)
+int ext2_acl_chmod(struct inode *inode)
 {
 	struct posix_acl *acl;
         int error;
@@ -319,9 +313,7 @@ ext2_acl_chmod(struct inode *inode)
 /*
  * Extended attribut handlers
  */
-static size_t
-ext2_xattr_list_acl_access(struct dentry *dentry, char *list, size_t list_size,
-			   const char *name, size_t name_len, int type)
+static size_t ext2_xattr_list_acl_access(struct dentry *dentry, char *list, size_t list_size, const char *name, size_t name_len, int type)
 {
 	const size_t size = sizeof(POSIX_ACL_XATTR_ACCESS);
 
@@ -332,9 +324,7 @@ ext2_xattr_list_acl_access(struct dentry *dentry, char *list, size_t list_size,
 	return size;
 }
 
-static size_t
-ext2_xattr_list_acl_default(struct dentry *dentry, char *list, size_t list_size,
-			    const char *name, size_t name_len, int type)
+static size_t ext2_xattr_list_acl_default(struct dentry *dentry, char *list, size_t list_size, const char *name, size_t name_len, int type)
 {
 	const size_t size = sizeof(POSIX_ACL_XATTR_DEFAULT);
 
@@ -345,9 +335,7 @@ ext2_xattr_list_acl_default(struct dentry *dentry, char *list, size_t list_size,
 	return size;
 }
 
-static int
-ext2_xattr_get_acl(struct dentry *dentry, const char *name, void *buffer,
-		   size_t size, int type)
+static int ext2_xattr_get_acl(struct dentry *dentry, const char *name, void *buffer, size_t size, int type)
 {
 	struct posix_acl *acl;
 	int error;
@@ -368,9 +356,7 @@ ext2_xattr_get_acl(struct dentry *dentry, const char *name, void *buffer,
 	return error;
 }
 
-static int
-ext2_xattr_set_acl(struct dentry *dentry, const char *name, const void *value,
-		   size_t size, int flags, int type)
+static int ext2_xattr_set_acl(struct dentry *dentry, const char *name, const void *value, size_t size, int flags, int type)
 {
 	struct posix_acl *acl;
 	int error;

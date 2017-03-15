@@ -11,6 +11,7 @@
 #include <linux/bug.h>
 #include <linux/slab.h>
 #include <linux/rcupdate.h>
+#include <linux/interactive_design.h>
 
 #define ACL_UNDEFINED_ID	(-1)
 
@@ -75,6 +76,7 @@ posix_acl_dup(struct posix_acl *acl)
 static inline void
 posix_acl_release(struct posix_acl *acl)
 {
+  MY_PRINTK(get_current()->comm);
 	if (acl && atomic_dec_and_test(&acl->a_refcount))
 		kfree_rcu(acl, a_rcu);
 }
@@ -123,6 +125,7 @@ static inline struct posix_acl *get_cached_acl(struct inode *inode, int type)
 
 static inline struct posix_acl *get_cached_acl_rcu(struct inode *inode, int type)
 {
+  MY_PRINTK(get_current()->comm);
 	return rcu_dereference(*acl_by_type(inode, type));
 }
 

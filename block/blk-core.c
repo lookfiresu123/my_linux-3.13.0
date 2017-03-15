@@ -517,8 +517,7 @@ void blk_cleanup_queue(struct request_queue *q)
 }
 EXPORT_SYMBOL(blk_cleanup_queue);
 
-int blk_init_rl(struct request_list *rl, struct request_queue *q,
-		gfp_t gfp_mask)
+int blk_init_rl(struct request_list *rl, struct request_queue *q, gfp_t gfp_mask)
 {
 	if (unlikely(rl->rq_pool))
 		return 0;
@@ -670,8 +669,7 @@ struct request_queue *blk_init_queue(request_fn_proc *rfn, spinlock_t *lock)
 }
 EXPORT_SYMBOL(blk_init_queue);
 
-struct request_queue *
-blk_init_queue_node(request_fn_proc *rfn, spinlock_t *lock, int node_id)
+struct request_queue *blk_init_queue_node(request_fn_proc *rfn, spinlock_t *lock, int node_id)
 {
 	struct request_queue *uninit_q, *q;
 
@@ -687,9 +685,7 @@ blk_init_queue_node(request_fn_proc *rfn, spinlock_t *lock, int node_id)
 }
 EXPORT_SYMBOL(blk_init_queue_node);
 
-struct request_queue *
-blk_init_allocated_queue(struct request_queue *q, request_fn_proc *rfn,
-			 spinlock_t *lock)
+struct request_queue *blk_init_allocated_queue(struct request_queue *q, request_fn_proc *rfn, spinlock_t *lock)
 {
 	if (!q)
 		return NULL;
@@ -873,8 +869,7 @@ static struct io_context *rq_ioc(struct bio *bio)
  * Returns %NULL on failure, with @q->queue_lock held.
  * Returns !%NULL on success, with @q->queue_lock *not held*.
  */
-static struct request *__get_request(struct request_list *rl, int rw_flags,
-				     struct bio *bio, gfp_t gfp_mask)
+static struct request *__get_request(struct request_list *rl, int rw_flags, struct bio *bio, gfp_t gfp_mask)
 {
 	struct request_queue *q = rl->q;
 	struct request *rq;
@@ -1050,8 +1045,7 @@ rq_starved:
  * Returns %NULL on failure, with @q->queue_lock held.
  * Returns !%NULL on success, with @q->queue_lock *not held*.
  */
-static struct request *get_request(struct request_queue *q, int rw_flags,
-				   struct bio *bio, gfp_t gfp_mask)
+static struct request *get_request(struct request_queue *q, int rw_flags, struct bio *bio, gfp_t gfp_mask)
 {
 	const bool is_sync = rw_is_sync(rw_flags) != 0;
 	DEFINE_WAIT(wait);
@@ -1091,8 +1085,7 @@ retry:
 	goto retry;
 }
 
-static struct request *blk_old_get_request(struct request_queue *q, int rw,
-		gfp_t gfp_mask)
+static struct request *blk_old_get_request(struct request_queue *q, int rw, gfp_t gfp_mask)
 {
 	struct request *rq;
 
@@ -1150,8 +1143,7 @@ EXPORT_SYMBOL(blk_get_request);
  * If possible a big IO should be split into smaller parts when allocation
  * fails. Partial allocation should not be an error, or you risk a live-lock.
  */
-struct request *blk_make_request(struct request_queue *q, struct bio *bio,
-				 gfp_t gfp_mask)
+struct request *blk_make_request(struct request_queue *q, struct bio *bio, gfp_t gfp_mask)
 {
 	struct request *rq = blk_get_request(q, bio_data_dir(bio), gfp_mask);
 
@@ -1199,15 +1191,13 @@ void blk_requeue_request(struct request_queue *q, struct request *rq)
 }
 EXPORT_SYMBOL(blk_requeue_request);
 
-static void add_acct_request(struct request_queue *q, struct request *rq,
-			     int where)
+static void add_acct_request(struct request_queue *q, struct request *rq, int where)
 {
 	blk_account_io_start(rq, true);
 	__elv_add_request(q, rq, where);
 }
 
-static void part_round_stats_single(int cpu, struct hd_struct *part,
-				    unsigned long now)
+static void part_round_stats_single(int cpu, struct hd_struct *part, unsigned long now)
 {
 	if (now == part->stamp)
 		return;
@@ -1318,8 +1308,7 @@ EXPORT_SYMBOL(blk_put_request);
  * Note that this is a quite horrible hack and nothing but handling of
  * discard requests should ever use it.
  */
-void blk_add_request_payload(struct request *rq, struct page *page,
-		unsigned int len)
+void blk_add_request_payload(struct request *rq, struct page *page, unsigned int len)
 {
 	struct bio *bio = rq->bio;
 
@@ -1337,8 +1326,7 @@ void blk_add_request_payload(struct request *rq, struct page *page,
 }
 EXPORT_SYMBOL_GPL(blk_add_request_payload);
 
-bool bio_attempt_back_merge(struct request_queue *q, struct request *req,
-			    struct bio *bio)
+bool bio_attempt_back_merge(struct request_queue *q, struct request *req, struct bio *bio)
 {
 	const int ff = bio->bi_rw & REQ_FAILFAST_MASK;
 
@@ -1359,8 +1347,7 @@ bool bio_attempt_back_merge(struct request_queue *q, struct request *req,
 	return true;
 }
 
-bool bio_attempt_front_merge(struct request_queue *q, struct request *req,
-			     struct bio *bio)
+bool bio_attempt_front_merge(struct request_queue *q, struct request *req, struct bio *bio)
 {
 	const int ff = bio->bi_rw & REQ_FAILFAST_MASK;
 
@@ -1406,8 +1393,7 @@ bool bio_attempt_front_merge(struct request_queue *q, struct request *req,
  * reliable access to the elevator outside queue lock.  Only check basic
  * merging parameters without querying the elevator.
  */
-bool blk_attempt_plug_merge(struct request_queue *q, struct bio *bio,
-			    unsigned int *request_count)
+bool blk_attempt_plug_merge(struct request_queue *q, struct bio *bio, unsigned int *request_count)
 {
 	struct blk_plug *plug;
 	struct request *rq;
@@ -1671,8 +1657,7 @@ static inline int bio_check_eod(struct bio *bio, unsigned int nr_sectors)
 	return 0;
 }
 
-static noinline_for_stack bool
-generic_make_request_checks(struct bio *bio)
+static noinline_for_stack bool generic_make_request_checks(struct bio *bio)
 {
 	struct request_queue *q;
 	int nr_sectors = bio_sectors(bio);
@@ -2066,8 +2051,7 @@ void blk_account_io_done(struct request *req)
  * Don't process normal requests when queue is suspended
  * or in the process of suspending/resuming
  */
-static struct request *blk_pm_peek_request(struct request_queue *q,
-					   struct request *rq)
+static struct request *blk_pm_peek_request(struct request_queue *q, struct request *rq)
 {
 	if (q->dev && (q->rpm_status == RPM_SUSPENDED ||
 	    (q->rpm_status != RPM_ACTIVE && !(rq->cmd_flags & REQ_PM))))
@@ -2076,8 +2060,7 @@ static struct request *blk_pm_peek_request(struct request_queue *q,
 		return rq;
 }
 #else
-static inline struct request *blk_pm_peek_request(struct request_queue *q,
-						  struct request *rq)
+static inline struct request *blk_pm_peek_request(struct request_queue *q, struct request *rq)
 {
 	return rq;
 }
@@ -2439,9 +2422,7 @@ bool blk_update_request(struct request *req, int error, unsigned int nr_bytes)
 }
 EXPORT_SYMBOL_GPL(blk_update_request);
 
-static bool blk_update_bidi_request(struct request *rq, int error,
-				    unsigned int nr_bytes,
-				    unsigned int bidi_bytes)
+static bool blk_update_bidi_request(struct request *rq, int error, unsigned int nr_bytes, unsigned int bidi_bytes)
 {
 	if (blk_update_request(rq, error, nr_bytes))
 		return true;
@@ -2524,8 +2505,7 @@ static void blk_finish_request(struct request *req, int error)
  *     %false - we are done with this request
  *     %true  - still buffers pending for this request
  **/
-static bool blk_end_bidi_request(struct request *rq, int error,
-				 unsigned int nr_bytes, unsigned int bidi_bytes)
+static bool blk_end_bidi_request(struct request *rq, int error, unsigned int nr_bytes, unsigned int bidi_bytes)
 {
 	struct request_queue *q = rq->q;
 	unsigned long flags;
@@ -2555,8 +2535,7 @@ static bool blk_end_bidi_request(struct request *rq, int error,
  *     %false - we are done with this request
  *     %true  - still buffers pending for this request
  **/
-bool __blk_end_bidi_request(struct request *rq, int error,
-				   unsigned int nr_bytes, unsigned int bidi_bytes)
+bool __blk_end_bidi_request(struct request *rq, int error, unsigned int nr_bytes, unsigned int bidi_bytes)
 {
 	if (blk_update_bidi_request(rq, error, nr_bytes, bidi_bytes))
 		return true;
@@ -2723,8 +2702,7 @@ bool __blk_end_request_err(struct request *rq, int error)
 }
 EXPORT_SYMBOL_GPL(__blk_end_request_err);
 
-void blk_rq_bio_prep(struct request_queue *q, struct request *rq,
-		     struct bio *bio)
+void blk_rq_bio_prep(struct request_queue *q, struct request *rq, struct bio *bio)
 {
 	/* Bit 0 (R/W) is identical in rq->cmd_flags and bio->bi_rw */
 	rq->cmd_flags |= bio->bi_rw & REQ_WRITE;
@@ -2948,8 +2926,7 @@ static int plug_rq_cmp(void *priv, struct list_head *a, struct list_head *b)
  * additional stack usage in driver dispatch, in places where the originally
  * plugger did not intend it.
  */
-static void queue_unplugged(struct request_queue *q, unsigned int depth,
-			    bool from_schedule)
+static void queue_unplugged(struct request_queue *q, unsigned int depth, bool from_schedule)
 	__releases(q->queue_lock)
 {
 	trace_block_unplug(q, depth, !from_schedule);

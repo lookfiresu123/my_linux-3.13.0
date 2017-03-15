@@ -54,8 +54,7 @@ EXPORT_SYMBOL(I_BDEV);
  * need to move it onto the dirty list of @dst so that the inode is always on
  * the right list.
  */
-static void bdev_inode_switch_bdi(struct inode *inode,
-			struct backing_dev_info *dst)
+static void bdev_inode_switch_bdi(struct inode *inode, struct backing_dev_info *dst)
 {
 	struct backing_dev_info *old = inode->i_data.backing_dev_info;
 	bool wakeup_bdi = false;
@@ -155,8 +154,7 @@ int sb_min_blocksize(struct super_block *sb, int size)
 EXPORT_SYMBOL(sb_min_blocksize);
 
 static int
-blkdev_get_block(struct inode *inode, sector_t iblock,
-		struct buffer_head *bh, int create)
+blkdev_get_block(struct inode *inode, sector_t iblock, struct buffer_head *bh, int create)
 {
 	bh->b_bdev = I_BDEV(inode);
 	bh->b_blocknr = iblock;
@@ -165,8 +163,7 @@ blkdev_get_block(struct inode *inode, sector_t iblock,
 }
 
 static ssize_t
-blkdev_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
-			loff_t offset, unsigned long nr_segs)
+blkdev_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov, loff_t offset, unsigned long nr_segs)
 {
 	struct file *file = iocb->ki_filp;
 	struct inode *inode = file->f_mapping->host;
@@ -303,17 +300,12 @@ static int blkdev_readpage(struct file * file, struct page * page)
 	return block_read_full_page(page, blkdev_get_block);
 }
 
-static int blkdev_write_begin(struct file *file, struct address_space *mapping,
-			loff_t pos, unsigned len, unsigned flags,
-			struct page **pagep, void **fsdata)
+static int blkdev_write_begin(struct file *file, struct address_space *mapping, loff_t pos, unsigned len, unsigned flags, struct page **pagep, void **fsdata)
 {
-	return block_write_begin(mapping, pos, len, flags, pagep,
-				 blkdev_get_block);
+	return block_write_begin(mapping, pos, len, flags, pagep, blkdev_get_block);
 }
 
-static int blkdev_write_end(struct file *file, struct address_space *mapping,
-			loff_t pos, unsigned len, unsigned copied,
-			struct page *page, void *fsdata)
+static int blkdev_write_end(struct file *file, struct address_space *mapping, loff_t pos, unsigned len, unsigned copied, struct page *page, void *fsdata)
 {
 	int ret;
 	ret = block_write_end(file, mapping, pos, len, copied, page, fsdata);
@@ -627,8 +619,7 @@ void bd_forget(struct inode *inode)
  * RETURNS:
  * %true if @bdev can be claimed, %false otherwise.
  */
-static bool bd_may_claim(struct block_device *bdev, struct block_device *whole,
-			 void *holder)
+static bool bd_may_claim(struct block_device *bdev, struct block_device *whole, void *holder)
 {
 	if (bdev->bd_holder == holder)
 		return true;	 /* already a holder */
@@ -663,8 +654,7 @@ static bool bd_may_claim(struct block_device *bdev, struct block_device *whole,
  * RETURNS:
  * 0 if @bdev can be claimed, -EBUSY otherwise.
  */
-static int bd_prepare_to_claim(struct block_device *bdev,
-			       struct block_device *whole, void *holder)
+static int bd_prepare_to_claim(struct block_device *bdev, struct block_device *whole, void *holder)
 {
 retry:
 	/* if someone else claimed, fail */
@@ -711,8 +701,7 @@ retry:
  * Pointer to the block device containing @bdev on success, ERR_PTR()
  * value on failure.
  */
-static struct block_device *bd_start_claiming(struct block_device *bdev,
-					      void *holder)
+static struct block_device *bd_start_claiming(struct block_device *bdev, void *holder)
 {
 	struct gendisk *disk;
 	struct block_device *whole;
@@ -768,8 +757,7 @@ struct bd_holder_disk {
 	int			refcnt;
 };
 
-static struct bd_holder_disk *bd_find_holder_disk(struct block_device *bdev,
-						  struct gendisk *disk)
+static struct bd_holder_disk *bd_find_holder_disk(struct block_device *bdev, struct gendisk *disk)
 {
 	struct bd_holder_disk *holder;
 
@@ -1297,8 +1285,7 @@ EXPORT_SYMBOL(blkdev_get);
  * RETURNS:
  * Pointer to block_device on success, ERR_PTR(-errno) on failure.
  */
-struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
-					void *holder)
+struct block_device *blkdev_get_by_path(const char *path, fmode_t mode, void *holder)
 {
 	struct block_device *bdev;
 	int err;
@@ -1508,8 +1495,7 @@ static long block_ioctl(struct file *file, unsigned cmd, unsigned long arg)
  * Does not take i_mutex for the write and thus is not for general purpose
  * use.
  */
-ssize_t blkdev_aio_write(struct kiocb *iocb, const struct iovec *iov,
-			 unsigned long nr_segs, loff_t pos)
+ssize_t blkdev_aio_write(struct kiocb *iocb, const struct iovec *iov, unsigned long nr_segs, loff_t pos)
 {
 	struct file *file = iocb->ki_filp;
 	struct blk_plug plug;
@@ -1531,8 +1517,7 @@ ssize_t blkdev_aio_write(struct kiocb *iocb, const struct iovec *iov,
 }
 EXPORT_SYMBOL_GPL(blkdev_aio_write);
 
-static ssize_t blkdev_aio_read(struct kiocb *iocb, const struct iovec *iov,
-			 unsigned long nr_segs, loff_t pos)
+static ssize_t blkdev_aio_read(struct kiocb *iocb, const struct iovec *iov, unsigned long nr_segs, loff_t pos)
 {
 	struct file *file = iocb->ki_filp;
 	struct inode *bd_inode = file->f_mapping->host;

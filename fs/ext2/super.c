@@ -47,8 +47,7 @@ static int ext2_sync_fs(struct super_block *sb, int wait);
 static int ext2_freeze(struct super_block *sb);
 static int ext2_unfreeze(struct super_block *sb);
 
-void ext2_error(struct super_block *sb, const char *function,
-		const char *fmt, ...)
+void ext2_error(struct super_block *sb, const char *function, const char *fmt, ...)
 {
 	struct va_format vaf;
 	va_list args;
@@ -82,8 +81,7 @@ void ext2_error(struct super_block *sb, const char *function,
 	}
 }
 
-void ext2_msg(struct super_block *sb, const char *prefix,
-		const char *fmt, ...)
+void ext2_msg(struct super_block *sb, const char *prefix, const char *fmt, ...)
 {
 	struct va_format vaf;
 	va_list args;
@@ -202,11 +200,7 @@ static void init_once(void *foo)
 
 static int init_inodecache(void)
 {
-	ext2_inode_cachep = kmem_cache_create("ext2_inode_cache",
-					     sizeof(struct ext2_inode_info),
-					     0, (SLAB_RECLAIM_ACCOUNT|
-						SLAB_MEM_SPREAD),
-					     init_once);
+	ext2_inode_cachep = kmem_cache_create("ext2_inode_cache", sizeof(struct ext2_inode_info), 0, (SLAB_RECLAIM_ACCOUNT|SLAB_MEM_SPREAD), init_once);
 	if (ext2_inode_cachep == NULL)
 		return -ENOMEM;
 	return 0;
@@ -331,8 +325,7 @@ static const struct super_operations ext2_sops = {
 #endif
 };
 
-static struct inode *ext2_nfs_get_inode(struct super_block *sb,
-		u64 ino, u32 generation)
+static struct inode *ext2_nfs_get_inode(struct super_block *sb, u64 ino, u32 generation)
 {
 	struct inode *inode;
 
@@ -357,18 +350,14 @@ static struct inode *ext2_nfs_get_inode(struct super_block *sb,
 	return inode;
 }
 
-static struct dentry *ext2_fh_to_dentry(struct super_block *sb, struct fid *fid,
-		int fh_len, int fh_type)
+static struct dentry *ext2_fh_to_dentry(struct super_block *sb, struct fid *fid, int fh_len, int fh_type)
 {
-	return generic_fh_to_dentry(sb, fid, fh_len, fh_type,
-				    ext2_nfs_get_inode);
+	return generic_fh_to_dentry(sb, fid, fh_len, fh_type, ext2_nfs_get_inode);
 }
 
-static struct dentry *ext2_fh_to_parent(struct super_block *sb, struct fid *fid,
-		int fh_len, int fh_type)
+static struct dentry *ext2_fh_to_parent(struct super_block *sb, struct fid *fid, int fh_len, int fh_type)
 {
-	return generic_fh_to_parent(sb, fid, fh_len, fh_type,
-				    ext2_nfs_get_inode);
+	return generic_fh_to_parent(sb, fid, fh_len, fh_type, ext2_nfs_get_inode);
 }
 
 static const struct export_operations ext2_export_ops = {
@@ -600,9 +589,7 @@ static int parse_options(char *options, struct super_block *sb)
 	return 1;
 }
 
-static int ext2_setup_super (struct super_block * sb,
-			      struct ext2_super_block * es,
-			      int read_only)
+static int ext2_setup_super (struct super_block * sb, struct ext2_super_block * es, int read_only)
 {
 	int res = 0;
 	struct ext2_sb_info *sbi = EXT2_SB(sb);
@@ -747,9 +734,7 @@ static loff_t ext2_max_size(int bits)
 	return res;
 }
 
-static unsigned long descriptor_loc(struct super_block *sb,
-				    unsigned long logic_sb_block,
-				    int nr)
+static unsigned long descriptor_loc(struct super_block *sb, unsigned long logic_sb_block, int nr)
 {
 	struct ext2_sb_info *sbi = EXT2_SB(sb);
 	unsigned long bg, first_meta_bg;
@@ -1171,8 +1156,7 @@ static void ext2_clear_super_error(struct super_block *sb)
 	}
 }
 
-static void ext2_sync_super(struct super_block *sb, struct ext2_super_block *es,
-			    int wait)
+static void ext2_sync_super(struct super_block *sb, struct ext2_super_block *es, int wait)
 {
 	ext2_clear_super_error(sb);
 	spin_lock(&EXT2_SB(sb)->s_lock);
@@ -1427,8 +1411,7 @@ static int ext2_statfs (struct dentry * dentry, struct kstatfs * buf)
 	return 0;
 }
 
-static struct dentry *ext2_mount(struct file_system_type *fs_type,
-	int flags, const char *dev_name, void *data)
+static struct dentry *ext2_mount(struct file_system_type *fs_type, int flags, const char *dev_name, void *data)
 {
 	return mount_bdev(fs_type, flags, dev_name, data, ext2_fill_super);
 }
@@ -1439,8 +1422,7 @@ static struct dentry *ext2_mount(struct file_system_type *fs_type,
  * acquiring the locks... As quota files are never truncated and quota code
  * itself serializes the operations (and no one else should touch the files)
  * we don't have to be afraid of races */
-static ssize_t ext2_quota_read(struct super_block *sb, int type, char *data,
-			       size_t len, loff_t off)
+static ssize_t ext2_quota_read(struct super_block *sb, int type, char *data, size_t len, loff_t off)
 {
 	struct inode *inode = sb_dqopt(sb)->files[type];
 	sector_t blk = off >> EXT2_BLOCK_SIZE_BITS(sb);
@@ -1484,8 +1466,7 @@ static ssize_t ext2_quota_read(struct super_block *sb, int type, char *data,
 }
 
 /* Write to quotafile */
-static ssize_t ext2_quota_write(struct super_block *sb, int type,
-				const char *data, size_t len, loff_t off)
+static ssize_t ext2_quota_write(struct super_block *sb, int type, const char *data, size_t len, loff_t off)
 {
 	struct inode *inode = sb_dqopt(sb)->files[type];
 	sector_t blk = off >> EXT2_BLOCK_SIZE_BITS(sb);

@@ -78,10 +78,7 @@ static struct bio *mpage_bio_submit(int rw, struct bio *bio)
 	return NULL;
 }
 
-static struct bio *
-mpage_alloc(struct block_device *bdev,
-		sector_t first_sector, int nr_vecs,
-		gfp_t gfp_flags)
+static struct bio *mpage_alloc(struct block_device *bdev, sector_t first_sector, int nr_vecs, gfp_t gfp_flags)
 {
 	struct bio *bio;
 
@@ -109,8 +106,7 @@ mpage_alloc(struct block_device *bdev,
  * them.  So when the buffer is up to date and the page size == block size,
  * this marks the page up to date instead of adding new buffers.
  */
-static void 
-map_buffer_to_page(struct page *page, struct buffer_head *bh, int page_block) 
+static void map_buffer_to_page(struct page *page, struct buffer_head *bh, int page_block) 
 {
 	struct inode *inode = page->mapping->host;
 	struct buffer_head *page_bh, *head;
@@ -151,10 +147,7 @@ map_buffer_to_page(struct page *page, struct buffer_head *bh, int page_block)
  * represent the validity of its disk mapping and to decide when to do the next
  * get_block() call.
  */
-static struct bio *
-do_mpage_readpage(struct bio *bio, struct page *page, unsigned nr_pages,
-		sector_t *last_block_in_bio, struct buffer_head *map_bh,
-		unsigned long *first_logical_block, get_block_t get_block)
+static struct bio *do_mpage_readpage(struct bio *bio, struct page *page, unsigned nr_pages, sector_t *last_block_in_bio, struct buffer_head *map_bh, unsigned long *first_logical_block, get_block_t get_block)
 {
 	struct inode *inode = page->mapping->host;
 	const unsigned blkbits = inode->i_blkbits;
@@ -362,9 +355,7 @@ confused:
  *
  * This all causes the disk requests to be issued in the correct order.
  */
-int
-mpage_readpages(struct address_space *mapping, struct list_head *pages,
-				unsigned nr_pages, get_block_t get_block)
+int mpage_readpages(struct address_space *mapping, struct list_head *pages, unsigned nr_pages, get_block_t get_block)
 {
 	struct bio *bio = NULL;
 	unsigned page_idx;
@@ -440,8 +431,7 @@ struct mpage_data {
 	unsigned use_writepage;
 };
 
-static int __mpage_writepage(struct page *page, struct writeback_control *wbc,
-		      void *data)
+static int __mpage_writepage(struct page *page, struct writeback_control *wbc, void *data)
 {
 	struct mpage_data *mpd = data;
 	struct bio *bio = mpd->bio;
@@ -669,9 +659,7 @@ out:
  * WB_SYNC_ALL then we were called for data integrity and we must wait for
  * existing IO to complete.
  */
-int
-mpage_writepages(struct address_space *mapping,
-		struct writeback_control *wbc, get_block_t get_block)
+int mpage_writepages(struct address_space *mapping, struct writeback_control *wbc, get_block_t get_block)
 {
 	struct blk_plug plug;
 	int ret;

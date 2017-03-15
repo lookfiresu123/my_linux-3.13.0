@@ -31,6 +31,7 @@
 
 #include "internal.h"
 #include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 /* sysctl tunables... */
 struct files_stat_struct files_stat = {
@@ -52,7 +53,8 @@ static void file_free_rcu(struct rcu_head *head)
 
 static inline void file_free(struct file *f)
 {
-	percpu_counter_dec(&nr_files);
+	// percpu_counter_dec(&nr_files);
+	msg_percpu_counter_dec(&nr_files, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	file_check_state(f);
 	call_rcu(&f->f_u.fu_rcuhead, file_free_rcu);
 }
@@ -78,15 +80,13 @@ EXPORT_SYMBOL_GPL(get_max_files);
  * Handle nr_files sysctl
  */
 #if defined(CONFIG_SYSCTL) && defined(CONFIG_PROC_FS)
-int proc_nr_files(ctl_table *table, int write,
-                     void __user *buffer, size_t *lenp, loff_t *ppos)
+int proc_nr_files(ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
 {
 	files_stat.nr_files = get_nr_files();
 	return proc_doulongvec_minmax(table, write, buffer, lenp, ppos);
 }
 #else
-int proc_nr_files(ctl_table *table, int write,
-                     void __user *buffer, size_t *lenp, loff_t *ppos)
+int proc_nr_files(ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
 {
 	return -ENOSYS;
 }
@@ -121,12 +121,19 @@ struct file *get_empty_filp(void)
 			goto over;
 	}
 
-	f = kmem_cache_zalloc(filp_cachep, GFP_KERNEL);
+	// f = kmem_cache_zalloc(filp_cachep, GFP_KERNEL);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+    f = kmem_cache_zalloc(filp_cachep, GFP_KERNEL);
+  else
+    f = msg_kmem_cache_zalloc(filp_cachep, GFP_KERNEL, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+
 	if (unlikely(!f))
 		return ERR_PTR(-ENOMEM);
 
-	percpu_counter_inc(&nr_files);
-	f->f_cred = get_cred(cred);
+	// percpu_counter_inc(&nr_files);
+	msg_percpu_counter_inc(&nr_files, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+	// f->f_cred = get_cred(cred);
+	f->f_cred = msg_get_cred(cred, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	// error = security_file_alloc(f);
   if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
     error = security_file_alloc(f);
@@ -168,8 +175,7 @@ over:
  * If all the callers of init_file() are eliminated, its
  * code should be moved into this function.
  */
-struct file *alloc_file(struct path *path, fmode_t mode,
-		const struct file_operations *fop)
+struct file *alloc_file(struct path *path, fmode_t mode, const struct file_operations *fop)
 {
 	struct file *file;
 
@@ -317,8 +323,10 @@ void fput(struct file *file)
 			 */
 		}
 
-		if (llist_add(&file->f_u.fu_llist, &delayed_fput_list))
-			schedule_delayed_work(&delayed_fput_work, 1);
+		if (llist_add(&file->f_u.fu_llist, &delayed_fput_list)) {
+			// schedule_delayed_work(&delayed_fput_work, 1);
+			msg_schedule_delayed_work(&delayed_fput_work, 1, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+    }
 	}
 }
 

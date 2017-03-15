@@ -21,6 +21,7 @@
 #include "xattr.h"
 #include "acl.h"
 #include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 /*
  * ialloc.c contains the inodes allocation and deallocation routines
@@ -43,8 +44,7 @@
  *
  * Return buffer_head of bitmap on success or NULL.
  */
-static struct buffer_head *
-read_inode_bitmap(struct super_block * sb, unsigned long block_group)
+static struct buffer_head *read_inode_bitmap(struct super_block * sb, unsigned long block_group)
 {
   MY_PRINTK(get_current()->comm);
 	struct ext2_group_desc *desc;
@@ -429,8 +429,7 @@ found:
 	return group;
 }
 
-struct inode *ext2_new_inode(struct inode *dir, umode_t mode,
-			     const struct qstr *qstr)
+struct inode *ext2_new_inode(struct inode *dir, umode_t mode, const struct qstr *qstr)
 {
 	struct super_block *sb;
 	struct buffer_head *bitmap_bh = NULL;
@@ -527,7 +526,8 @@ got:
 		goto fail;
 	}
 
-	percpu_counter_add(&sbi->s_freeinodes_counter, -1);
+	// percpu_counter_add(&sbi->s_freeinodes_counter, -1);
+	msg_percpu_counter_add(&sbi->s_freeinodes_counter, -1, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	if (S_ISDIR(mode))
 		percpu_counter_inc(&sbi->s_dirs_counter);
 

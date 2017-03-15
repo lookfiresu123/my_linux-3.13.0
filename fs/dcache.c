@@ -41,6 +41,7 @@
 #include "internal.h"
 #include "mount.h"
 #include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 /*
  * Usage:
@@ -103,8 +104,7 @@ static unsigned int d_hash_shift __read_mostly;
 
 static struct hlist_bl_head *dentry_hashtable __read_mostly;
 
-static inline struct hlist_bl_head *d_hash(const struct dentry *parent,
-					unsigned int hash)
+static inline struct hlist_bl_head *d_hash(const struct dentry *parent, unsigned int hash)
 {
 	hash += (unsigned long) parent / L1_CACHE_BYTES;
 	hash = hash + (hash >> d_hash_shift);
@@ -151,8 +151,7 @@ static long get_nr_dentry_unused(void)
 	return sum < 0 ? 0 : sum;
 }
 
-int proc_nr_dentry(ctl_table *table, int write, void __user *buffer,
-		   size_t *lenp, loff_t *ppos)
+int proc_nr_dentry(ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
 {
 	dentry_stat.nr_dentry = get_nr_dentry();
 	dentry_stat.nr_unused = get_nr_dentry_unused();
@@ -912,8 +911,7 @@ static void shrink_dentry_list(struct list_head *list)
 	rcu_read_unlock();
 }
 
-static enum lru_status
-dentry_lru_isolate(struct list_head *item, spinlock_t *lru_lock, void *arg)
+static enum lru_status dentry_lru_isolate(struct list_head *item, spinlock_t *lru_lock, void *arg)
 {
 	struct list_head *freeable = arg;
 	struct dentry	*dentry = container_of(item, struct dentry, d_lru);
@@ -983,8 +981,7 @@ dentry_lru_isolate(struct list_head *item, spinlock_t *lru_lock, void *arg)
  * This function may fail to free any resources if all the dentries are in
  * use.
  */
-long prune_dcache_sb(struct super_block *sb, unsigned long nr_to_scan,
-		     int nid)
+long prune_dcache_sb(struct super_block *sb, unsigned long nr_to_scan, int nid)
 {
 	LIST_HEAD(dispose);
 	long freed;
@@ -995,8 +992,7 @@ long prune_dcache_sb(struct super_block *sb, unsigned long nr_to_scan,
 	return freed;
 }
 
-static enum lru_status dentry_lru_isolate_shrink(struct list_head *item,
-						spinlock_t *lru_lock, void *arg)
+static enum lru_status dentry_lru_isolate_shrink(struct list_head *item, spinlock_t *lru_lock, void *arg)
 {
 	struct list_head *freeable = arg;
 	struct dentry	*dentry = container_of(item, struct dentry, d_lru);
@@ -1062,9 +1058,7 @@ enum d_walk_ret {
  *
  * The @enter() and @finish() callbacks are called with d_lock held.
  */
-static void d_walk(struct dentry *parent, void *data,
-		   enum d_walk_ret (*enter)(void *, struct dentry *),
-		   void (*finish)(void *))
+static void d_walk(struct dentry *parent, void *data, enum d_walk_ret (*enter)(void *, struct dentry *), void (*finish)(void *))
 {
 	struct dentry *this_parent;
 	struct list_head *next;
@@ -1703,8 +1697,7 @@ EXPORT_SYMBOL(d_instantiate);
  * (or otherwise set) by the caller to indicate that it is now
  * in use by the dcache.
  */
-static struct dentry *__d_instantiate_unique(struct dentry *entry,
-					     struct inode *inode)
+static struct dentry *__d_instantiate_unique(struct dentry *entry, struct inode *inode)
 {
 	struct dentry *alias;
 	int len = entry->d_name.len;
@@ -1979,8 +1972,7 @@ EXPORT_SYMBOL(d_splice_alias);
  * If no entry exists with the exact case name, allocate new dentry with
  * the exact case, and return the spliced entry.
  */
-struct dentry *d_add_ci(struct dentry *dentry, struct inode *inode,
-			struct qstr *name)
+struct dentry *d_add_ci(struct dentry *dentry, struct inode *inode, struct qstr *name)
 {
 	struct dentry *found;
 	struct dentry *new;
@@ -2107,9 +2099,7 @@ static noinline enum slow_d_compare slow_dentry_cmp(
  * NOTE! The caller *has* to check the resulting dentry against the sequence
  * number we've returned before using any of the resulting dentry state!
  */
-struct dentry *__d_lookup_rcu(const struct dentry *parent,
-				const struct qstr *name,
-				unsigned *seqp)
+struct dentry *__d_lookup_rcu(const struct dentry *parent, const struct qstr *name, unsigned *seqp)
 {
 	u64 hashlen = name->hash_len;
 	const unsigned char *str = name->name;
@@ -2201,7 +2191,8 @@ struct dentry *d_lookup(const struct dentry *parent, const struct qstr *name)
 	unsigned seq;
 
         do {
-                seq = read_seqbegin(&rename_lock);
+          // seq = read_seqbegin(&rename_lock);
+          seq = msg_read_seqbegin(&rename_lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
                 dentry = __d_lookup(parent, name);
                 if (dentry)
 			break;
@@ -2528,8 +2519,7 @@ static void dentry_lock_for_move(struct dentry *dentry, struct dentry *target)
 	}
 }
 
-static void dentry_unlock_parents_for_move(struct dentry *dentry,
-					struct dentry *target)
+static void dentry_unlock_parents_for_move(struct dentry *dentry, struct dentry *target)
 {
 	if (target->d_parent != dentry->d_parent)
 		spin_unlock(&dentry->d_parent->d_lock);
@@ -2658,8 +2648,7 @@ struct dentry *d_ancestor(struct dentry *p1, struct dentry *p2)
  * Note: If ever the locking in lock_rename() changes, then please
  * remember to update this too...
  */
-static struct dentry *__d_unalias(struct inode *inode,
-		struct dentry *dentry, struct dentry *alias)
+static struct dentry *__d_unalias(struct inode *inode, struct dentry *dentry, struct dentry *alias)
 {
 	struct mutex *m1 = NULL, *m2 = NULL;
 	struct dentry *ret = ERR_PTR(-EBUSY);
@@ -2871,9 +2860,7 @@ static int prepend_name(char **buffer, int *buflen, struct qstr *name)
  * parent pointer references will keep the dentry chain alive as long as no
  * rename operation is performed.
  */
-static int prepend_path(const struct path *path,
-			const struct path *root,
-			char **buffer, int *buflen)
+static int prepend_path(const struct path *path, const struct path *root, char **buffer, int *buflen)
 {
 	struct dentry *dentry;
 	struct vfsmount *vfsmnt;
@@ -2974,9 +2961,7 @@ restart:
  *
  * If the path is not reachable from the supplied root, return %NULL.
  */
-char *__d_path(const struct path *path,
-	       const struct path *root,
-	       char *buf, int buflen)
+char *__d_path(const struct path *path, const struct path *root, char *buf, int buflen)
 {
 	char *res = buf + buflen;
 	int error;
@@ -2991,8 +2976,7 @@ char *__d_path(const struct path *path,
 	return res;
 }
 
-char *d_absolute_path(const struct path *path,
-	       char *buf, int buflen)
+char *d_absolute_path(const struct path *path, char *buf, int buflen)
 {
 	struct path root = {};
 	char *res = buf + buflen;
@@ -3011,9 +2995,7 @@ char *d_absolute_path(const struct path *path,
 /*
  * same as __d_path but appends "(deleted)" for unlinked files.
  */
-static int path_with_deleted(const struct path *path,
-			     const struct path *root,
-			     char **buf, int *buflen)
+static int path_with_deleted(const struct path *path, const struct path *root, char **buf, int *buflen)
 {
 	prepend(buf, buflen, "\0", 1);
 	if (d_unlinked(path->dentry)) {
@@ -3091,8 +3073,7 @@ EXPORT_SYMBOL(d_path);
 /*
  * Helper function for dentry_operations.d_dname() members
  */
-char *dynamic_dname(struct dentry *dentry, char *buffer, int buflen,
-			const char *fmt, ...)
+char *dynamic_dname(struct dentry *dentry, char *buffer, int buflen, const char *fmt, ...)
 {
 	va_list args;
 	char temp[64];

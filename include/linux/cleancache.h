@@ -4,6 +4,7 @@
 #include <linux/fs.h>
 #include <linux/exportfs.h>
 #include <linux/mm.h>
+#include <linux/interactive_design.h>
 
 #define CLEANCACHE_KEY_MAX 6
 
@@ -115,6 +116,7 @@ static inline void cleancache_invalidate_inode(struct address_space *mapping)
 
 static inline void cleancache_invalidate_fs(struct super_block *sb)
 {
+  MY_PRINTK(get_current()->comm);
 	if (cleancache_enabled)
 		__cleancache_invalidate_fs(sb);
 }

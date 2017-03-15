@@ -66,16 +66,14 @@ const char *__bdevname(dev_t dev, char *buffer)
 
 EXPORT_SYMBOL(__bdevname);
 
-static ssize_t part_partition_show(struct device *dev,
-				   struct device_attribute *attr, char *buf)
+static ssize_t part_partition_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct hd_struct *p = dev_to_part(dev);
 
 	return sprintf(buf, "%d\n", p->partno);
 }
 
-static ssize_t part_start_show(struct device *dev,
-			       struct device_attribute *attr, char *buf)
+static ssize_t part_start_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct hd_struct *p = dev_to_part(dev);
 

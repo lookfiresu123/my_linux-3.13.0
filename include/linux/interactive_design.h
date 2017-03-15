@@ -1,7 +1,8 @@
 #ifndef _INTERACTIVE_DESIGN_H
 #define _INTERACTIVE_DESIGN_H
 
-#include<linux/my_msg.h>
+//#include<linux/my_msg.h>
+#include<linux/sched.h>
 
 static int my_strcmp(const char *cs, const char *ct) {
 	unsigned char c1, c2;

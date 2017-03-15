@@ -574,9 +574,9 @@ endif # $(dot-config)
 all: vmlinux
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
-KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
+KBUILD_CFLAGS	+= -O1 $(call cc-disable-warning,maybe-uninitialized,)
 else
-KBUILD_CFLAGS	+= -O2
+KBUILD_CFLAGS	+= -O1
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
@@ -588,7 +588,8 @@ ifdef CONFIG_READABLE_ASM
 # partial inlining inlines only parts of functions
 KBUILD_CFLAGS += $(call cc-option,-fno-reorder-blocks,) \
                  $(call cc-option,-fno-ipa-cp-clone,) \
-                 $(call cc-option,-fno-partial-inlining)
+                 $(call cc-option,-fno-partial-inlining) \
+								 $(call cc-option,-fno-inline-functions-called-once)
 endif
 
 ifneq ($(CONFIG_FRAME_WARN),0)

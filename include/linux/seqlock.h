@@ -36,6 +36,7 @@
 #include <linux/preempt.h>
 #include <linux/lockdep.h>
 #include <asm/processor.h>
+// #include <linux/interactive_design.h>
 
 /*
  * Version using sequence counter only.
@@ -282,6 +283,7 @@ typedef struct {
  */
 static inline unsigned read_seqbegin(const seqlock_t *sl)
 {
+  // MY_PRINTK(get_current()->comm);
 	return read_seqcount_begin(&sl->seqcount);
 }
 

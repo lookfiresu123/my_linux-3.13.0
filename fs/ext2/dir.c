@@ -205,12 +205,12 @@ fail:
 	SetPageError(page);
 }
 
-static struct page * ext2_get_page(struct inode *dir, unsigned long n,
-				   int quiet)
+static struct page * ext2_get_page(struct inode *dir, unsigned long n, int quiet)
 {
   // MY_PRINTK(get_current()->comm);
 	struct address_space *mapping = dir->i_mapping;
-	struct page *page = read_mapping_page(mapping, n, NULL);
+	// struct page *page = read_mapping_page(mapping, n, NULL);
+	struct page *page = msg_read_mapping_page(mapping, n, NULL, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	if (!IS_ERR(page)) {
 		kmap(page);
 		if (!PageChecked(page))
@@ -230,8 +230,7 @@ fail:
  *
  * len <= EXT2_NAME_LEN and de != NULL are guaranteed by caller.
  */
-static inline int ext2_match (int len, const char * const name,
-					struct ext2_dir_entry_2 * de)
+static inline int ext2_match (int len, const char * const name, struct ext2_dir_entry_2 * de)
 {
 	if (len != de->name_len)
 		return 0;
@@ -249,8 +248,7 @@ static inline ext2_dirent *ext2_next_entry(ext2_dirent *p)
 			ext2_rec_len_from_disk(p->rec_len));
 }
 
-static inline unsigned 
-ext2_validate_entry(char *base, unsigned offset, unsigned mask)
+static inline unsigned ext2_validate_entry(char *base, unsigned offset, unsigned mask)
 {
 	ext2_dirent *de = (ext2_dirent*)(base + offset);
 	ext2_dirent *p = (ext2_dirent*)(base + (offset&mask));
@@ -293,8 +291,7 @@ static inline void ext2_set_de_type(ext2_dirent *de, struct inode *inode)
 		de->file_type = 0;
 }
 
-static int
-ext2_readdir(struct file *file, struct dir_context *ctx)
+static int ext2_readdir(struct file *file, struct dir_context *ctx)
 {
 	loff_t pos = ctx->pos;
 	struct inode *inode = file_inode(file);
@@ -370,8 +367,7 @@ ext2_readdir(struct file *file, struct dir_context *ctx)
  * and the entry itself. Page is returned mapped and unlocked.
  * Entry is guaranteed to be valid.
  */
-struct ext2_dir_entry_2 *ext2_find_entry (struct inode * dir,
-			struct qstr *child, struct page ** res_page)
+struct ext2_dir_entry_2 *ext2_find_entry (struct inode * dir, struct qstr *child, struct page ** res_page)
 {
   // MY_PRINTK(get_current()->comm);
 	const char *name = child->name;
@@ -469,8 +465,7 @@ static int ext2_prepare_chunk(struct page *page, loff_t pos, unsigned len)
 }
 
 /* Releases the page */
-void ext2_set_link(struct inode *dir, struct ext2_dir_entry_2 *de,
-		   struct page *page, struct inode *inode, int update_times)
+void ext2_set_link(struct inode *dir, struct ext2_dir_entry_2 *de, struct page *page, struct inode *inode, int update_times)
 {
 	loff_t pos = page_offset(page) +
 			(char *) de - (char *) page_address(page);

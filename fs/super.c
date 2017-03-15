@@ -36,6 +36,7 @@
 #include <linux/lockdep.h>
 #include "internal.h"
 #include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 
 LIST_HEAD(super_blocks);
@@ -54,8 +55,7 @@ static char *sb_writers_name[SB_FREEZE_LEVELS] = {
  * shrinker path and that leads to deadlock on the shrinker_rwsem. Hence we
  * take a passive reference to the superblock to avoid this from occurring.
  */
-static unsigned long super_cache_scan(struct shrinker *shrink,
-				      struct shrink_control *sc)
+static unsigned long super_cache_scan(struct shrinker *shrink, struct shrink_control *sc)
 {
 	struct super_block *sb;
 	long	fs_objects = 0;
@@ -105,8 +105,7 @@ static unsigned long super_cache_scan(struct shrinker *shrink,
 	return freed;
 }
 
-static unsigned long super_cache_count(struct shrinker *shrink,
-				       struct shrink_control *sc)
+static unsigned long super_cache_count(struct shrinker *shrink, struct shrink_control *sc)
 {
 	struct super_block *sb;
 	long	total_objects = 0;
@@ -277,7 +276,8 @@ void deactivate_locked_super(struct super_block *s)
 {
 	struct file_system_type *fs = s->s_type;
 	if (atomic_dec_and_test(&s->s_active)) {
-		cleancache_invalidate_fs(s);
+		// cleancache_invalidate_fs(s);
+		msg_cleancache_invalidate_fs(s, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		fs->kill_sb(s);
 
 		/* caches are now gone, we can safely kill the shrinker now */
@@ -428,11 +428,7 @@ EXPORT_SYMBOL(generic_shutdown_super);
  *	@flags:	mount flags
  *	@data:	argument to each of them
  */
-struct super_block *sget(struct file_system_type *type,
-			int (*test)(struct super_block *,void *),
-			int (*set)(struct super_block *,void *),
-			int flags,
-			void *data)
+struct super_block *sget(struct file_system_type *type, int (*test)(struct super_block *,void *), int (*set)(struct super_block *,void *), int flags, void *data)
 {
 	struct super_block *s = NULL;
 	struct super_block *old;
@@ -532,8 +528,7 @@ void iterate_supers(void (*f)(struct super_block *, void *), void *arg)
  *	Scans the superblock list and calls given function, passing it
  *	locked superblock and given argument.
  */
-void iterate_supers_type(struct file_system_type *type,
-	void (*f)(struct super_block *, void *), void *arg)
+void iterate_supers_type(struct file_system_type *type, void (*f)(struct super_block *, void *), void *arg)
 {
 	struct super_block *sb, *p = NULL;
 
@@ -887,8 +882,7 @@ static int ns_set_super(struct super_block *sb, void *data)
 	return set_anon_super(sb, NULL);
 }
 
-struct dentry *mount_ns(struct file_system_type *fs_type, int flags,
-	void *data, int (*fill_super)(struct super_block *, void *, int))
+struct dentry *mount_ns(struct file_system_type *fs_type, int flags, void *data, int (*fill_super)(struct super_block *, void *, int))
 {
 	struct super_block *sb;
 
@@ -931,9 +925,7 @@ static int test_bdev_super(struct super_block *s, void *data)
 	return (void *)s->s_bdev == data;
 }
 
-struct dentry *mount_bdev(struct file_system_type *fs_type,
-	int flags, const char *dev_name, void *data,
-	int (*fill_super)(struct super_block *, void *, int))
+struct dentry *mount_bdev(struct file_system_type *fs_type, int flags, const char *dev_name, void *data, int (*fill_super)(struct super_block *, void *, int))
 {
 	struct block_device *bdev;
 	struct super_block *s;
@@ -1023,9 +1015,7 @@ void kill_block_super(struct super_block *sb)
 EXPORT_SYMBOL(kill_block_super);
 #endif
 
-struct dentry *mount_nodev(struct file_system_type *fs_type,
-	int flags, void *data,
-	int (*fill_super)(struct super_block *, void *, int))
+struct dentry *mount_nodev(struct file_system_type *fs_type, int flags, void *data, int (*fill_super)(struct super_block *, void *, int))
 {
 	int error;
 	struct super_block *s = sget(fs_type, NULL, set_anon_super, flags, NULL);
@@ -1048,9 +1038,7 @@ static int compare_single(struct super_block *s, void *p)
 	return 1;
 }
 
-struct dentry *mount_single(struct file_system_type *fs_type,
-	int flags, void *data,
-	int (*fill_super)(struct super_block *, void *, int))
+struct dentry *mount_single(struct file_system_type *fs_type, int flags, void *data, int (*fill_super)(struct super_block *, void *, int))
 {
 	struct super_block *s;
 	int error;
@@ -1072,8 +1060,7 @@ struct dentry *mount_single(struct file_system_type *fs_type,
 }
 EXPORT_SYMBOL(mount_single);
 
-struct dentry *
-mount_fs(struct file_system_type *type, int flags, const char *name, void *data)
+struct dentry *mount_fs(struct file_system_type *type, int flags, const char *name, void *data)
 {
 	struct dentry *root;
 	struct super_block *sb;
@@ -1162,8 +1149,7 @@ EXPORT_SYMBOL(lock_is_held_gpl);
  * to these cases we have to tell lockdep we are doing trylock when we
  * already hold a freeze protection for a higher freeze level.
  */
-static void acquire_freeze_lock(struct super_block *sb, int level, bool trylock,
-				unsigned long ip)
+static void acquire_freeze_lock(struct super_block *sb, int level, bool trylock, unsigned long ip)
 {
 	int i;
 

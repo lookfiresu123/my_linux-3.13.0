@@ -458,8 +458,7 @@ struct files_struct init_files = {
 /*
  * allocate a file descriptor, mark it busy.
  */
-int __alloc_fd(struct files_struct *files,
-	       unsigned start, unsigned end, unsigned flags)
+int __alloc_fd(struct files_struct *files, unsigned start, unsigned end, unsigned flags)
 {
 	unsigned int fd;
 	int error;
@@ -565,8 +564,7 @@ EXPORT_SYMBOL(put_unused_fd);
  * fd_install() instead.
  */
 
-void __fd_install(struct files_struct *files, unsigned int fd,
-		struct file *file)
+void __fd_install(struct files_struct *files, unsigned int fd, struct file *file)
 {
 	struct fdtable *fdt;
 	spin_lock(&files->file_lock);
@@ -777,8 +775,7 @@ bool get_close_on_exec(unsigned int fd)
 	return res;
 }
 
-static int do_dup2(struct files_struct *files,
-	struct file *file, unsigned fd, unsigned flags)
+static int do_dup2(struct files_struct *files, struct file *file, unsigned fd, unsigned flags)
 {
 	struct file *tofree;
 	struct fdtable *fdt;
@@ -919,9 +916,7 @@ int f_dupfd(unsigned int from, struct file *file, unsigned flags)
 	return err;
 }
 
-int iterate_fd(struct files_struct *files, unsigned n,
-		int (*f)(const void *, struct file *, unsigned),
-		const void *p)
+int iterate_fd(struct files_struct *files, unsigned n, int (*f)(const void *, struct file *, unsigned), const void *p)
 {
 	struct fdtable *fdt;
 	int res = 0;

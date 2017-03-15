@@ -141,8 +141,7 @@ static int padzero(unsigned long elf_bss)
 #endif
 
 static int
-create_elf_tables(struct linux_binprm *bprm, struct elfhdr *exec,
-		unsigned long load_addr, unsigned long interp_load_addr)
+create_elf_tables(struct linux_binprm *bprm, struct elfhdr *exec, unsigned long load_addr, unsigned long interp_load_addr)
 {
 	unsigned long p = bprm->p;
 	int argc = bprm->argc;
@@ -327,9 +326,7 @@ create_elf_tables(struct linux_binprm *bprm, struct elfhdr *exec,
 
 #ifndef elf_map
 
-static unsigned long elf_map(struct file *filep, unsigned long addr,
-		struct elf_phdr *eppnt, int prot, int type,
-		unsigned long total_size)
+static unsigned long elf_map(struct file *filep, unsigned long addr, struct elf_phdr *eppnt, int prot, int type, unsigned long total_size)
 {
 	unsigned long map_addr;
 	unsigned long size = eppnt->p_filesz + ELF_PAGEOFFSET(eppnt->p_vaddr);
@@ -387,9 +384,7 @@ static unsigned long total_mapping_size(struct elf_phdr *cmds, int nr)
    is only provided so that we can read a.out libraries that have
    an ELF header */
 
-static unsigned long load_elf_interp(struct elfhdr *interp_elf_ex,
-		struct file *interpreter, unsigned long *interp_map_addr,
-		unsigned long no_base)
+static unsigned long load_elf_interp(struct elfhdr *interp_elf_ex, struct file *interpreter, unsigned long *interp_map_addr, unsigned long no_base)
 {
 	struct elf_phdr *elf_phdata;
 	struct elf_phdr *eppnt;
@@ -1121,8 +1116,7 @@ static bool always_dump_vma(struct vm_area_struct *vma)
 /*
  * Decide what to dump of a segment, part, all or none.
  */
-static unsigned long vma_dump_size(struct vm_area_struct *vma,
-				   unsigned long mm_flags)
+static unsigned long vma_dump_size(struct vm_area_struct *vma, unsigned long mm_flags)
 {
 #define FILTER(type)	(mm_flags & (1UL << MMF_DUMP_##type))
 
@@ -1237,8 +1231,7 @@ static int writenote(struct memelfnote *men, struct coredump_params *cprm)
 	    dump_emit(cprm, men->data, men->datasz) && dump_align(cprm, 4);
 }
 
-static void fill_elf_header(struct elfhdr *elf, int segs,
-			    u16 machine, u32 flags)
+static void fill_elf_header(struct elfhdr *elf, int segs, u16 machine, u32 flags)
 {
 	memset(elf, 0, sizeof(*elf));
 
@@ -1273,8 +1266,7 @@ static void fill_elf_note_phdr(struct elf_phdr *phdr, int sz, loff_t offset)
 	return;
 }
 
-static void fill_note(struct memelfnote *note, const char *name, int type, 
-		unsigned int sz, void *data)
+static void fill_note(struct memelfnote *note, const char *name, int type, unsigned int sz, void *data)
 {
 	note->name = name;
 	note->type = type;
@@ -1287,8 +1279,7 @@ static void fill_note(struct memelfnote *note, const char *name, int type,
  * fill up all the fields in prstatus from the given task struct, except
  * registers which need to be filled up separately.
  */
-static void fill_prstatus(struct elf_prstatus *prstatus,
-		struct task_struct *p, long signr)
+static void fill_prstatus(struct elf_prstatus *prstatus, struct task_struct *p, long signr)
 {
 	prstatus->pr_info.si_signo = prstatus->pr_cursig = signr;
 	prstatus->pr_sigpend = p->pending.signal.sig[0];
@@ -1320,8 +1311,7 @@ static void fill_prstatus(struct elf_prstatus *prstatus,
 	cputime_to_timeval(p->signal->cstime, &prstatus->pr_cstime);
 }
 
-static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p,
-		       struct mm_struct *mm)
+static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p, struct mm_struct *mm)
 {
 	const struct cred *cred;
 	unsigned int i, len;
@@ -1373,8 +1363,7 @@ static void fill_auxv_note(struct memelfnote *note, struct mm_struct *mm)
 	fill_note(note, "CORE", NT_AUXV, i * sizeof(elf_addr_t), auxv);
 }
 
-static void fill_siginfo_note(struct memelfnote *note, user_siginfo_t *csigdata,
-		const siginfo_t *siginfo)
+static void fill_siginfo_note(struct memelfnote *note, user_siginfo_t *csigdata, const siginfo_t *siginfo)
 {
 	mm_segment_t old_fs = get_fs();
 	set_fs(KERNEL_DS);
@@ -1496,8 +1485,7 @@ struct elf_note_info {
  * dumping user memory.  On register window machines, this makes sure the
  * user memory backing the register data is up to date before we read it.
  */
-static void do_thread_regset_writeback(struct task_struct *task,
-				       const struct user_regset *regset)
+static void do_thread_regset_writeback(struct task_struct *task, const struct user_regset *regset)
 {
 	if (regset->writeback)
 		regset->writeback(task, regset, 1);
@@ -1519,9 +1507,7 @@ static void do_thread_regset_writeback(struct task_struct *task,
 #define SET_PR_FPVALID(S, V) ((S)->pr_fpvalid = (V))
 #endif
 
-static int fill_thread_core_info(struct elf_thread_core_info *t,
-				 const struct user_regset_view *view,
-				 long signr, size_t *total)
+static int fill_thread_core_info(struct elf_thread_core_info *t, const struct user_regset_view *view, long signr, size_t *total)
 {
 	unsigned int i;
 
@@ -1579,9 +1565,7 @@ static int fill_thread_core_info(struct elf_thread_core_info *t,
 	return 1;
 }
 
-static int fill_note_info(struct elfhdr *elf, int phdrs,
-			  struct elf_note_info *info,
-			  const siginfo_t *siginfo, struct pt_regs *regs)
+static int fill_note_info(struct elfhdr *elf, int phdrs, struct elf_note_info *info, const siginfo_t *siginfo, struct pt_regs *regs)
 {
 	struct task_struct *dump_task = current;
 	const struct user_regset_view *view = task_user_regset_view(dump_task);
@@ -1683,8 +1667,7 @@ static size_t get_note_info_size(struct elf_note_info *info)
  * Write all the notes for each thread.  When writing the first thread, the
  * process-wide notes are interleaved after the first thread-specific note.
  */
-static int write_note_info(struct elf_note_info *info,
-			   struct coredump_params *cprm)
+static int write_note_info(struct elf_note_info *info, struct coredump_params *cprm)
 {
 	bool first = 1;
 	struct elf_thread_core_info *t = info->thread;
@@ -1828,9 +1811,7 @@ static int elf_note_info_init(struct elf_note_info *info)
 	return 1;
 }
 
-static int fill_note_info(struct elfhdr *elf, int phdrs,
-			  struct elf_note_info *info,
-			  const siginfo_t *siginfo, struct pt_regs *regs)
+static int fill_note_info(struct elfhdr *elf, int phdrs, struct elf_note_info *info, const siginfo_t *siginfo, struct pt_regs *regs)
 {
 	struct list_head *t;
 	struct core_thread *ct;
@@ -1913,8 +1894,7 @@ static size_t get_note_info_size(struct elf_note_info *info)
 	return sz;
 }
 
-static int write_note_info(struct elf_note_info *info,
-			   struct coredump_params *cprm)
+static int write_note_info(struct elf_note_info *info, struct coredump_params *cprm)
 {
 	int i;
 	struct list_head *t;
@@ -1959,8 +1939,7 @@ static void free_note_info(struct elf_note_info *info)
 
 #endif
 
-static struct vm_area_struct *first_vma(struct task_struct *tsk,
-					struct vm_area_struct *gate_vma)
+static struct vm_area_struct *first_vma(struct task_struct *tsk, struct vm_area_struct *gate_vma)
 {
 	struct vm_area_struct *ret = tsk->mm->mmap;
 
@@ -1972,8 +1951,7 @@ static struct vm_area_struct *first_vma(struct task_struct *tsk,
  * Helper function for iterating across a vma list.  It ensures that the caller
  * will visit `gate_vma' prior to terminating the search.
  */
-static struct vm_area_struct *next_vma(struct vm_area_struct *this_vma,
-					struct vm_area_struct *gate_vma)
+static struct vm_area_struct *next_vma(struct vm_area_struct *this_vma, struct vm_area_struct *gate_vma)
 {
 	struct vm_area_struct *ret;
 
@@ -1985,8 +1963,7 @@ static struct vm_area_struct *next_vma(struct vm_area_struct *this_vma,
 	return gate_vma;
 }
 
-static void fill_extnum_info(struct elfhdr *elf, struct elf_shdr *shdr4extnum,
-			     elf_addr_t e_shoff, int segs)
+static void fill_extnum_info(struct elfhdr *elf, struct elf_shdr *shdr4extnum, elf_addr_t e_shoff, int segs)
 {
 	elf->e_shoff = e_shoff;
 	elf->e_shentsize = sizeof(*shdr4extnum);
@@ -2001,8 +1978,7 @@ static void fill_extnum_info(struct elfhdr *elf, struct elf_shdr *shdr4extnum,
 	shdr4extnum->sh_info = segs;
 }
 
-static size_t elf_core_vma_data_size(struct vm_area_struct *gate_vma,
-				     unsigned long mm_flags)
+static size_t elf_core_vma_data_size(struct vm_area_struct *gate_vma, unsigned long mm_flags)
 {
 	struct vm_area_struct *vma;
 	size_t size = 0;

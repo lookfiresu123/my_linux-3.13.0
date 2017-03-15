@@ -304,8 +304,7 @@ EXPORT_SYMBOL(put_pages_list);
  * were pinned, returns -errno. Each page returned must be released
  * with a put_page() call when it is finished with.
  */
-int get_kernel_pages(const struct kvec *kiov, int nr_segs, int write,
-		struct page **pages)
+int get_kernel_pages(const struct kvec *kiov, int nr_segs, int write, struct page **pages)
 {
 	int seg;
 
@@ -343,9 +342,7 @@ int get_kernel_page(unsigned long start, int write, struct page **pages)
 }
 EXPORT_SYMBOL_GPL(get_kernel_page);
 
-static void pagevec_lru_move_fn(struct pagevec *pvec,
-	void (*move_fn)(struct page *page, struct lruvec *lruvec, void *arg),
-	void *arg)
+static void pagevec_lru_move_fn(struct pagevec *pvec, void (*move_fn)(struct page *page, struct lruvec *lruvec, void *arg), void *arg)
 {
 	int i;
 	struct zone *zone = NULL;
@@ -372,8 +369,7 @@ static void pagevec_lru_move_fn(struct pagevec *pvec,
 	pagevec_reinit(pvec);
 }
 
-static void pagevec_move_tail_fn(struct page *page, struct lruvec *lruvec,
-				 void *arg)
+static void pagevec_move_tail_fn(struct page *page, struct lruvec *lruvec, void *arg)
 {
 	int *pgmoved = arg;
 
@@ -417,8 +413,7 @@ void rotate_reclaimable_page(struct page *page)
 	}
 }
 
-static void update_page_reclaim_stat(struct lruvec *lruvec,
-				     int file, int rotated)
+static void update_page_reclaim_stat(struct lruvec *lruvec, int file, int rotated)
 {
 	struct zone_reclaim_stat *reclaim_stat = &lruvec->reclaim_stat;
 
@@ -427,8 +422,7 @@ static void update_page_reclaim_stat(struct lruvec *lruvec,
 		reclaim_stat->recent_rotated[file]++;
 }
 
-static void __activate_page(struct page *page, struct lruvec *lruvec,
-			    void *arg)
+static void __activate_page(struct page *page, struct lruvec *lruvec, void *arg)
 {
 	if (PageLRU(page) && !PageActive(page) && !PageUnevictable(page)) {
 		int file = page_is_file_cache(page);
@@ -624,8 +618,7 @@ void add_page_to_unevictable_list(struct page *page)
  * be write it out by flusher threads as this is much more effective
  * than the single-page writeout from reclaim.
  */
-static void lru_deactivate_fn(struct page *page, struct lruvec *lruvec,
-			      void *arg)
+static void lru_deactivate_fn(struct page *page, struct lruvec *lruvec, void *arg)
 {
 	int lru, file;
 	bool active;
@@ -933,19 +926,16 @@ EXPORT_SYMBOL(__pagevec_lru_add);
  *
  * pagevec_lookup() returns the number of pages which were found.
  */
-unsigned pagevec_lookup(struct pagevec *pvec, struct address_space *mapping,
-		pgoff_t start, unsigned nr_pages)
+unsigned pagevec_lookup(struct pagevec *pvec, struct address_space *mapping, pgoff_t start, unsigned nr_pages)
 {
 	pvec->nr = find_get_pages(mapping, start, nr_pages, pvec->pages);
 	return pagevec_count(pvec);
 }
 EXPORT_SYMBOL(pagevec_lookup);
 
-unsigned pagevec_lookup_tag(struct pagevec *pvec, struct address_space *mapping,
-		pgoff_t *index, int tag, unsigned nr_pages)
+unsigned pagevec_lookup_tag(struct pagevec *pvec, struct address_space *mapping, pgoff_t *index, int tag, unsigned nr_pages)
 {
-	pvec->nr = find_get_pages_tag(mapping, index, tag,
-					nr_pages, pvec->pages);
+	pvec->nr = find_get_pages_tag(mapping, index, tag, nr_pages, pvec->pages);
 	return pagevec_count(pvec);
 }
 EXPORT_SYMBOL(pagevec_lookup_tag);

@@ -107,8 +107,7 @@ long get_nr_dirty_inodes(void)
  * Handle nr_inode sysctl
  */
 #ifdef CONFIG_SYSCTL
-int proc_nr_inodes(ctl_table *table, int write,
-		   void __user *buffer, size_t *lenp, loff_t *ppos)
+int proc_nr_inodes(ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
 {
 	inodes_stat.nr_inodes = get_nr_inodes();
 	inodes_stat.nr_unused = get_nr_inodes_unused();
@@ -690,8 +689,7 @@ int invalidate_inodes(struct super_block *sb, bool kill_dirty)
  * LRU does not have strict ordering. Hence we don't want to reclaim inodes
  * with this flag set because they are the inodes that are out of order.
  */
-static enum lru_status
-inode_lru_isolate(struct list_head *item, spinlock_t *lru_lock, void *arg)
+static enum lru_status inode_lru_isolate(struct list_head *item, spinlock_t *lru_lock, void *arg)
 {
 	struct list_head *freeable = arg;
 	struct inode	*inode = container_of(item, struct inode, i_lru);
@@ -756,8 +754,7 @@ inode_lru_isolate(struct list_head *item, spinlock_t *lru_lock, void *arg)
  * to trim from the LRU. Inodes to be freed are moved to a temporary list and
  * then are freed outside inode_lock by dispose_list().
  */
-long prune_icache_sb(struct super_block *sb, unsigned long nr_to_scan,
-		     int nid)
+long prune_icache_sb(struct super_block *sb, unsigned long nr_to_scan, int nid)
 {
 	LIST_HEAD(freeable);
 	long freed;
@@ -801,8 +798,7 @@ repeat:
  * find_inode_fast is the fast path version of find_inode, see the comment at
  * iget_locked for details.
  */
-static struct inode *find_inode_fast(struct super_block *sb,
-				struct hlist_head *head, unsigned long ino)
+static struct inode *find_inode_fast(struct super_block *sb, struct hlist_head *head, unsigned long ino)
 {
 	struct inode *inode = NULL;
 
@@ -1011,9 +1007,7 @@ EXPORT_SYMBOL(unlock_two_nondirectories);
  * Note both @test and @set are called with the inode_hash_lock held, so can't
  * sleep.
  */
-struct inode *iget5_locked(struct super_block *sb, unsigned long hashval,
-		int (*test)(struct inode *, void *),
-		int (*set)(struct inode *, void *), void *data)
+struct inode *iget5_locked(struct super_block *sb, unsigned long hashval, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *data)
 {
 	struct hlist_head *head = inode_hashtable + hash(sb, hashval);
 	struct inode *inode;
@@ -1230,8 +1224,7 @@ EXPORT_SYMBOL(igrab);
  *
  * Note2: @test is called with the inode_hash_lock held, so can't sleep.
  */
-struct inode *ilookup5_nowait(struct super_block *sb, unsigned long hashval,
-		int (*test)(struct inode *, void *), void *data)
+struct inode *ilookup5_nowait(struct super_block *sb, unsigned long hashval, int (*test)(struct inode *, void *), void *data)
 {
 	struct hlist_head *head = inode_hashtable + hash(sb, hashval);
 	struct inode *inode;
@@ -1261,8 +1254,7 @@ EXPORT_SYMBOL(ilookup5_nowait);
  *
  * Note: @test is called with the inode_hash_lock held, so can't sleep.
  */
-struct inode *ilookup5(struct super_block *sb, unsigned long hashval,
-		int (*test)(struct inode *, void *), void *data)
+struct inode *ilookup5(struct super_block *sb, unsigned long hashval, int (*test)(struct inode *, void *), void *data)
 {
 	struct inode *inode = ilookup5_nowait(sb, hashval, test, data);
 
@@ -1337,8 +1329,7 @@ int insert_inode_locked(struct inode *inode)
 }
 EXPORT_SYMBOL(insert_inode_locked);
 
-int insert_inode_locked4(struct inode *inode, unsigned long hashval,
-		int (*test)(struct inode *, void *), void *data)
+int insert_inode_locked4(struct inode *inode, unsigned long hashval, int (*test)(struct inode *, void *), void *data)
 {
 	struct super_block *sb = inode->i_sb;
 	struct hlist_head *head = inode_hashtable + hash(sb, hashval);
@@ -1479,8 +1470,7 @@ EXPORT_SYMBOL(bmap);
  * earlier than either the ctime or mtime or if at least a day has
  * passed since the last atime update.
  */
-static int relatime_need_update(struct vfsmount *mnt, struct inode *inode,
-			     struct timespec now)
+static int relatime_need_update(struct vfsmount *mnt, struct inode *inode, struct timespec now)
 {
 
 	if (!(mnt->mnt_flags & MNT_RELATIME))
@@ -1837,8 +1827,7 @@ EXPORT_SYMBOL(init_special_inode);
  * @dir: Directory inode
  * @mode: mode of the new inode
  */
-void inode_init_owner(struct inode *inode, const struct inode *dir,
-			umode_t mode)
+void inode_init_owner(struct inode *inode, const struct inode *dir, umode_t mode)
 {
 	inode->i_uid = current_fsuid();
 	if (dir && dir->i_mode & S_ISGID) {

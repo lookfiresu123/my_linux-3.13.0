@@ -21,6 +21,7 @@
 #include <linux/xattr.h>
 #include <linux/fs.h>
 #include <linux/percpu-refcount.h>
+#include <linux/interactive_design.h>
 
 #ifdef CONFIG_CGROUPS
 
@@ -131,6 +132,7 @@ static inline bool css_tryget(struct cgroup_subsys_state *css)
  */
 static inline void css_put(struct cgroup_subsys_state *css)
 {
+  MY_PRINTK(get_current()->comm);
 	if (!(css->flags & CSS_ROOT))
 		percpu_ref_put(&css->refcnt);
 }

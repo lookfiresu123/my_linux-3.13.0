@@ -38,8 +38,7 @@ static const struct dentry_operations anon_inodefs_dentry_operations = {
 	.d_dname	= anon_inodefs_dname,
 };
 
-static struct dentry *anon_inodefs_mount(struct file_system_type *fs_type,
-				int flags, const char *dev_name, void *data)
+static struct dentry *anon_inodefs_mount(struct file_system_type *fs_type, int flags, const char *dev_name, void *data)
 {
 	struct dentry *root;
 	root = mount_pseudo(fs_type, "anon_inode:", NULL,
@@ -78,9 +77,7 @@ static struct file_system_type anon_inode_fs_type = {
  * hence saving memory and avoiding code duplication for the file/inode/dentry
  * setup.  Returns the newly created file* or an error pointer.
  */
-struct file *anon_inode_getfile(const char *name,
-				const struct file_operations *fops,
-				void *priv, int flags)
+struct file *anon_inode_getfile(const char *name, const struct file_operations *fops, void *priv, int flags)
 {
 	struct qstr this;
 	struct path path;
@@ -147,8 +144,7 @@ EXPORT_SYMBOL_GPL(anon_inode_getfile);
  * hence saving memory and avoiding code duplication for the file/inode/dentry
  * setup.  Returns new descriptor or an error code.
  */
-int anon_inode_getfd(const char *name, const struct file_operations *fops,
-		     void *priv, int flags)
+int anon_inode_getfd(const char *name, const struct file_operations *fops, void *priv, int flags)
 {
 	int error, fd;
 	struct file *file;

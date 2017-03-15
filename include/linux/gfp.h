@@ -6,6 +6,7 @@
 #include <linux/linkage.h>
 #include <linux/topology.h>
 #include <linux/mmdebug.h>
+//  #include <linux/interactive_design.h>
 
 struct vm_area_struct;
 
@@ -286,6 +287,7 @@ static inline int gfp_zonelist(gfp_t flags)
  */
 static inline struct zonelist *node_zonelist(int nid, gfp_t flags)
 {
+  // MY_PRINTK(get_current()->comm);
 	return NODE_DATA(nid)->node_zonelists + gfp_zonelist(flags);
 }
 

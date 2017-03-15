@@ -86,15 +86,13 @@ static LIST_HEAD(mb_cache_list);
 static LIST_HEAD(mb_cache_lru_list);
 static DEFINE_SPINLOCK(mb_cache_spinlock);
 
-static inline int
-__mb_cache_entry_is_hashed(struct mb_cache_entry *ce)
+static inline int __mb_cache_entry_is_hashed(struct mb_cache_entry *ce)
 {
 	return !list_empty(&ce->e_block_list);
 }
 
 
-static void
-__mb_cache_entry_unhash(struct mb_cache_entry *ce)
+static void __mb_cache_entry_unhash(struct mb_cache_entry *ce)
 {
 	if (__mb_cache_entry_is_hashed(ce)) {
 		list_del_init(&ce->e_block_list);
@@ -103,8 +101,7 @@ __mb_cache_entry_unhash(struct mb_cache_entry *ce)
 }
 
 
-static void
-__mb_cache_entry_forget(struct mb_cache_entry *ce, gfp_t gfp_mask)
+static void __mb_cache_entry_forget(struct mb_cache_entry *ce, gfp_t gfp_mask)
 {
 	struct mb_cache *cache = ce->e_cache;
 
@@ -114,8 +111,7 @@ __mb_cache_entry_forget(struct mb_cache_entry *ce, gfp_t gfp_mask)
 }
 
 
-static void
-__mb_cache_entry_release_unlock(struct mb_cache_entry *ce)
+static void __mb_cache_entry_release_unlock(struct mb_cache_entry *ce)
 	__releases(mb_cache_spinlock)
 {
 	/* Wake up all processes queuing for this cache entry. */
@@ -149,8 +145,7 @@ forget:
  *
  * Returns the number of objects freed.
  */
-static unsigned long
-mb_cache_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
+static unsigned long mb_cache_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
 {
 	LIST_HEAD(free_list);
 	struct mb_cache_entry *entry, *tmp;
@@ -175,8 +170,7 @@ mb_cache_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
 	return freed;
 }
 
-static unsigned long
-mb_cache_shrink_count(struct shrinker *shrink, struct shrink_control *sc)
+static unsigned long mb_cache_shrink_count(struct shrinker *shrink, struct shrink_control *sc)
 {
 	struct mb_cache *cache;
 	unsigned long count = 0;
@@ -209,8 +203,7 @@ static struct shrinker mb_cache_shrinker = {
  * @name: name of the cache (informal)
  * @bucket_bits: log2(number of hash buckets)
  */
-struct mb_cache *
-mb_cache_create(const char *name, int bucket_bits)
+struct mb_cache *mb_cache_create(const char *name, int bucket_bits)
 {
 	int n, bucket_count = 1 << bucket_bits;
 	struct mb_cache *cache = NULL;
@@ -269,8 +262,7 @@ fail:
  *
  * @bdev: which device's cache entries to shrink
  */
-void
-mb_cache_shrink(struct block_device *bdev)
+void mb_cache_shrink(struct block_device *bdev)
 {
 	LIST_HEAD(free_list);
 	struct list_head *l, *ltmp;
@@ -299,8 +291,7 @@ mb_cache_shrink(struct block_device *bdev)
  * and then destroys it. If this was the last mbcache, un-registers the
  * mbcache from kernel memory management.
  */
-void
-mb_cache_destroy(struct mb_cache *cache)
+void mb_cache_destroy(struct mb_cache *cache)
 {
 	LIST_HEAD(free_list);
 	struct list_head *l, *ltmp;
@@ -343,8 +334,7 @@ mb_cache_destroy(struct mb_cache *cache)
  * then inserted into the cache using mb_cache_entry_insert(). Returns NULL
  * if no more memory was available.
  */
-struct mb_cache_entry *
-mb_cache_entry_alloc(struct mb_cache *cache, gfp_t gfp_flags)
+struct mb_cache_entry *mb_cache_entry_alloc(struct mb_cache *cache, gfp_t gfp_flags)
 {
 	struct mb_cache_entry *ce = NULL;
 
@@ -387,9 +377,7 @@ mb_cache_entry_alloc(struct mb_cache *cache, gfp_t gfp_flags)
  * @block: block number
  * @key: lookup key
  */
-int
-mb_cache_entry_insert(struct mb_cache_entry *ce, struct block_device *bdev,
-		      sector_t block, unsigned int key)
+int mb_cache_entry_insert(struct mb_cache_entry *ce, struct block_device *bdev, sector_t block, unsigned int key)
 {
 	struct mb_cache *cache = ce->e_cache;
 	unsigned int bucket;
@@ -426,8 +414,7 @@ out:
  * is released it is either freed (if it is invalid) or otherwise inserted
  * in to the lru list.
  */
-void
-mb_cache_entry_release(struct mb_cache_entry *ce)
+void mb_cache_entry_release(struct mb_cache_entry *ce)
 {
 	spin_lock(&mb_cache_spinlock);
 	__mb_cache_entry_release_unlock(ce);
@@ -440,8 +427,7 @@ mb_cache_entry_release(struct mb_cache_entry *ce)
  * This is equivalent to the sequence mb_cache_entry_takeout() --
  * mb_cache_entry_release().
  */
-void
-mb_cache_entry_free(struct mb_cache_entry *ce)
+void mb_cache_entry_free(struct mb_cache_entry *ce)
 {
 	spin_lock(&mb_cache_spinlock);
 	mb_assert(list_empty(&ce->e_lru_list));
@@ -458,9 +444,7 @@ mb_cache_entry_free(struct mb_cache_entry *ce)
  * exists. The returned cache entry is locked for exclusive access ("single
  * writer").
  */
-struct mb_cache_entry *
-mb_cache_entry_get(struct mb_cache *cache, struct block_device *bdev,
-		   sector_t block)
+struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, struct block_device *bdev, sector_t block)
 {
 	unsigned int bucket;
 	struct list_head *l;
@@ -505,9 +489,7 @@ cleanup:
 
 #if !defined(MB_CACHE_INDEXES_COUNT) || (MB_CACHE_INDEXES_COUNT > 0)
 
-static struct mb_cache_entry *
-__mb_cache_entry_find(struct list_head *l, struct list_head *head,
-		      struct block_device *bdev, unsigned int key)
+static struct mb_cache_entry *__mb_cache_entry_find(struct list_head *l, struct list_head *head, struct block_device *bdev, unsigned int key)
 {
 	while (l != head) {
 		struct mb_cache_entry *ce =
@@ -557,9 +539,7 @@ __mb_cache_entry_find(struct list_head *l, struct list_head *head,
  * @bdev: the device the cache entry should belong to
  * @key: the key in the index
  */
-struct mb_cache_entry *
-mb_cache_entry_find_first(struct mb_cache *cache, struct block_device *bdev,
-			  unsigned int key)
+struct mb_cache_entry *mb_cache_entry_find_first(struct mb_cache *cache, struct block_device *bdev, unsigned int key)
 {
 	unsigned int bucket = hash_long(key, cache->c_bucket_bits);
 	struct list_head *l;
@@ -591,9 +571,7 @@ mb_cache_entry_find_first(struct mb_cache *cache, struct block_device *bdev,
  * @bdev: the device the cache entry should belong to
  * @key: the key in the index
  */
-struct mb_cache_entry *
-mb_cache_entry_find_next(struct mb_cache_entry *prev,
-			 struct block_device *bdev, unsigned int key)
+struct mb_cache_entry *mb_cache_entry_find_next(struct mb_cache_entry *prev, struct block_device *bdev, unsigned int key)
 {
 	struct mb_cache *cache = prev->e_cache;
 	unsigned int bucket = hash_long(key, cache->c_bucket_bits);

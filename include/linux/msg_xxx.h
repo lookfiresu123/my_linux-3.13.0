@@ -43,12 +43,11 @@
 #include <linux/pagemap.h>
 #include <linux/cleancache.h>
 #include <linux/list_bl.h>
+#include <linux/rculist_bl.h>
 // #include <asm-generic/int-l64.h>
 
 struct workqueue_struct;
 struct mnt_pcp;
-
-typedef struct hlist_bl_head *(*d_hash_t)(const struct dentry *, unsigned int);
 
 /* 文件系统与内存模块的交互 */
 extern void *msg_kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
@@ -147,10 +146,12 @@ extern void msg_posix_acl_release(struct posix_acl *acl, int msqid_from_fs_to_ke
 extern unsigned msg_read_seqbegin(const seqlock_t *sl, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern bool msg_schedule_delayed_work(struct delayed_work *dwork, unsigned long delay, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern struct dentry *msg_dget(struct dentry *dentry, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
-// extern void msg_hlist_bl_for_each_entry_rcu(struct dentry *dentry, struct hlist_bl_node *node, struct hlist_bl_head *b, d_hash_t d_hash, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);// d_hash是member，直接在内部使用即可
-extern struct hlist_bl_node *msg_hlist_bl_first_rcu(struct hlist_bl_head *h, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
-extern struct hlist_bl_node *msg_rcu_dereference_raw(struct hlist_bl_node *pos, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs); 
-extern struct dentry *msg_list_entry_rcu(struct list_head *list, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);// d_lru是member，直接在内部使用即可
+extern void msg_hlist_bl_for_each_entry_rcu(struct dentry *dentry, struct hlist_bl_node *node, struct hlist_bl_head *b, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);// d_hash是member，直接在内部使用即可
+
+extern struct hlist_bl_node *msg_hlist_bl_first_rcu(struct hlist_bl_head *h, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs); 
+extern struct hlist_bl_node *msg_rcu_dereference_raw(struct hlist_bl_node *pos, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
+
+extern struct dentry *msg_list_entry_rcu(struct list_head *list, struct dentry *dentry, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);// d_lru是member，直接在内部使用即可
 extern int msg_cond_resched(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_wake_up_interruptible(struct __wait_queue_head *ppoll, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);
 extern void msg_seqcount_init(seqcount_t *s, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs);

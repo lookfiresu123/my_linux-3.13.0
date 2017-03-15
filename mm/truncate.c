@@ -38,8 +38,7 @@
  * point.  Because the caller is about to free (and possibly reuse) those
  * blocks on-disk.
  */
-void do_invalidatepage(struct page *page, unsigned int offset,
-		       unsigned int length)
+void do_invalidatepage(struct page *page, unsigned int offset, unsigned int length)
 {
 	void (*invalidatepage)(struct page *, unsigned int, unsigned int);
 
@@ -91,8 +90,7 @@ EXPORT_SYMBOL(cancel_dirty_page);
  * its lock, b) when a concurrent invalidate_mapping_pages got there first and
  * c) when tmpfs swizzles a page between a tmpfs inode and swapper_space.
  */
-static int
-truncate_complete_page(struct address_space *mapping, struct page *page)
+static int truncate_complete_page(struct address_space *mapping, struct page *page)
 {
 	if (page->mapping != mapping)
 		return -EIO;
@@ -115,8 +113,7 @@ truncate_complete_page(struct address_space *mapping, struct page *page)
  *
  * Returns non-zero if the page was successfully invalidated.
  */
-static int
-invalidate_complete_page(struct address_space *mapping, struct page *page)
+static int invalidate_complete_page(struct address_space *mapping, struct page *page)
 {
 	int ret;
 
@@ -200,8 +197,7 @@ int invalidate_inode_page(struct page *page)
  * truncate_inode_pages_range is able to handle cases where lend + 1 is not
  * page aligned properly.
  */
-void truncate_inode_pages_range(struct address_space *mapping,
-				loff_t lstart, loff_t lend)
+void truncate_inode_pages_range(struct address_space *mapping, loff_t lstart, loff_t lend)
 {
 	pgoff_t		start;		/* inclusive */
 	pgoff_t		end;		/* exclusive */
@@ -372,8 +368,7 @@ EXPORT_SYMBOL(truncate_inode_pages);
  * invalidate pages which are dirty, locked, under writeback or mapped into
  * pagetables.
  */
-unsigned long invalidate_mapping_pages(struct address_space *mapping,
-		pgoff_t start, pgoff_t end)
+unsigned long invalidate_mapping_pages(struct address_space *mapping, pgoff_t start, pgoff_t end)
 {
 	struct pagevec pvec;
 	pgoff_t index = start;
@@ -430,8 +425,7 @@ EXPORT_SYMBOL(invalidate_mapping_pages);
  * shrink_page_list() has a temp ref on them, or because they're transiently
  * sitting in the lru_cache_add() pagevecs.
  */
-static int
-invalidate_complete_page2(struct address_space *mapping, struct page *page)
+static int invalidate_complete_page2(struct address_space *mapping, struct page *page)
 {
 	if (page->mapping != mapping)
 		return 0;
@@ -478,8 +472,7 @@ static int do_launder_page(struct address_space *mapping, struct page *page)
  *
  * Returns -EBUSY if any pages could not be invalidated.
  */
-int invalidate_inode_pages2_range(struct address_space *mapping,
-				  pgoff_t start, pgoff_t end)
+int invalidate_inode_pages2_range(struct address_space *mapping, pgoff_t start, pgoff_t end)
 {
 	struct pagevec pvec;
 	pgoff_t index;
@@ -650,8 +643,7 @@ void truncate_pagecache_range(struct inode *inode, loff_t lstart, loff_t lend)
 	 * hole-punching should not remove private COWed pages from the hole.
 	 */
 	if ((u64)unmap_end > (u64)unmap_start)
-		unmap_mapping_range(mapping, unmap_start,
-				    1 + unmap_end - unmap_start, 0);
+		unmap_mapping_range(mapping, unmap_start, 1 + unmap_end - unmap_start, 0);
 	truncate_inode_pages_range(mapping, lstart, lend);
 }
 EXPORT_SYMBOL(truncate_pagecache_range);

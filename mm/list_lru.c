@@ -51,8 +51,7 @@ bool list_lru_del(struct list_lru *lru, struct list_head *item)
 }
 EXPORT_SYMBOL_GPL(list_lru_del);
 
-unsigned long
-list_lru_count_node(struct list_lru *lru, int nid)
+unsigned long list_lru_count_node(struct list_lru *lru, int nid)
 {
 	unsigned long count = 0;
 	struct list_lru_node *nlru = &lru->node[nid];
@@ -66,9 +65,7 @@ list_lru_count_node(struct list_lru *lru, int nid)
 }
 EXPORT_SYMBOL_GPL(list_lru_count_node);
 
-unsigned long
-list_lru_walk_node(struct list_lru *lru, int nid, list_lru_walk_cb isolate,
-		   void *cb_arg, unsigned long *nr_to_walk)
+unsigned long list_lru_walk_node(struct list_lru *lru, int nid, list_lru_walk_cb isolate, void *cb_arg, unsigned long *nr_to_walk)
 {
 
 	struct list_lru_node	*nlru = &lru->node[nid];

@@ -125,8 +125,7 @@ const struct xattr_handler *ext2_xattr_handlers[] = {
 	NULL
 };
 
-static inline const struct xattr_handler *
-ext2_xattr_handler(int name_index)
+static inline const struct xattr_handler *ext2_xattr_handler(int name_index)
 {
 	const struct xattr_handler *handler = NULL;
 
@@ -145,9 +144,7 @@ ext2_xattr_handler(int name_index)
  * Returns a negative error number on failure, or the number of bytes
  * used / required on success.
  */
-int
-ext2_xattr_get(struct inode *inode, int name_index, const char *name,
-	       void *buffer, size_t buffer_size)
+int ext2_xattr_get(struct inode *inode, int name_index, const char *name, void *buffer, size_t buffer_size)
 {
 	struct buffer_head *bh = NULL;
 	struct ext2_xattr_entry *entry;
@@ -240,8 +237,7 @@ cleanup:
  * Returns a negative error number on failure, or the number of bytes
  * used / required on success.
  */
-static int
-ext2_xattr_list(struct dentry *dentry, char *buffer, size_t buffer_size)
+static int ext2_xattr_list(struct dentry *dentry, char *buffer, size_t buffer_size)
 {
 	struct inode *inode = dentry->d_inode;
 	struct buffer_head *bh = NULL;
@@ -321,8 +317,7 @@ cleanup:
  *
  * dentry->d_inode->i_mutex: don't care
  */
-ssize_t
-ext2_listxattr(struct dentry *dentry, char *buffer, size_t size)
+ssize_t ext2_listxattr(struct dentry *dentry, char *buffer, size_t size)
 {
 	return ext2_xattr_list(dentry, buffer, size);
 }
@@ -354,9 +349,7 @@ static void ext2_xattr_update_super_block(struct super_block *sb)
  *
  * Returns 0, or a negative error number on failure.
  */
-int
-ext2_xattr_set(struct inode *inode, int name_index, const char *name,
-	       const void *value, size_t value_len, int flags)
+int ext2_xattr_set(struct inode *inode, int name_index, const char *name, const void *value, size_t value_len, int flags)
 {
 	struct super_block *sb = inode->i_sb;
 	struct buffer_head *bh = NULL;
@@ -617,9 +610,7 @@ cleanup:
 /*
  * Second half of ext2_xattr_set(): Update the file system.
  */
-static int
-ext2_xattr_set2(struct inode *inode, struct buffer_head *old_bh,
-		struct ext2_xattr_header *header)
+static int ext2_xattr_set2(struct inode *inode, struct buffer_head *old_bh, struct ext2_xattr_header *header)
 {
 	struct super_block *sb = inode->i_sb;
 	struct buffer_head *new_bh = NULL;
@@ -751,8 +742,7 @@ cleanup:
  * Free extended attribute resources associated with this inode. This
  * is called immediately before an inode is freed.
  */
-void
-ext2_xattr_delete_inode(struct inode *inode)
+void ext2_xattr_delete_inode(struct inode *inode)
 {
 	struct buffer_head *bh = NULL;
 	struct mb_cache_entry *ce;
@@ -808,8 +798,7 @@ cleanup:
  *
  * This is called when a file system is unmounted.
  */
-void
-ext2_xattr_put_super(struct super_block *sb)
+void ext2_xattr_put_super(struct super_block *sb)
 {
 	mb_cache_shrink(sb->s_bdev);
 }
@@ -823,8 +812,7 @@ ext2_xattr_put_super(struct super_block *sb)
  *
  * Returns 0, or a negative error number on failure.
  */
-static int
-ext2_xattr_cache_insert(struct buffer_head *bh)
+static int ext2_xattr_cache_insert(struct buffer_head *bh)
 {
 	__u32 hash = le32_to_cpu(HDR(bh)->h_hash);
 	struct mb_cache_entry *ce;
@@ -857,9 +845,7 @@ ext2_xattr_cache_insert(struct buffer_head *bh)
  * Returns 0 if the blocks are equal, 1 if they differ, and
  * a negative error number on errors.
  */
-static int
-ext2_xattr_cmp(struct ext2_xattr_header *header1,
-	       struct ext2_xattr_header *header2)
+static int ext2_xattr_cmp(struct ext2_xattr_header *header1, struct ext2_xattr_header *header2)
 {
 	struct ext2_xattr_entry *entry1, *entry2;
 
@@ -897,8 +883,7 @@ ext2_xattr_cmp(struct ext2_xattr_header *header1,
  * Returns a locked buffer head to the block found, or NULL if such
  * a block was not found or an error occurred.
  */
-static struct buffer_head *
-ext2_xattr_cache_find(struct inode *inode, struct ext2_xattr_header *header)
+static struct buffer_head *ext2_xattr_cache_find(struct inode *inode, struct ext2_xattr_header *header)
 {
 	__u32 hash = le32_to_cpu(header->h_hash);
 	struct mb_cache_entry *ce;
@@ -953,8 +938,7 @@ again:
  *
  * Compute the hash of an extended attribute.
  */
-static inline void ext2_xattr_hash_entry(struct ext2_xattr_header *header,
-					 struct ext2_xattr_entry *entry)
+static inline void ext2_xattr_hash_entry(struct ext2_xattr_header *header, struct ext2_xattr_entry *entry)
 {
 	__u32 hash = 0;
 	char *name = entry->e_name;
@@ -989,8 +973,7 @@ static inline void ext2_xattr_hash_entry(struct ext2_xattr_header *header,
  *
  * Re-compute the extended attribute hash value after an entry has changed.
  */
-static void ext2_xattr_rehash(struct ext2_xattr_header *header,
-			      struct ext2_xattr_entry *entry)
+static void ext2_xattr_rehash(struct ext2_xattr_header *header, struct ext2_xattr_entry *entry)
 {
 	struct ext2_xattr_entry *here;
 	__u32 hash = 0;
@@ -1013,8 +996,7 @@ static void ext2_xattr_rehash(struct ext2_xattr_header *header,
 
 #undef BLOCK_HASH_SHIFT
 
-int __init
-init_ext2_xattr(void)
+int __init init_ext2_xattr(void)
 {
 	ext2_xattr_cache = mb_cache_create("ext2_xattr", 6);
 	if (!ext2_xattr_cache)
@@ -1022,8 +1004,7 @@ init_ext2_xattr(void)
 	return 0;
 }
 
-void
-exit_ext2_xattr(void)
+void exit_ext2_xattr(void)
 {
 	mb_cache_destroy(ext2_xattr_cache);
 }

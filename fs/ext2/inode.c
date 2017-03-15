@@ -158,8 +158,7 @@ static inline int verify_chain(Indirect *from, Indirect *to)
  * get there at all.
  */
 
-static int ext2_block_to_path(struct inode *inode,
-			long i_block, int offsets[4], int *boundary)
+static int ext2_block_to_path(struct inode *inode, long i_block, int offsets[4], int *boundary)
 {
 	int ptrs = EXT2_ADDR_PER_BLOCK(inode->i_sb);
 	int ptrs_bits = EXT2_ADDR_PER_BLOCK_BITS(inode->i_sb);
@@ -229,11 +228,7 @@ static int ext2_block_to_path(struct inode *inode,
  *	or when it reads all @depth-1 indirect blocks successfully and finds
  *	the whole chain, all way to the data (returns %NULL, *err == 0).
  */
-static Indirect *ext2_get_branch(struct inode *inode,
-				 int depth,
-				 int *offsets,
-				 Indirect chain[4],
-				 int *err)
+static Indirect *ext2_get_branch(struct inode *inode, int depth, int *offsets, Indirect chain[4], int *err)
 {
 	struct super_block *sb = inode->i_sb;
 	Indirect *p = chain;
@@ -325,8 +320,7 @@ static ext2_fsblk_t ext2_find_near(struct inode *inode, Indirect *ind)
  *	Returns preferred place for a block (the goal).
  */
 
-static inline ext2_fsblk_t ext2_find_goal(struct inode *inode, long block,
-					  Indirect *partial)
+static inline ext2_fsblk_t ext2_find_goal(struct inode *inode, long block, Indirect *partial)
 {
 	struct ext2_block_alloc_info *block_i;
 
@@ -356,9 +350,7 @@ static inline ext2_fsblk_t ext2_find_goal(struct inode *inode, long block,
  *	return the total number of blocks to be allocate, including the
  *	direct and indirect blocks.
  */
-static int
-ext2_blks_to_allocate(Indirect * branch, int k, unsigned long blks,
-		int blocks_to_boundary)
+static int ext2_blks_to_allocate(Indirect * branch, int k, unsigned long blks, int blocks_to_boundary)
 {
 	unsigned long count = 0;
 
@@ -393,9 +385,7 @@ ext2_blks_to_allocate(Indirect * branch, int k, unsigned long blks,
  *	@blks:	on return it will store the total number of allocated
  *		direct blocks
  */
-static int ext2_alloc_blocks(struct inode *inode,
-			ext2_fsblk_t goal, int indirect_blks, int blks,
-			ext2_fsblk_t new_blocks[4], int *err)
+static int ext2_alloc_blocks(struct inode *inode, ext2_fsblk_t goal, int indirect_blks, int blks, ext2_fsblk_t new_blocks[4], int *err)
 {
 	int target, i;
 	unsigned long count = 0;
@@ -471,9 +461,7 @@ failed_out:
  *	as described above and return 0.
  */
 
-static int ext2_alloc_branch(struct inode *inode,
-			int indirect_blks, int *blks, ext2_fsblk_t goal,
-			int *offsets, Indirect *branch)
+static int ext2_alloc_branch(struct inode *inode, int indirect_blks, int *blks, ext2_fsblk_t goal, int *offsets, Indirect *branch)
 {
 	int blocksize = inode->i_sb->s_blocksize;
 	int i, n = 0;
@@ -553,8 +541,7 @@ failed:
  * inode (->i_blocks, etc.). In case of success we end up with the full
  * chain to new block and return 0.
  */
-static void ext2_splice_branch(struct inode *inode,
-			long block, Indirect *where, int num, int blks)
+static void ext2_splice_branch(struct inode *inode, long block, Indirect *where, int num, int blks)
 {
 	int i;
 	struct ext2_block_alloc_info *block_i;
@@ -616,10 +603,7 @@ static void ext2_splice_branch(struct inode *inode,
  * return = 0, if plain lookup failed.
  * return < 0, error case.
  */
-static int ext2_get_blocks(struct inode *inode,
-			   sector_t iblock, unsigned long maxblocks,
-			   struct buffer_head *bh_result,
-			   int create)
+static int ext2_get_blocks(struct inode *inode, sector_t iblock, unsigned long maxblocks, struct buffer_head *bh_result, int create)
 {
 	int err = -EIO;
 	int offsets[4];
@@ -775,8 +759,7 @@ int ext2_get_block(struct inode *inode, sector_t iblock, struct buffer_head *bh_
 
 }
 
-int ext2_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
-		u64 start, u64 len)
+int ext2_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo, u64 start, u64 len)
 {
 	return generic_block_fiemap(inode, fieinfo, start, len,
 				    ext2_get_block);
@@ -792,17 +775,12 @@ static int ext2_readpage(struct file *file, struct page *page)
 	return mpage_readpage(page, ext2_get_block);
 }
 
-static int
-ext2_readpages(struct file *file, struct address_space *mapping,
-		struct list_head *pages, unsigned nr_pages)
+static int ext2_readpages(struct file *file, struct address_space *mapping, struct list_head *pages, unsigned nr_pages)
 {
 	return mpage_readpages(mapping, pages, nr_pages, ext2_get_block);
 }
 
-static int
-ext2_write_begin(struct file *file, struct address_space *mapping,
-		loff_t pos, unsigned len, unsigned flags,
-		struct page **pagep, void **fsdata)
+static int ext2_write_begin(struct file *file, struct address_space *mapping, loff_t pos, unsigned len, unsigned flags, struct page **pagep, void **fsdata)
 {
 	int ret;
 
@@ -813,9 +791,7 @@ ext2_write_begin(struct file *file, struct address_space *mapping,
 	return ret;
 }
 
-static int ext2_write_end(struct file *file, struct address_space *mapping,
-			loff_t pos, unsigned len, unsigned copied,
-			struct page *page, void *fsdata)
+static int ext2_write_end(struct file *file, struct address_space *mapping, loff_t pos, unsigned len, unsigned copied, struct page *page, void *fsdata)
 {
 	int ret;
 
@@ -825,10 +801,7 @@ static int ext2_write_end(struct file *file, struct address_space *mapping,
 	return ret;
 }
 
-static int
-ext2_nobh_write_begin(struct file *file, struct address_space *mapping,
-		loff_t pos, unsigned len, unsigned flags,
-		struct page **pagep, void **fsdata)
+static int ext2_nobh_write_begin(struct file *file, struct address_space *mapping, loff_t pos, unsigned len, unsigned flags, struct page **pagep, void **fsdata)
 {
 	int ret;
 
@@ -839,8 +812,7 @@ ext2_nobh_write_begin(struct file *file, struct address_space *mapping,
 	return ret;
 }
 
-static int ext2_nobh_writepage(struct page *page,
-			struct writeback_control *wbc)
+static int ext2_nobh_writepage(struct page *page, struct writeback_control *wbc)
 {
 	return nobh_writepage(page, ext2_get_block, wbc);
 }
@@ -850,9 +822,7 @@ static sector_t ext2_bmap(struct address_space *mapping, sector_t block)
 	return generic_block_bmap(mapping,block,ext2_get_block);
 }
 
-static ssize_t
-ext2_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
-			loff_t offset, unsigned long nr_segs)
+static ssize_t ext2_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov, loff_t offset, unsigned long nr_segs)
 {
 	struct file *file = iocb->ki_filp;
 	struct address_space *mapping = file->f_mapping;
@@ -866,8 +836,7 @@ ext2_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
 	return ret;
 }
 
-static int
-ext2_writepages(struct address_space *mapping, struct writeback_control *wbc)
+static int ext2_writepages(struct address_space *mapping, struct writeback_control *wbc)
 {
 	return mpage_writepages(mapping, wbc, ext2_get_block);
 }
@@ -951,11 +920,7 @@ static inline int all_zeroes(__le32 *p, __le32 *q)
  *			(no partially truncated stuff there).
  */
 
-static Indirect *ext2_find_shared(struct inode *inode,
-				int depth,
-				int offsets[4],
-				Indirect chain[4],
-				__le32 *top)
+static Indirect *ext2_find_shared(struct inode *inode, int depth, int offsets[4], Indirect chain[4], __le32 *top)
 {
 	Indirect *partial, *p;
 	int k, err;
@@ -1227,8 +1192,7 @@ static int ext2_setsize(struct inode *inode, loff_t newsize)
 	return 0;
 }
 
-static struct ext2_inode *ext2_get_inode(struct super_block *sb, ino_t ino,
-					struct buffer_head **p)
+static struct ext2_inode *ext2_get_inode(struct super_block *sb, ino_t ino, struct buffer_head **p)
 {
 	struct buffer_head * bh;
 	unsigned long block_group;

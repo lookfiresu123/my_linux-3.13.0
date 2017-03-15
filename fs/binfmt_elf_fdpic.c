@@ -120,8 +120,7 @@ static int is_elf_fdpic(struct elfhdr *hdr, struct file *file)
 /*
  * read the program headers table into memory
  */
-static int elf_fdpic_fetch_phdrs(struct elf_fdpic_params *params,
-				 struct file *file)
+static int elf_fdpic_fetch_phdrs(struct elf_fdpic_params *params, struct file *file)
 {
 	struct elf32_phdr *phdr;
 	unsigned long size;
@@ -472,10 +471,7 @@ error_kill:
  * present useful information to the program by shovelling it onto the new
  * process's stack
  */
-static int create_elf_fdpic_tables(struct linux_binprm *bprm,
-				   struct mm_struct *mm,
-				   struct elf_fdpic_params *exec_params,
-				   struct elf_fdpic_params *interp_params)
+static int create_elf_fdpic_tables(struct linux_binprm *bprm, struct mm_struct *mm, struct elf_fdpic_params *exec_params, struct elf_fdpic_params *interp_params)
 {
 	const struct cred *cred = current_cred();
 	unsigned long sp, csp, nitems;
@@ -697,8 +693,7 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
  * the stack
  */
 #ifndef CONFIG_MMU
-static int elf_fdpic_transfer_args_to_stack(struct linux_binprm *bprm,
-					    unsigned long *_sp)
+static int elf_fdpic_transfer_args_to_stack(struct linux_binprm *bprm, unsigned long *_sp)
 {
 	unsigned long index, stop, sp;
 	char *src;
@@ -735,10 +730,7 @@ out:
  *   - we assume the loadable parts of the image to require fixed displacement
  *   - the image is not shareable
  */
-static int elf_fdpic_map_file(struct elf_fdpic_params *params,
-			      struct file *file,
-			      struct mm_struct *mm,
-			      const char *what)
+static int elf_fdpic_map_file(struct elf_fdpic_params *params, struct file *file, struct mm_struct *mm, const char *what)
 {
 	struct elf32_fdpic_loadmap *loadmap;
 #ifdef CONFIG_MMU
@@ -918,10 +910,7 @@ dynamic_error:
  * map a file with constant displacement under uClinux
  */
 #ifndef CONFIG_MMU
-static int elf_fdpic_map_file_constdisp_on_uclinux(
-	struct elf_fdpic_params *params,
-	struct file *file,
-	struct mm_struct *mm)
+static int elf_fdpic_map_file_constdisp_on_uclinux(struct elf_fdpic_params *params, struct file *file, struct mm_struct *mm)
 {
 	struct elf32_fdpic_loadseg *seg;
 	struct elf32_phdr *phdr;
@@ -1007,9 +996,7 @@ static int elf_fdpic_map_file_constdisp_on_uclinux(
 /*
  * map a binary by direct mmap() of the individual PT_LOAD segments
  */
-static int elf_fdpic_map_file_by_direct_mmap(struct elf_fdpic_params *params,
-					     struct file *file,
-					     struct mm_struct *mm)
+static int elf_fdpic_map_file_by_direct_mmap(struct elf_fdpic_params *params, struct file *file, struct mm_struct *mm)
 {
 	struct elf32_fdpic_loadseg *seg;
 	struct elf32_phdr *phdr;
@@ -1317,8 +1304,7 @@ static inline void fill_elf_note_phdr(struct elf_phdr *phdr, int sz, loff_t offs
 	return;
 }
 
-static inline void fill_note(struct memelfnote *note, const char *name, int type,
-		unsigned int sz, void *data)
+static inline void fill_note(struct memelfnote *note, const char *name, int type, unsigned int sz, void *data)
 {
 	note->name = name;
 	note->type = type;
@@ -1331,8 +1317,7 @@ static inline void fill_note(struct memelfnote *note, const char *name, int type
  * fill up all the fields in prstatus from the given task struct, except
  * registers which need to be filled up separately.
  */
-static void fill_prstatus(struct elf_prstatus *prstatus,
-			  struct task_struct *p, long signr)
+static void fill_prstatus(struct elf_prstatus *prstatus, struct task_struct *p, long signr)
 {
 	prstatus->pr_info.si_signo = prstatus->pr_cursig = signr;
 	prstatus->pr_sigpend = p->pending.signal.sig[0];
@@ -1367,8 +1352,7 @@ static void fill_prstatus(struct elf_prstatus *prstatus,
 	prstatus->pr_interp_fdpic_loadmap = p->mm->context.interp_fdpic_loadmap;
 }
 
-static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p,
-		       struct mm_struct *mm)
+static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p, struct mm_struct *mm)
 {
 	const struct cred *cred;
 	unsigned int i, len;
@@ -1463,8 +1447,7 @@ static int elf_dump_thread_status(long signr, struct elf_thread_status *t)
 	return sz;
 }
 
-static void fill_extnum_info(struct elfhdr *elf, struct elf_shdr *shdr4extnum,
-			     elf_addr_t e_shoff, int segs)
+static void fill_extnum_info(struct elfhdr *elf, struct elf_shdr *shdr4extnum, elf_addr_t e_shoff, int segs)
 {
 	elf->e_shoff = e_shoff;
 	elf->e_shentsize = sizeof(*shdr4extnum);

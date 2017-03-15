@@ -12,6 +12,7 @@
 #include <linux/threads.h>
 #include <linux/percpu.h>
 #include <linux/types.h>
+// #include <linux/interactive_design.h>
 
 #ifdef CONFIG_SMP
 
@@ -44,6 +45,7 @@ int percpu_counter_compare(struct percpu_counter *fbc, s64 rhs);
 
 static inline void percpu_counter_add(struct percpu_counter *fbc, s64 amount)
 {
+  // MY_PRINTK(get_current()->comm);
 	__percpu_counter_add(fbc, amount, percpu_counter_batch);
 }
 
@@ -161,11 +163,13 @@ static inline int percpu_counter_initialized(struct percpu_counter *fbc)
 
 static inline void percpu_counter_inc(struct percpu_counter *fbc)
 {
+  // MY_PRINTK(get_current()->comm);
 	percpu_counter_add(fbc, 1);
 }
 
 static inline void percpu_counter_dec(struct percpu_counter *fbc)
 {
+  // MY_PRINTK(get_current()->comm);
 	percpu_counter_add(fbc, -1);
 }
 

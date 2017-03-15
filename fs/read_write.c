@@ -84,9 +84,7 @@ EXPORT_SYMBOL(vfs_setpos);
  * SEEK_CUR is synchronized against other SEEK_CURs, but not read/writes.
  * read/writes behave like SEEK_SET against seeks.
  */
-loff_t
-generic_file_llseek_size(struct file *file, loff_t offset, int whence,
-		loff_t maxsize, loff_t eof)
+loff_t generic_file_llseek_size(struct file *file, loff_t offset, int whence, loff_t maxsize, loff_t eof)
 {
 	switch (whence) {
 	case SEEK_END:
@@ -147,9 +145,7 @@ loff_t generic_file_llseek(struct file *file, loff_t offset, int whence)
 {
 	struct inode *inode = file->f_mapping->host;
 
-	return generic_file_llseek_size(file, offset, whence,
-					inode->i_sb->s_maxbytes,
-					i_size_read(inode));
+	return generic_file_llseek_size(file, offset, whence, inode->i_sb->s_maxbytes, i_size_read(inode));
 }
 EXPORT_SYMBOL(generic_file_llseek);
 
@@ -589,8 +585,7 @@ unsigned long iov_shorten(struct iovec *iov, unsigned long nr_segs, size_t to)
 }
 EXPORT_SYMBOL(iov_shorten);
 
-static ssize_t do_sync_readv_writev(struct file *filp, const struct iovec *iov,
-		unsigned long nr_segs, size_t len, loff_t *ppos, iov_fn_t fn)
+static ssize_t do_sync_readv_writev(struct file *filp, const struct iovec *iov, unsigned long nr_segs, size_t len, loff_t *ppos, iov_fn_t fn)
 {
 	struct kiocb kiocb;
 	ssize_t ret;
@@ -607,8 +602,7 @@ static ssize_t do_sync_readv_writev(struct file *filp, const struct iovec *iov,
 }
 
 /* Do it by hand, with file-ops */
-static ssize_t do_loop_readv_writev(struct file *filp, struct iovec *iov,
-		unsigned long nr_segs, loff_t *ppos, io_fn_t fn)
+static ssize_t do_loop_readv_writev(struct file *filp, struct iovec *iov, unsigned long nr_segs, loff_t *ppos, io_fn_t fn)
 {
 	struct iovec *vector = iov;
 	ssize_t ret = 0;
@@ -641,10 +635,7 @@ static ssize_t do_loop_readv_writev(struct file *filp, struct iovec *iov,
 /* A write operation does a read from user space and vice versa */
 #define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
 
-ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
-			      unsigned long nr_segs, unsigned long fast_segs,
-			      struct iovec *fast_pointer,
-			      struct iovec **ret_pointer)
+ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector, unsigned long nr_segs, unsigned long fast_segs, struct iovec *fast_pointer, struct iovec **ret_pointer)
 {
 	unsigned long seg;
 	ssize_t ret;
@@ -716,9 +707,7 @@ out:
 	return ret;
 }
 
-static ssize_t do_readv_writev(int type, struct file *file,
-			       const struct iovec __user * uvector,
-			       unsigned long nr_segs, loff_t *pos)
+static ssize_t do_readv_writev(int type, struct file *file, const struct iovec __user * uvector, unsigned long nr_segs, loff_t *pos)
 {
 	size_t tot_len;
 	struct iovec iovstack[UIO_FASTIOV];
@@ -768,8 +757,7 @@ out:
 	return ret;
 }
 
-ssize_t vfs_readv(struct file *file, const struct iovec __user *vec,
-		  unsigned long vlen, loff_t *pos)
+ssize_t vfs_readv(struct file *file, const struct iovec __user *vec, unsigned long vlen, loff_t *pos)
 {
 	if (!(file->f_mode & FMODE_READ))
 		return -EBADF;
@@ -781,8 +769,7 @@ ssize_t vfs_readv(struct file *file, const struct iovec __user *vec,
 
 EXPORT_SYMBOL(vfs_readv);
 
-ssize_t vfs_writev(struct file *file, const struct iovec __user *vec,
-		   unsigned long vlen, loff_t *pos)
+ssize_t vfs_writev(struct file *file, const struct iovec __user *vec, unsigned long vlen, loff_t *pos)
 {
 	if (!(file->f_mode & FMODE_WRITE))
 		return -EBADF;
@@ -890,9 +877,7 @@ SYSCALL_DEFINE5(pwritev, unsigned long, fd, const struct iovec __user *, vec,
 
 #ifdef CONFIG_COMPAT
 
-static ssize_t compat_do_readv_writev(int type, struct file *file,
-			       const struct compat_iovec __user *uvector,
-			       unsigned long nr_segs, loff_t *pos)
+static ssize_t compat_do_readv_writev(int type, struct file *file, const struct compat_iovec __user *uvector, unsigned long nr_segs, loff_t *pos)
 {
 	compat_ssize_t tot_len;
 	struct iovec iovstack[UIO_FASTIOV];
@@ -946,9 +931,7 @@ out:
 	return ret;
 }
 
-static size_t compat_readv(struct file *file,
-			   const struct compat_iovec __user *vec,
-			   unsigned long vlen, loff_t *pos)
+static size_t compat_readv(struct file *file, const struct compat_iovec __user *vec, unsigned long vlen, loff_t *pos)
 {
 	ssize_t ret = -EBADF;
 
@@ -1013,9 +996,7 @@ COMPAT_SYSCALL_DEFINE5(preadv, unsigned long, fd,
 	return compat_sys_preadv64(fd, vec, vlen, pos);
 }
 
-static size_t compat_writev(struct file *file,
-			    const struct compat_iovec __user *vec,
-			    unsigned long vlen, loff_t *pos)
+static size_t compat_writev(struct file *file, const struct compat_iovec __user *vec, unsigned long vlen, loff_t *pos)
 {
 	ssize_t ret = -EBADF;
 
@@ -1081,8 +1062,7 @@ COMPAT_SYSCALL_DEFINE5(pwritev, unsigned long, fd,
 }
 #endif
 
-static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
-		  	   size_t count, loff_t max)
+static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos, size_t count, loff_t max)
 {
 	struct fd in, out;
 	struct inode *in_inode, *out_inode;

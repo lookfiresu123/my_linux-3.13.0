@@ -37,8 +37,7 @@
 #include <linux/msg_xxx.h>
 #include <linux/interactive_design.h>
 
-int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
-	struct file *filp)
+int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs, struct file *filp)
 {
 	int ret;
 	struct iattr newattrs;
@@ -641,8 +640,7 @@ out:
  * upon __fput().  This should probably never
  * be called outside of __dentry_open().
  */
-static inline int __get_file_write_access(struct inode *inode,
-					  struct vfsmount *mnt)
+static inline int __get_file_write_access(struct inode *inode, struct vfsmount *mnt)
 {
 	int error;
 	error = get_write_access(inode);
@@ -677,9 +675,7 @@ int open_check_o_direct(struct file *f)
 	return 0;
 }
 
-static int do_dentry_open(struct file *f,
-			  int (*open)(struct inode *, struct file *),
-			  const struct cred *cred)
+static int do_dentry_open(struct file *f, int (*open)(struct inode *, struct file *), const struct cred *cred)
 {
   MY_PRINTK(get_current()->comm);
 	static const struct file_operations empty_fops = {};
@@ -790,9 +786,7 @@ cleanup_file:
  *
  * Returns zero on success or -errno if the open failed.
  */
-int finish_open(struct file *file, struct dentry *dentry,
-		int (*open)(struct inode *, struct file *),
-		int *opened)
+int finish_open(struct file *file, struct dentry *dentry, int (*open)(struct inode *, struct file *), int *opened)
 {
   MY_PRINTK(get_current()->comm);
 	int error;

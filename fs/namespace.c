@@ -720,9 +720,7 @@ static void detach_mnt(struct mount *mnt, struct path *old_path)
 /*
  * vfsmount lock must be held for write
  */
-void mnt_set_mountpoint(struct mount *mnt,
-			struct mountpoint *mp,
-			struct mount *child_mnt)
+void mnt_set_mountpoint(struct mount *mnt, struct mountpoint *mp, struct mount *child_mnt)
 {
 	mp->m_count++;
 	mnt_add_count(mnt, 1);	/* essentially, that's mntget */
@@ -734,9 +732,7 @@ void mnt_set_mountpoint(struct mount *mnt,
 /*
  * vfsmount lock must be held for write
  */
-static void attach_mnt(struct mount *mnt,
-			struct mount *parent,
-			struct mountpoint *mp)
+static void attach_mnt(struct mount *mnt, struct mount *parent, struct mountpoint *mp)
 {
 	mnt_set_mountpoint(parent, mp, mnt);
 	list_add_tail(&mnt->mnt_hash, mount_hashtable +
@@ -794,8 +790,7 @@ static struct mount *skip_mnt_tree(struct mount *p)
 	return p;
 }
 
-struct vfsmount *
-vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void *data)
+struct vfsmount *vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void *data)
 {
 	struct mount *mnt;
 	struct dentry *root;
@@ -827,8 +822,7 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 }
 EXPORT_SYMBOL_GPL(vfs_kern_mount);
 
-static struct mount *clone_mnt(struct mount *old, struct dentry *root,
-					int flag)
+static struct mount *clone_mnt(struct mount *old, struct dentry *root, int flag)
 {
 	struct super_block *sb = old->mnt.mnt_sb;
 	struct mount *mnt;
@@ -1412,8 +1406,7 @@ static bool mnt_ns_loop(struct dentry *dentry)
 	return current->nsproxy->mnt_ns->seq >= mnt_ns->seq;
 }
 
-struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
-					int flag)
+struct mount *copy_tree(struct mount *mnt, struct dentry *dentry, int flag)
 {
 	struct mount *res, *p, *q, *r, *parent;
 
@@ -1495,8 +1488,7 @@ void drop_collected_mounts(struct vfsmount *mnt)
 	namespace_unlock();
 }
 
-int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
-		   struct vfsmount *root)
+int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg, struct vfsmount *root)
 {
 	struct mount *mnt;
 	int res = f(root, arg);
@@ -1600,10 +1592,7 @@ static int invent_group_ids(struct mount *mnt, bool recurse)
  * Must be called without spinlocks held, since this function can sleep
  * in allocations.
  */
-static int attach_recursive_mnt(struct mount *source_mnt,
-			struct mount *dest_mnt,
-			struct mountpoint *dest_mp,
-			struct path *parent_path)
+static int attach_recursive_mnt(struct mount *source_mnt, struct mount *dest_mnt, struct mountpoint *dest_mp, struct path *parent_path)
 {
 	LIST_HEAD(tree_list);
 	struct mount *child, *p;
@@ -1765,8 +1754,7 @@ static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
 /*
  * do loopback mount.
  */
-static int do_loopback(struct path *path, const char *old_name,
-				int recurse)
+static int do_loopback(struct path *path, const char *old_name, int recurse)
 {
 	struct path old_path;
 	struct mount *mnt = NULL, *old, *parent;
@@ -1850,8 +1838,7 @@ static int change_mount_flags(struct vfsmount *mnt, int ms_flags)
  * If you've mounted a non-root directory somewhere and want to do remount
  * on it - tough luck.
  */
-static int do_remount(struct path *path, int flags, int mnt_flags,
-		      void *data)
+static int do_remount(struct path *path, int flags, int mnt_flags, void *data)
 {
 	int err;
 	struct super_block *sb = path->mnt->mnt_sb;
@@ -2036,8 +2023,7 @@ unlock:
  * create a new mount for userspace and request it to be added into the
  * namespace's tree
  */
-static int do_new_mount(struct path *path, const char *fstype, int flags,
-			int mnt_flags, const char *name, void *data)
+static int do_new_mount(struct path *path, const char *fstype, int flags, int mnt_flags, const char *name, void *data)
 {
 	struct file_system_type *type;
 	struct user_namespace *user_ns = current->nsproxy->mnt_ns->user_ns;
@@ -2238,8 +2224,7 @@ static void shrink_submounts(struct mount *mnt)
  * Note that this function differs from copy_from_user() in that it will oops
  * on bad values of `to', rather than returning a short copy.
  */
-static long exact_copy_from_user(void *to, const void __user * from,
-				 unsigned long n)
+static long exact_copy_from_user(void *to, const void __user * from, unsigned long n)
 {
 	char *t = to;
 	const char __user *f = from;
@@ -2324,8 +2309,7 @@ int copy_mount_string(const void __user *data, char **where)
  * Therefore, if this magic number is present, it carries no information
  * and must be discarded.
  */
-long do_mount(const char *dev_name, const char *dir_name,
-		const char *type_page, unsigned long flags, void *data_page)
+long do_mount(const char *dev_name, const char *dir_name, const char *type_page, unsigned long flags, void *data_page)
 {
 	struct path path;
 	int retval = 0;
@@ -2435,8 +2419,7 @@ static struct mnt_namespace *alloc_mnt_ns(struct user_namespace *user_ns)
 	return new_ns;
 }
 
-struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
-		struct user_namespace *user_ns, struct fs_struct *new_fs)
+struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns, struct user_namespace *user_ns, struct fs_struct *new_fs)
 {
 	struct mnt_namespace *new_ns;
 	struct vfsmount *rootmnt = NULL, *pwdmnt = NULL;
@@ -2602,8 +2585,7 @@ out_type:
  *
  * namespace_sem or mount_lock is held
  */
-bool is_path_reachable(struct mount *mnt, struct dentry *dentry,
-			 const struct path *root)
+bool is_path_reachable(struct mount *mnt, struct dentry *dentry, const struct path *root)
 {
 	while (&mnt->mnt != root->mnt && mnt_has_parent(mnt)) {
 		dentry = mnt->mnt_mountpoint;
