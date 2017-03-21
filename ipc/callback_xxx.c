@@ -49,6 +49,19 @@
 #include <linux/mutex.h>
 #include <linux/srcu.h>
 #include <linux/mount.h>
+#include <linux/migrate.h>
+#include <linux/migrate_mode.h>
+#include <linux/mutex.h>
+#include <linux/lglock.h>
+#include <asm-generic/bug.h>
+#include <linux/completion.h>
+#include <linux/rcupdate.h>
+#include <linux/rwsem.h>
+#include <linux/rwlock.h>
+#include <linux/spinlock.h>
+#include <linux/printk.h>
+#include <linux/blkdev.h>
+#include <linux/callback_xxx.h>
 #include <linux/interactive_design.h>
 
 // extern int lock_is_held(struct lockdep_map *lock);
@@ -413,6 +426,135 @@ void callback_list_lru_destroy(struct my_msgbuf *this) {
   int flag = my_msgsnd(this->msqid, this, sendlength, 0);
 }
 
+void callback_kmem_cache_create(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg5(const char *, size_t, size_t, unsigned long, ctor_func_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct kmem_cache *ret = kmem_cache_create(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4, ptr->argu5);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_read_cache_page(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg4(struct address_space *, pgoff_t, filler_func_t, void *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct page *ret = read_cache_page(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_migrate_page_copy(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct page *, struct page *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  migrate_page_copy(ptr->argu1, ptr->argu2);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_migrate_page_move_mapping(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg6(struct address_space *, struct page *, struct page *, struct buffer_head *, enum migrate_mode, int) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = migrate_page_move_mapping(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4, ptr->argu5, ptr->argu6);
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_put_page(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct page *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  put_page(ptr->argu1);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+/*
+void callback_find_or_create_page(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg3(struct address_space *, pgoff_t, gfp_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct page *ret = find_or_create_page(ptr->argu1, ptr->argu2, ptr->argu3);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+*/
+
+void callback_filemap_write_and_wait(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct address_space *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = filemap_write_and_wait(ptr->argu1);
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_filemap_flush(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct address_space *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = filemap_flush(ptr->argu1);
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_get_user_pages(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg8(struct task_struct *, struct mm_struct *, unsigned long, unsigned long, int, int, struct page **, struct vm_area_struct **) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  long ret = get_user_pages(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4, ptr->argu5, ptr->argu6, ptr->argu7, ptr->argu8);
+  this->object_ptr = kmalloc(sizeof(long), GFP_KERNEL);
+  *(long *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_register_shrinker(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct shrinker *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = register_shrinker(ptr->argu1);
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_set_page_dirty(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct page *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = set_page_dirty(ptr->argu1);
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
 // include-mm
 void callback_kmem_cache_zalloc(struct my_msgbuf *this) {
   MY_PRINTK(get_current()->comm);
@@ -523,7 +665,65 @@ void callback_cleancache_invalidate_fs(struct my_msgbuf *this) {
   int flag = my_msgsnd(this->msqid, this, sendlength, 0);
 }
 
+// 调用了定义在mm/filemap.c中的__lock_page()
+void callback_lock_page(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct page *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  lock_page(ptr->argu1);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
 
+// 调用了定义在mm/slub.c中的__kmalloc()和定义在mm/slub.c中的kmem_cache_alloc_trace()
+void callback_kmalloc(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(size_t, gfp_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  void *ret = kmalloc(ptr->argu1, ptr->argu2);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在mm/filemap.c中的find_or_create_page()
+void callback_grab_cache_page(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct address_space *, pgoff_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct page *ret = grab_cache_page(ptr->argu1, ptr->argu2);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在mm/slab_common.c中的kmalloc_order_trace()
+void callback_kmalloc_large(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(size_t, gfp_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  void *ret = kmalloc_large(ptr->argu1, ptr->argu2);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在include/linux/slab.h中的kmalloc()
+void callback_kzalloc(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(size_t, gfp_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  void *ret = kzalloc(ptr->argu1, ptr->argu2);
+  this->object_ptr = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
 
 
 /*
@@ -734,20 +934,6 @@ void callback_current_fs_time(struct my_msgbuf *this) {
   int flag = my_msgsnd(this->msqid, this, sendlength, 0);
 }
 
-/*
-void callback_lock_is_held(struct my_msgbuf *this) {
-  MY_PRINTK(get_current()->comm);
-  typedef Argus_msg1(struct lockdep_map *) Argus_type;
-  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
-  int ret = lock_is_held(ptr->argu1);
-  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
-  *(int *)(this->object_ptr) = ret;// 保存返回值
-  // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
-}
-*/
-
 void callback_audit_log_link_denied(struct my_msgbuf *this) {
   MY_PRINTK(get_current()->comm);
   typedef Argus_msg2(const char *, struct path *) Argus_type;
@@ -824,6 +1010,229 @@ void callback_module_put(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   module_put(ptr->argu1);
   // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 这个直接在include/linux/fs.h中的i_gid_write()中发送msg_make_kgid()，因为i_gid_write()使用到了文件系统的数据对象，因此不能发送msg_i_gid_write()
+void callback_make_kgid(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct user_namespace *, gid_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  kgid_t ret = make_kgid(ptr->argu1, ptr->argu2);
+  this->object_ptr = kmalloc(sizeof(kgid_t), GFP_KERNEL);
+  *(kgid_t *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_autoremove_wake_function(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg4(wait_queue_t *, unsigned, int, void *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = autoremove_wake_function(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4);
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_current_kernel_time(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  struct timespec ret = current_kernel_time();
+  this->object_ptr = kmalloc(sizeof(struct timespec), GFP_KERNEL);
+  ((struct timespec *)(this->object_ptr))->tv_sec = ret.tv_sec;// 保存返回值
+  ((struct timespec *)(this->object_ptr))->tv_nsec = ret.tv_nsec;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_mutex_lock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct mutex *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  mutex_lock(ptr->argu1);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_mutex_unlock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct mutex *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  mutex_unlock(ptr->argu1);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 这个直接在include/linux/fs.h中的i_gid_write()中发送msg_make_kgid()，因为i_gid_write()使用到了文件系统的数据对象，因此不能发送msg_i_uid_write()
+void callback_make_kuid(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct user_namespace *, uid_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  kuid_t ret = make_kuid(ptr->argu1, ptr->argu2);
+  this->object_ptr = kmalloc(sizeof(kuid_t), GFP_KERNEL);
+  *(kuid_t *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_io_schedule(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  io_schedule();
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_lg_local_lock_cpu(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct lglock *, int) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  lg_local_lock_cpu(ptr->argu1, ptr->argu2);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_lg_local_unlock_cpu(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct lglock *, int) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  lg_local_unlock_cpu(ptr->argu1, ptr->argu2);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_warn_slowpath_null(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(const char *, int) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  warn_slowpath_null(ptr->argu1, ptr->argu2);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 这个直接在include/linux/fs.h中的i_gid_read()中发送msg_from_kgid()，因为i_gid_read()使用到了文件系统的数据对象，因此不能发送msg_i_gid_read()
+void callback_from_kgid(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct user_namespace *, kgid_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  gid_t ret = from_kgid(ptr->argu1, ptr->argu2);
+  this->object_ptr = kmalloc(sizeof(gid_t), GFP_KERNEL);
+  *(gid_t *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_wake_bit_function(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg4(wait_queue_t *, unsigned, int, void *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = wake_bit_function(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4);
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_try_module_get(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct module *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  bool ret = try_module_get(ptr->argu1);
+  this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
+  *(bool *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 这个直接在include/linux/fs.h中的i_uid_read()中发送msg_from_kuid()，因为i_uid_read()使用到了文件系统的数据对象，因此不能发送msg_i_uid_read()
+void callback_from_kuid(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct user_namespace *, kuid_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  uid_t ret = from_kuid(ptr->argu1, ptr->argu2);
+  this->object_ptr = kmalloc(sizeof(uid_t), GFP_KERNEL);
+  *(uid_t *)(this->object_ptr) = ret;// 保存返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_destroy_workqueue(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct workqueue_struct *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  destroy_workqueue(ptr->argu1);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_wait_for_completion(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct completion *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  wait_for_completion(ptr->argu1);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback___module_get(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct module *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  __module_get(ptr->argu1);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_call_rcu(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct rcu_head *, func_t) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  call_rcu(ptr->argu1, ptr->argu2);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_down_read_trylock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct rw_semaphore *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = down_read_trylock(ptr->argu1);
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
   int sendlength = sizeof(*this) - sizeof(long);
   int flag = my_msgsnd(this->msqid, this, sendlength, 0);
@@ -1239,6 +1648,237 @@ void callback_kfree_rcu(struct my_msgbuf *this) {
   int flag = my_msgsnd(this->msqid, this, sendlength, 0);
 }
 
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_lock()
+void callback_write_lock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(rwlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  write_lock(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 宏，调用了定义在kernel/locking/rwsem-spinlock.c中的__init_rwsem()
+void callback_init_rwsem(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct rw_semaphore *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  init_rwsem(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/workqueue.c中的queue_delayed_work_on()
+void callback_queue_delayed_work(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg3(struct workqueue_struct *, struct delayed_work *, unsigned long) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  bool ret = queue_delayed_work(ptr->argu1, ptr->argu2, ptr->argu3);
+  this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
+  *(bool *)(this->object_ptr) = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock()
+void callback_spin_lock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(spinlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  spin_lock(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock()
+void callback_spin_unlock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(spinlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  spin_unlock(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_irq()
+void callback_spin_lock_irq(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(spinlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  spin_lock_irq(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irq()
+void callback_spin_unlock_irq(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(spinlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  spin_unlock_irq(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_trylock()
+void callback_spin_trylock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(spinlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  spin_trylock(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 宏，调用了定义在kernel/panic.c中的warn_slowpath_null()
+void callback_WARN_ON(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(bool) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  WARN_ON(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 宏，调用了定义在kernel/printk/printk.c中的__printk_ratelimit()
+void callback_printk_ratelimit(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg0() Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = printk_ratelimit();
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/sched/wait.c中的out_of_line_wait_on_bit_lock()
+void callback_wait_on_bit_lock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg4(void *, int, action_func_t, unsigned) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  int ret = wait_on_bit_lock(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4);
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_lock_irq()
+void callback_write_lock_irq(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(rwlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  write_lock_irq(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_unlock_irq()
+void callback_write_unlock_irq(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(rwlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  write_unlock_irq(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_read_lock()
+void callback_read_lock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(rwlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  read_lock(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_read_unlock()
+void callback_read_unlock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(rwlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  read_unlock(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irqrestore()
+void callback_spin_unlock_irqrestore(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(spinlock_t *, unsigned long) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  spin_unlock_irqrestore(ptr->argu1, ptr->argu2);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/workqueue.c中的queue_work_on()
+void callback_queue_work(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(struct workqueue_struct *, struct work_struct *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  bool ret = queue_work(ptr->argu1, ptr->argu2);
+  this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
+  *(bool *)(this->object_ptr) = ret;
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_bh()
+void callback_spin_lock_bh(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(spinlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  spin_lock_bh(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_bh()
+void callback_spin_unlock_bh(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(spinlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  spin_unlock_bh(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
 
 
 
@@ -1272,6 +1912,28 @@ void callback_put_io_context(struct my_msgbuf *this) {
   typedef Argus_msg1(struct io_context *) Argus_type;
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   put_io_context(ptr->argu1);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_blk_finish_plug(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct blk_plug *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  blk_finish_plug(ptr->argu1);
+  // 无需存储返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this) - sizeof(long);
+  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+}
+
+void callback_blk_start_plug(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(struct blk_plug *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  blk_start_plug(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
   int sendlength = sizeof(*this) - sizeof(long);

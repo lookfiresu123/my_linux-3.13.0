@@ -35,7 +35,7 @@ static int my_strcmp(const char *cs, const char *ct) {
 #define Pointer(T) typeof(T *)
 #define Array(T, N) typeof(T [N])
 
-typedef void (*action_func_t)(void *);
+// typedef void (*action_func_t)(void *);
 
 #define Argus_msg0()                             \
     struct Argus_container0 {                    \
@@ -86,6 +86,28 @@ typedef void (*action_func_t)(void *);
       type6 argu6;                                                     \
     }
 
+#define Argus_msg7(type1, type2, type3, type4, type5, type6, type7)           \
+    struct Argus_container6 {                                                 \
+      type1 argu1;                                                            \
+      type2 argu2;                                                            \
+      type3 argu3;                                                            \
+      type4 argu4;                                                            \
+      type5 argu5;                                                            \
+      type6 argu6;                                                            \
+      type7 argu7;                                                            \
+    }
+
+#define Argus_msg8(type1, type2, type3, type4, type5, type6, type7, type8)            \
+    struct Argus_container6 {                                                         \
+      type1 argu1;                                                                    \
+      type2 argu2;                                                                    \
+      type3 argu3;                                                                    \
+      type4 argu4;                                                                    \
+      type5 argu5;                                                                    \
+      type6 argu6;                                                                    \
+      type7 argu7;                                                                    \
+      type8 argu8;                                                                    \
+    }
 
 
 extern int msqid_from_kernel_to_fs;

@@ -4,8 +4,6 @@
 #include <linux/interactive_design.h>
 #include <linux/time.h>
 
-// extern int lock_is_held(struct lockdep_map *lock);
-
 int msqid_from_fs_to_kernel;
 EXPORT_SYMBOL(msqid_from_fs_to_kernel);
 int msqid_from_kernel_to_fs;
@@ -16,7 +14,14 @@ bool fs_start = false;
 EXPORT_SYMBOL(fs_start);
 
 // 初始化消息块中的部分成员
-static void init_msgbuf(struct my_msgbuf *sendbuf_ptr, int mtype, struct task_struct *tsk, int msqid, bool isend, void (*callback_xxx)(struct msgbuf *)) {
+static void init_msgbuf(
+    struct my_msgbuf *sendbuf_ptr, 
+    int mtype, 
+    struct task_struct *tsk, 
+    int msqid, 
+    bool isend, 
+    void (*callback_xxx)(struct msgbuf *))
+{
   sendbuf_ptr->mtype = mtype;
   sendbuf_ptr->tsk = tsk;
   sendbuf_ptr->callback = callback_xxx;
@@ -27,9 +32,15 @@ static void init_msgbuf(struct my_msgbuf *sendbuf_ptr, int mtype, struct task_st
 /*
  * 文件系统与内存模块的交互实现
  */
-void *msg_kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void *msg_kmem_cache_alloc(
+    struct kmem_cache *s, 
+    gfp_t gfpflags, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
 
     struct timespec tpstart, tpend;
     long timeuse;
@@ -62,10 +73,15 @@ void *msg_kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags, int msqid_from_
     return kmem_cache_alloc(s, gfpflags);
 }
 
-void msg_kmem_cache_free(struct kmem_cache *s, void *x, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_kmem_cache_free(
+    struct kmem_cache *s, 
+    void *x, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -91,16 +107,18 @@ void msg_kmem_cache_free(struct kmem_cache *s, void *x, int msqid_from_fs_to_ker
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-
-
   } else
     kmem_cache_free(s, x);
 }
 
-void msg_kfree(const void *x, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_kfree(
+    const void *x, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-    
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {  
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -125,15 +143,18 @@ void msg_kfree(const void *x, int msqid_from_fs_to_kernel, int msqid_from_kernel
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-
   } else
     kfree(x);
 }
 
-void msg_vfree(const void *addr, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_vfree(
+    const void *addr, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -163,10 +184,15 @@ void msg_vfree(const void *addr, int msqid_from_fs_to_kernel, int msqid_from_ker
     vfree(addr);
 }
 
-void *msg_mempool_alloc(mempool_t *pool, gfp_t gfp_mask, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void *msg_mempool_alloc(
+    mempool_t *pool, 
+    gfp_t gfp_mask, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -198,9 +224,15 @@ void *msg_mempool_alloc(mempool_t *pool, gfp_t gfp_mask, int msqid_from_fs_to_ke
     return mempool_alloc(pool, gfp_mask);
 }
 
-void msg_mempool_free(void *element, mempool_t *pool, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_mempool_free(
+    void *element, 
+    mempool_t *pool, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
 
     struct timespec tpstart, tpend;
     long timeuse;
@@ -232,8 +264,13 @@ void msg_mempool_free(void *element, mempool_t *pool, int msqid_from_fs_to_kerne
     mempool_free(element, pool);
 }
 
-struct address_space *msg_page_mapping(struct page *page, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+struct address_space *msg_page_mapping(
+    struct page *page, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
 
     struct timespec tpstart, tpend;
     long timeuse;
@@ -265,10 +302,15 @@ struct address_space *msg_page_mapping(struct page *page, int msqid_from_fs_to_k
     return page_mapping(page);
 }
 
-bool msg_list_lru_add(struct list_lru *lru, struct list_head *item, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+bool msg_list_lru_add(
+    struct list_lru *lru, 
+    struct list_head *item, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -300,10 +342,15 @@ bool msg_list_lru_add(struct list_lru *lru, struct list_head *item, int msqid_fr
     return list_lru_add(lru, item);
 }
 
-bool msg_list_lru_del(struct list_lru *lru, struct list_head *item, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+bool msg_list_lru_del(
+    struct list_lru *lru, 
+    struct list_head *item, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -335,10 +382,15 @@ bool msg_list_lru_del(struct list_lru *lru, struct list_head *item, int msqid_fr
     return list_lru_del(lru, item);
 }
 
-struct page *msg_find_get_page(struct address_space *mapping, pgoff_t index, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct page *msg_find_get_page(
+    struct address_space *mapping, 
+    pgoff_t index, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -370,10 +422,14 @@ struct page *msg_find_get_page(struct address_space *mapping, pgoff_t index, int
     return find_get_page(mapping, index);
 }
 
-void msg_mark_page_accessed(struct page *page, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_mark_page_accessed(
+    struct page *page, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -403,10 +459,16 @@ void msg_mark_page_accessed(struct page *page, int msqid_from_fs_to_kernel, int 
     mark_page_accessed(page);
 }
 
-struct page *msg_find_or_create_page(struct address_space *mapping, pgoff_t index, gfp_t gfp_mask, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct page *msg_find_or_create_page(
+    struct address_space *mapping, 
+    pgoff_t index, 
+    gfp_t gfp_mask, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -439,10 +501,15 @@ struct page *msg_find_or_create_page(struct address_space *mapping, pgoff_t inde
     return find_or_create_page(mapping, index, gfp_mask);
 }
 
-void msg_cancel_dirty_page(struct page *page, unsigned int account_size, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_cancel_dirty_page(
+    struct page *page, 
+    unsigned int account_size, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -473,10 +540,14 @@ void msg_cancel_dirty_page(struct page *page, unsigned int account_size, int msq
     cancel_dirty_page(page, account_size);
 }
 
-void *msg_page_address(const struct page *page, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void *msg_page_address(
+    const struct page *page, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -507,10 +578,14 @@ void *msg_page_address(const struct page *page, int msqid_from_fs_to_kernel, int
     return page_address(page);
 }
 
-int msg_bdi_has_dirty_io(struct backing_dev_info *bdi, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_bdi_has_dirty_io(
+    struct backing_dev_info *bdi, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -541,10 +616,17 @@ int msg_bdi_has_dirty_io(struct backing_dev_info *bdi, int msqid_from_fs_to_kern
     return bdi_has_dirty_io(bdi);
 }
 
-unsigned long msg_try_to_free_pages(struct zonelist *zonelist, int order, gfp_t gfp_mask, nodemask_t *mask, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+unsigned long msg_try_to_free_pages(
+    struct zonelist *zonelist, 
+    int order, 
+    gfp_t gfp_mask, 
+    nodemask_t *mask, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -578,10 +660,14 @@ unsigned long msg_try_to_free_pages(struct zonelist *zonelist, int order, gfp_t 
     return try_to_free_pages(zonelist, order, gfp_mask, mask);
 }
 
-void msg_unlock_page(struct page *page, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_unlock_page(
+    struct page *page, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -611,10 +697,15 @@ void msg_unlock_page(struct page *page, int msqid_from_fs_to_kernel, int msqid_f
     unlock_page(page);
 }
 
-void msg_account_page_dirtied(struct page *page, struct address_space *mapping, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_account_page_dirtied(
+    struct page *page, 
+    struct address_space *mapping, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -645,10 +736,14 @@ void msg_account_page_dirtied(struct page *page, struct address_space *mapping, 
     account_page_dirtied(page, mapping);
 }
 
-void msg_bdi_wakeup_thread_delayed(struct backing_dev_info *bdi, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_bdi_wakeup_thread_delayed(
+    struct backing_dev_info *bdi, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -678,10 +773,15 @@ void msg_bdi_wakeup_thread_delayed(struct backing_dev_info *bdi, int msqid_from_
     bdi_wakeup_thread_delayed(bdi);
 }
 
-char *msg_kstrdup(const char *s, gfp_t gfp, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+char *msg_kstrdup(
+    const char *s, 
+    gfp_t gfp, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -713,10 +813,14 @@ char *msg_kstrdup(const char *s, gfp_t gfp, int msqid_from_fs_to_kernel, int msq
     return kstrdup(s, gfp);
 }
 
-void msg_free_percpu(void __percpu *__pdata, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_free_percpu(
+    void __percpu *__pdata, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -746,10 +850,16 @@ void msg_free_percpu(void __percpu *__pdata, int msqid_from_fs_to_kernel, int ms
     free_percpu(__pdata);
 }
 
-void *msg_kmemdup(const void *src, size_t len, gfp_t gfp, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void *msg_kmemdup(
+    const void *src, 
+    size_t len, 
+    gfp_t gfp, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -782,10 +892,15 @@ void *msg_kmemdup(const void *src, size_t len, gfp_t gfp, int msqid_from_fs_to_k
     return kmemdup(src, len, gfp);
 }
 
-void msg_file_ra_state_init(struct file_ra_state *ra, struct address_space *mapping, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_file_ra_state_init(
+    struct file_ra_state *ra, 
+    struct address_space *mapping, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -816,10 +931,15 @@ void msg_file_ra_state_init(struct file_ra_state *ra, struct address_space *mapp
     file_ra_state_init(ra, mapping);
 }
 
-int msg_write_one_page(struct page *page, int wait, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_write_one_page(
+    struct page *page, 
+    int wait, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -851,10 +971,15 @@ int msg_write_one_page(struct page *page, int wait, int msqid_from_fs_to_kernel,
     return write_one_page(page, wait);
 }
 
-void msg_truncate_setsize(struct inode *inode, loff_t newsize, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_truncate_setsize(
+    struct inode *inode, 
+    loff_t newsize, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -885,10 +1010,15 @@ void msg_truncate_setsize(struct inode *inode, loff_t newsize, int msqid_from_fs
     truncate_setsize(inode, newsize);
 }
 
-int msg_mapping_tagged(struct address_space *mapping, int tag, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_mapping_tagged(
+    struct address_space *mapping, 
+    int tag, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -920,10 +1050,15 @@ int msg_mapping_tagged(struct address_space *mapping, int tag, int msqid_from_fs
     return mapping_tagged(mapping, tag);
 }
 
-int msg_do_writepages(struct address_space *mapping, struct writeback_control *wbc, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_do_writepages(
+    struct address_space *mapping, 
+    struct writeback_control *wbc, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -955,10 +1090,14 @@ int msg_do_writepages(struct address_space *mapping, struct writeback_control *w
     return do_writepages(mapping, wbc);
 }
 
-int msg_filemap_fdatawait(struct address_space *mapping, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_filemap_fdatawait(
+    struct address_space *mapping, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -989,10 +1128,15 @@ int msg_filemap_fdatawait(struct address_space *mapping, int msqid_from_fs_to_ke
     return filemap_fdatawait(mapping);
 }
 
-void msg_truncate_inode_pages(struct address_space *mapping, loff_t lstart, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_truncate_inode_pages(
+    struct address_space *mapping, 
+    loff_t lstart, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1023,10 +1167,14 @@ void msg_truncate_inode_pages(struct address_space *mapping, loff_t lstart, int 
     truncate_inode_pages(mapping, lstart);
 }
 
-void msg_unregister_shrinker(struct shrinker *shrinker, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_unregister_shrinker(
+    struct shrinker *shrinker, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1056,10 +1204,14 @@ void msg_unregister_shrinker(struct shrinker *shrinker, int msqid_from_fs_to_ker
     unregister_shrinker(shrinker);
 }
 
-void msg_list_lru_destroy(struct list_lru *lru, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_list_lru_destroy(
+    struct list_lru *lru, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1089,11 +1241,436 @@ void msg_list_lru_destroy(struct list_lru *lru, int msqid_from_fs_to_kernel, int
     list_lru_destroy(lru);
 }
 
-// include-mm
-void *msg_kmem_cache_zalloc(struct kmem_cache *k, gfp_t flags, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
 
+struct kmem_cache *msg_kmem_cache_create(
+    const char *name, 
+    size_t size, 
+    size_t align, 
+    unsigned long flags, 
+    ctor_func_t ctor, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs) 
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_kmem_cache_create);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg5(const char *, size_t, size_t, unsigned long, ctor_func_t) Argus_type;
+    Argus_type argus;
+    argus.argu1 = name;
+    argus.argu2 = size;
+    argus.argu3 = align;
+    argus.argu4 = flags;
+    argus.argu5 = ctor;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    struct kmem_cache *ret = (struct kmem_cache *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return kmem_cache_create(name, size, align, flags, ctor);
+}
+
+
+struct page *msg_read_cache_page(
+    struct address_space *mapping, 
+    pgoff_t index, 
+    filler_func_t filler, 
+    void *data, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_read_cache_page);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg4(struct address_space *, pgoff_t, filler_func_t, void *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = mapping;
+    argus.argu2 = index;
+    argus.argu3 = filler;
+    argus.argu4 = data;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    struct page *ret = (struct page *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return read_cache_page(mapping, index, filler, data);
+}
+
+void msg_migrate_page_copy(
+    struct page *newpage, 
+    struct page *page, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_migrate_page_copy);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(struct page *, struct page *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = newpage;
+    argus.argu2 = page;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    migrate_page_copy(newpage, page);
+}
+
+int msg_migrate_page_move_mapping(
+    struct address_space *mapping, 
+    struct page *newpage, 
+    struct page *page, 
+    struct buffer_head *head, 
+    enum migrate_mode mode, 
+    int extra_count, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_migrate_page_move_mapping);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg6(struct address_space *, struct page *, struct page *, struct buffer_head *, enum migrate_mode, int) Argus_type;
+    Argus_type argus;
+    argus.argu1 = mapping;
+    argus.argu2 = newpage;
+    argus.argu3 = page;
+    argus.argu4 = head;
+    argus.argu5 = mode;
+    argus.argu6 = extra_count;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    int ret = *(int *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return migrate_page_move_mapping(mapping, newpage, page, head, mode, extra_count);
+}
+
+void msg_put_page(
+    struct page *page, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_put_page);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct page *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = page;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    put_page(page);
+}
+
+int msg_filemap_write_and_wait(
+    struct address_space *mapping, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_filemap_write_and_wait);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct address_space *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = mapping;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    int ret = *(int *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return filemap_write_and_wait(mapping);
+}
+
+int msg_filemap_flush(
+    struct address_space *mapping, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_filemap_flush);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct address_space *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = mapping;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    int ret = *(int *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return filemap_flush(mapping);
+}
+
+long msg_get_user_pages(
+    struct task_struct *tsk, 
+    struct mm_struct *mm, 
+    unsigned long start, 
+    unsigned long nr_pages, 
+    int write, 
+    int force, 
+    struct page **pages, 
+    struct vm_area_struct **vmas, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_get_user_pages);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg8(struct task_struct *,struct mm_struct *, unsigned long, unsigned long, int, int, struct page **, struct vm_area_struct **) Argus_type;
+    Argus_type argus;
+    argus.argu1 = tsk;
+    argus.argu2 = mm;
+    argus.argu3 = start;
+    argus.argu4 = nr_pages;
+    argus.argu5 = write;
+    argus.argu6 = force;
+    argus.argu7 = pages;
+    argus.argu8 = vmas;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    long ret = *(long *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return get_user_pages(tsk, mm, start, nr_pages, write, force, pages, vmas);
+}
+
+int msg_register_shrinker(
+    struct shrinker *shrinker, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_register_shrinker);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct shrinker *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = shrinker;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    int ret = *(int *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return register_shrinker(shrinker);
+}
+
+int msg_set_page_dirty(
+    struct page *page, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_set_page_dirty);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct page *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = page;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    int ret = *(int *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return set_page_dirty(page);
+}
+
+// include-mm
+void *msg_kmem_cache_zalloc(
+    struct kmem_cache *k, 
+    gfp_t flags, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1125,9 +1702,14 @@ void *msg_kmem_cache_zalloc(struct kmem_cache *k, gfp_t flags, int msqid_from_fs
 }
 
 // 带参宏
-void msg_page_cache_release(struct page *page, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_page_cache_release(
+    struct page *page, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
 	MY_PRINTK(get_current()->comm);
-	if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+	if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+    {
 		struct timespec tpstart, tpend;
 		long timeuse;
 		getnstimeofday(&tpstart);
@@ -1153,10 +1735,17 @@ void msg_page_cache_release(struct page *page, int msqid_from_fs_to_kernel, int 
 		page_cache_release(page);
 }
 
-struct zoneref *msg_first_zones_zonelist(struct zonelist *zonelist, enum zone_type highest_zoneidx, nodemask_t *nodes, struct zone **zone, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct zoneref *msg_first_zones_zonelist(
+    struct zonelist *zonelist, 
+    enum zone_type highest_zoneidx, 
+    nodemask_t *nodes, 
+    struct zone **zone, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1189,10 +1778,15 @@ struct zoneref *msg_first_zones_zonelist(struct zonelist *zonelist, enum zone_ty
     return first_zones_zonelist(zonelist, highest_zoneidx, nodes, zone);
 }
 
-struct zonelist *msg_node_zonelist(int nid, gfp_t flags, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct zonelist *msg_node_zonelist(
+    int nid, 
+    gfp_t flags, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1223,10 +1817,15 @@ struct zonelist *msg_node_zonelist(int nid, gfp_t flags, int msqid_from_fs_to_ke
     return node_zonelist(nid, flags);
 }
 
-void msg_attach_page_buffers(struct page *page, struct buffer_head *head, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_attach_page_buffers(
+    struct page *page, 
+    struct buffer_head *head, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1258,9 +1857,13 @@ void msg_attach_page_buffers(struct page *page, struct buffer_head *head, int ms
 }
 
 // 带参宏
-struct mnt_pcp *msg_alloc_percpu(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct mnt_pcp *msg_alloc_percpu(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1287,10 +1890,16 @@ struct mnt_pcp *msg_alloc_percpu(int msqid_from_fs_to_kernel, int msqid_from_ker
     return alloc_percpu(struct mnt_pcp);
 }
 
-struct page *msg_read_mapping_page(struct address_space *mapping, pgoff_t index, void *data, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct page *msg_read_mapping_page(
+    struct address_space *mapping, 
+    pgoff_t index, 
+    void *data, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1322,10 +1931,18 @@ struct page *msg_read_mapping_page(struct address_space *mapping, pgoff_t index,
     return read_mapping_page(mapping, index, data);
 }
 
-void msg_zero_user_segments(struct page *page, unsigned start1, unsigned end1, unsigned start2, unsigned end2, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_zero_user_segments(
+    struct page *page, 
+    unsigned start1, 
+    unsigned end1, 
+    unsigned start2, 
+    unsigned end2, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1359,10 +1976,16 @@ void msg_zero_user_segments(struct page *page, unsigned start1, unsigned end1, u
     zero_user_segments(page, start1, end1, start2, end2);
 }
 
-void msg_zero_user(struct page *page, unsigned start, unsigned size, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_zero_user(
+    struct page *page, 
+    unsigned start, 
+    unsigned size, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1394,10 +2017,14 @@ void msg_zero_user(struct page *page, unsigned start, unsigned size, int msqid_f
     zero_user(page, start, size);
 }
 
-void msg_cleancache_invalidate_fs(struct super_block *sb, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_cleancache_invalidate_fs(
+    struct super_block *sb, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1427,15 +2054,220 @@ void msg_cleancache_invalidate_fs(struct super_block *sb, int msqid_from_fs_to_k
     cleancache_invalidate_fs(sb);
 }
 
+// 调用了定义在mm/filemap.c中的__lock_page()
+void msg_lock_page(
+    struct page *page, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_lock_page);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct page *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = page;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    lock_page(page);
+}
+
+// 调用了定义在mm/slub.c中的__kmalloc()和定义在mm/slub.c中的kmem_cache_alloc_trace()
+void *msg_kmalloc(
+    size_t size, 
+    gfp_t flags, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_kmalloc);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(size_t, gfp_t) Argus_type;
+    Argus_type argus;
+    argus.argu1 = size;
+    argus.argu2 = flags;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    void *ret = (void *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return kmalloc(size, flags);
+}
+
+// 调用了定义在mm/filemap.c中的find_or_create_page()
+struct page *msg_grab_cache_page(
+    struct address_space *mapping, 
+    pgoff_t index, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_grab_cache_page);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(struct address_space *, pgoff_t) Argus_type;
+    Argus_type argus;
+    argus.argu1 = mapping;
+    argus.argu2 = index;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    struct page *ret = (struct page *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return grab_cache_page(mapping, index);
+}
+
+// 调用了定义在mm/slab_common.c中的kmalloc_order_trace()
+void *msg_kmalloc_large(
+    size_t size, 
+    gfp_t flags, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_kmalloc_large);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(size_t, gfp_t) Argus_type;
+    Argus_type argus;
+    argus.argu1 = size;
+    argus.argu2 = flags;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    void *ret = (void *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return kmalloc_large(size, flags);
+}
+
+// 调用了定义在include/linux/slab.h中的kmalloc()
+void *msg_kzalloc(
+    size_t size, 
+    gfp_t flags, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_kzalloc);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(size_t, gfp_t) Argus_type;
+    Argus_type argus;
+    argus.argu1 = size;
+    argus.argu2 = flags;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    void *ret = (void *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return kzalloc(size, flags);
+}
 
 
 /*
  * 文件系统与内核模块的交互实现
  */
-bool msg_capable(int cap, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+bool msg_capable(
+    int cap, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1466,10 +2298,14 @@ bool msg_capable(int cap, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_
     return capable(cap);
 }
 
-void msg_down_read(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_down_read(
+    struct rw_semaphore *sem, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1499,9 +2335,13 @@ void msg_down_read(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int ms
     down_read(sem);
 }
 
-void msg_up_read(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+void msg_up_read(
+    struct rw_semaphore *sem, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1531,9 +2371,13 @@ void msg_up_read(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msqi
     up_read(sem);
 }
 
-void msg_down_write(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+void msg_down_write(
+    struct rw_semaphore *sem, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1563,10 +2407,14 @@ void msg_down_write(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int m
     down_write(sem);
 }
 
-void msg_up_write(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_up_write(
+    struct rw_semaphore *sem, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1596,9 +2444,14 @@ void msg_up_write(struct rw_semaphore *sem, int msqid_from_fs_to_kernel, int msq
     up_write(sem);
 }
 
-void msg_wake_up_bit(void *word, int bit, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+void msg_wake_up_bit(
+    void *word, 
+    int bit, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1629,10 +2482,15 @@ void msg_wake_up_bit(void *word, int bit, int msqid_from_fs_to_kernel, int msqid
     wake_up_bit(word, bit);
 }
 
-wait_queue_head_t *msg_bit_waitqueue(void *word, int bit, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+wait_queue_head_t *msg_bit_waitqueue(
+    void *word, 
+    int bit, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1664,10 +2522,13 @@ wait_queue_head_t *msg_bit_waitqueue(void *word, int bit, int msqid_from_fs_to_k
     return bit_waitqueue(word, bit);
 }
 
-unsigned long msg_get_seconds(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+unsigned long msg_get_seconds(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1697,10 +2558,14 @@ unsigned long msg_get_seconds(int msqid_from_fs_to_kernel, int msqid_from_kernel
     return get_seconds();
 }
 
-void msg_put_pid(struct pid *pid, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_put_pid(
+    struct pid *pid, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1729,10 +2594,14 @@ void msg_put_pid(struct pid *pid, int msqid_from_fs_to_kernel, int msqid_from_ke
     put_pid(pid);
 }
 
-int msg_in_group_p(kgid_t grp, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_in_group_p(
+    kgid_t grp, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1763,10 +2632,13 @@ int msg_in_group_p(kgid_t grp, int msqid_from_fs_to_kernel, int msqid_from_kerne
     return in_group_p(grp);
 }
 
-void msg_yield(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_yield(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1794,10 +2666,15 @@ void msg_yield(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
     yield();
 }
 
-bool msg_inode_capable(const struct inode *inode, int cap, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+bool msg_inode_capable(
+    const struct inode *inode, 
+    int cap, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1829,10 +2706,16 @@ bool msg_inode_capable(const struct inode *inode, int cap, int msqid_from_fs_to_
     return inode_capable(inode, cap);
 }
 
-int msg_task_work_add(struct task_struct *task, struct callback_head *twork, bool notify, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_task_work_add(
+    struct task_struct *task, 
+    struct callback_head *twork, 
+    bool notify, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1865,10 +2748,13 @@ int msg_task_work_add(struct task_struct *task, struct callback_head *twork, boo
     return task_work_add(task, twork, notify);
 }
 
-void msg_synchronize_rcu(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_synchronize_rcu(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1896,10 +2782,16 @@ void msg_synchronize_rcu(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_f
     synchronize_rcu();
 }
 
-void msg_prepare_to_wait(wait_queue_head_t *q, wait_queue_t *wait, int state, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_prepare_to_wait(
+    wait_queue_head_t *q, 
+    wait_queue_t *wait, 
+    int state, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1930,10 +2822,13 @@ void msg_prepare_to_wait(wait_queue_head_t *q, wait_queue_t *wait, int state, in
     prepare_to_wait(q, wait, state);
 }
 
-void msg_schedule(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_schedule(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1961,10 +2856,15 @@ void msg_schedule(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
     schedule();
 }
 
-void msg_finish_wait(wait_queue_head_t *q, wait_queue_t *wait, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_finish_wait(
+    wait_queue_head_t *q, 
+    wait_queue_t *wait, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1994,10 +2894,14 @@ void msg_finish_wait(wait_queue_head_t *q, wait_queue_t *wait, int msqid_from_fs
     finish_wait(q, wait);
 }
 
-struct timespec msg_current_fs_time(struct super_block *sb, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct timespec msg_current_fs_time(
+    struct super_block *sb, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2028,9 +2932,14 @@ struct timespec msg_current_fs_time(struct super_block *sb, int msqid_from_fs_to
 }
 
 /*
-int msg_lock_is_held(struct lockdep_map *lock, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_lock_is_held(
+    struct lockdep_map *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     // 创建并初始化消息块
     struct my_msgbuf sendbuf;
     init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_lock_is_held);
@@ -2053,10 +2962,15 @@ int msg_lock_is_held(struct lockdep_map *lock, int msqid_from_fs_to_kernel, int 
 }
 */
 
-void msg_audit_log_link_denied(const char *operation, struct path *link, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_audit_log_link_denied(
+    const char *operation, 
+    struct path *link, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2086,10 +3000,16 @@ void msg_audit_log_link_denied(const char *operation, struct path *link, int msq
     audit_log_link_denied(operation, link);
 }
 
-int msg_send_sig(int sig, struct task_struct *p, int priv, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_send_sig(
+    int sig, 
+    struct task_struct *p, 
+    int priv, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2122,10 +3042,15 @@ int msg_send_sig(int sig, struct task_struct *p, int priv, int msqid_from_fs_to_
     return send_sig(sig, p, priv);
 }
 
-struct timespec msg_timespec_trunc(struct timespec t, unsigned gran, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct timespec msg_timespec_trunc(
+    struct timespec t, 
+    unsigned gran, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2156,10 +3081,14 @@ struct timespec msg_timespec_trunc(struct timespec t, unsigned gran, int msqid_f
     return timespec_trunc(t, gran);
 }
 
-void msg_acct_auto_close_mnt(struct vfsmount *m, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_acct_auto_close_mnt(
+    struct vfsmount *m, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2188,10 +3117,17 @@ void msg_acct_auto_close_mnt(struct vfsmount *m, int msqid_from_fs_to_kernel, in
     acct_auto_close_mnt(m);
 }
 
-int msg___wait_on_bit(wait_queue_head_t *wq, struct wait_bit_queue *q, int (*action)(void *), unsigned mode, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg___wait_on_bit(
+    wait_queue_head_t *wq, 
+    struct wait_bit_queue *q, 
+    int (*action)(void *), 
+    unsigned mode, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2225,10 +3161,14 @@ int msg___wait_on_bit(wait_queue_head_t *wq, struct wait_bit_queue *q, int (*act
     return __wait_on_bit(wq, q, action, mode);
 }
 
-void msg_free_uid(struct user_struct *up, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_free_uid(
+    struct user_struct *up, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2257,10 +3197,14 @@ void msg_free_uid(struct user_struct *up, int msqid_from_fs_to_kernel, int msqid
     free_uid(up);
 }
 
-void msg_module_put(struct module *module, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_module_put(
+    struct module *module, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2289,11 +3233,745 @@ void msg_module_put(struct module *module, int msqid_from_fs_to_kernel, int msqi
     module_put(module);
 }
 
-// include-kernel
-struct filename *msg_audit_reusename(const __user char *name, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+// 这个直接在include/linux/fs.h中的i_gid_write()中发送msg_make_kgid()，因为i_gid_write()使用到了文件系统的数据对象，因此不能发送msg_i_gid_write()
+kgid_t msg_make_kgid(
+    struct user_namespace *ns, 
+    gid_t gid, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
 
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_make_kgid);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(struct user_namespace *, gid_t) Argus_type;
+    Argus_type argus;
+    argus.argu1 = ns;
+    argus.argu2 = gid;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    kgid_t ret = *(kgid_t *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return make_kgid(ns, gid);
+}
+
+int msg_autoremove_wake_function(
+    wait_queue_t *wait, 
+    unsigned mode, 
+    int sync, 
+    void *key, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_autoremove_wake_function);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg4(wait_queue_t *, unsigned, int, void *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = wait;
+    argus.argu2 = mode;
+    argus.argu3 = sync;
+    argus.argu4 = key;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    int ret = *(int *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return autoremove_wake_function(wait, mode, sync, key);
+}
+
+struct timespec msg_current_kernel_time(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_current_kernel_time);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg0() Argus_type;
+    Argus_type argus;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    struct timespec ret = *(struct timespec *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return current_kernel_time();
+}
+
+void msg_mutex_lock(
+    struct mutex *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_mutex_lock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct mutex *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    mutex_lock(lock);
+}
+
+void msg_mutex_unlock(
+    struct mutex *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_mutex_unlock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct mutex *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    mutex_unlock(lock);
+}
+
+// 这个直接在include/linux/fs.h中的i_gid_write()中发送msg_make_kgid()，因为i_gid_write()使用到了文件系统的数据对象，因此不能发送msg_i_uid_write()
+kuid_t msg_make_kuid(
+    struct user_namespace *ns, 
+    uid_t uid, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_make_kuid);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(struct user_namespace *, uid_t) Argus_type;
+    Argus_type argus;
+    argus.argu1 = ns;
+    argus.argu2 = uid;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    kuid_t ret = *(kuid_t *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return make_kuid(ns, uid);
+}
+
+void msg_io_schedule(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_io_schedule);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg0() Argus_type;
+    Argus_type argus;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    io_schedule();
+}
+
+void msg_lg_local_lock_cpu(
+    struct lglock *lg, 
+    int cpu, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_lg_local_lock_cpu);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(struct lglock *, int) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lg;
+    argus.argu2 = cpu;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    lg_local_lock_cpu(lg, cpu);
+}
+
+void msg_lg_local_unlock_cpu(
+    struct lglock *lg, 
+    int cpu, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_lg_local_unlock_cpu);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(struct lglock *, int) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lg;
+    argus.argu2 = cpu;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    lg_local_unlock_cpu(lg, cpu);
+}
+
+void msg_warn_slowpath_null(
+    const char *file, 
+    int line, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_warn_slowpath_null);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(const char *, int) Argus_type;
+    Argus_type argus;
+    argus.argu1 = file;
+    argus.argu2 = line;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    warn_slowpath_null(file, line);
+}
+
+// 这个直接在include/linux/fs.h中的i_gid_read()中发送msg_from_kgid()，因为i_gid_read()使用到了文件系统的数据对象，因此不能发送msg_i_gid_read()
+gid_t msg_from_kgid(
+    struct user_namespace *targ, 
+    kgid_t kgid, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_from_kgid);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(struct user_namespace *, kgid_t) Argus_type;
+    Argus_type argus;
+    argus.argu1 = targ;
+    argus.argu2 = kgid;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    gid_t ret = *(gid_t *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return from_kgid(targ, kgid);
+}
+
+int msg_wake_bit_function(
+    wait_queue_t *wait, 
+    unsigned mode, 
+    int sync, 
+    void *arg, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_wake_bit_function);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg4(wait_queue_t *, unsigned, int, void *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = wait;
+    argus.argu2 = mode;
+    argus.argu3 = sync;
+    argus.argu4 = arg;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    int ret = *(int *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return wake_bit_function(wait, mode, sync, arg);
+}
+
+bool msg_try_module_get(
+    struct module *module, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_try_module_get);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct module *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = module;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    bool ret = *(bool *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return try_module_get(module);
+}
+
+// 这个直接在include/linux/fs.h中的i_uid_read()中发送msg_from_kuid()，因为i_uid_read()使用到了文件系统的数据对象，因此不能发送msg_i_uid_read()
+uid_t msg_from_kuid(
+    struct user_namespace *targ, 
+    kuid_t kuid, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_from_kuid);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(struct user_namespace *, kuid_t) Argus_type;
+    Argus_type argus;
+    argus.argu1 = targ;
+    argus.argu2 = kuid;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    uid_t ret = *(uid_t *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return from_kuid(targ, kuid);
+}
+
+void msg_destroy_workqueue(
+    struct workqueue_struct *wq, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_destroy_workqueue);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct workqueue_struct *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = wq;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    destroy_workqueue(wq);
+}
+
+void msg_wait_for_completion(
+    struct completion *x, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_wait_for_completion);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct completion *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = x;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    wait_for_completion(x);
+}
+
+void msg___module_get(
+    struct module *module, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback___module_get);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct module *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = module;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    __module_get(module);
+}
+
+void msg_call_rcu(
+    struct rcu_head *head, 
+    func_t func, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_call_rcu);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(struct rcu_head *, func_t) Argus_type;
+    Argus_type argus;
+    argus.argu1 = head;
+    argus.argu2 = func;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    call_rcu(head, func);
+}
+
+int msg_down_read_trylock(
+    struct rw_semaphore *sem, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_down_read_trylock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct rw_semaphore *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = sem;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    int ret = *(int *)(sendbuf.object_ptr);
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+    return ret;
+  } else
+    return down_read_trylock(sem);
+}
+
+// include-kernel
+struct filename *msg_audit_reusename(
+    const __user char *name, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2323,10 +4001,14 @@ struct filename *msg_audit_reusename(const __user char *name, int msqid_from_fs_
     return audit_reusename(name);
 }
 
-void msg_audit_getname(struct filename *name, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_audit_getname(
+    struct filename *name, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2357,10 +4039,13 @@ void msg_audit_getname(struct filename *name, int msqid_from_fs_to_kernel, int m
 }
 
 // 无参宏
-const struct cred *msg_current_cred(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+const struct cred *msg_current_cred(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2389,10 +4074,14 @@ const struct cred *msg_current_cred(int msqid_from_fs_to_kernel, int msqid_from_
     return current_cred();
 }
 
-void msg_percpu_counter_inc(struct percpu_counter *fbc, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_percpu_counter_inc(
+    struct percpu_counter *fbc, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2422,10 +4111,14 @@ void msg_percpu_counter_inc(struct percpu_counter *fbc, int msqid_from_fs_to_ker
     percpu_counter_inc(fbc);
 }
 
-const struct cred *msg_get_cred(const struct cred *cred, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+const struct cred *msg_get_cred(
+    const struct cred *cred, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2455,10 +4148,14 @@ const struct cred *msg_get_cred(const struct cred *cred, int msqid_from_fs_to_ke
     return get_cred(cred);
 }
 
-void msg_percpu_counter_dec(struct percpu_counter *fbc, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_percpu_counter_dec(
+    struct percpu_counter *fbc, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2489,10 +4186,13 @@ void msg_percpu_counter_dec(struct percpu_counter *fbc, int msqid_from_fs_to_ker
 }
 
 // 无参宏
-kuid_t msg_current_fsuid(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+kuid_t msg_current_fsuid(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2521,10 +4221,15 @@ kuid_t msg_current_fsuid(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_f
     return current_fsuid();
 }
 
-struct posix_acl *msg_get_cached_acl_rcu(struct inode *inode, int type, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct posix_acl *msg_get_cached_acl_rcu(
+    struct inode *inode, 
+    int type, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2556,10 +4261,13 @@ struct posix_acl *msg_get_cached_acl_rcu(struct inode *inode, int type, int msqi
 }
 
 // 无参宏
-void msg_local_irq_disable(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_local_irq_disable(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2589,10 +4297,13 @@ void msg_local_irq_disable(int msqid_from_fs_to_kernel, int msqid_from_kernel_to
 }
 
 // 无参宏
-void msg_local_irq_enable(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_local_irq_enable(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2622,10 +4333,13 @@ void msg_local_irq_enable(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_
 }
 
 // 无参宏
-void msg_might_sleep(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_might_sleep(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2654,10 +4368,13 @@ void msg_might_sleep(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
 }
 
 // 无参宏
-void msg_preempt_disable(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_preempt_disable(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2687,10 +4404,13 @@ void msg_preempt_disable(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_f
 }
 
 // 无参宏
-void msg_preempt_enable(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_preempt_enable(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2719,15 +4439,27 @@ void msg_preempt_enable(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs
     preempt_enable();
 }
 
-// 带参宏
-void msg_list_for_each_entry_rcu(struct backing_dev_info *bdi, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {// bdi_list是全局变量
+// 带参宏，其中bdi_list是全局变量
+/*
+void msg_list_for_each_entry_rcu(
+    struct backing_dev_info *bdi, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
 
 }
+*/
 
-bool msg_mod_delayed_work(struct workqueue_struct *wq, struct delayed_work *dwork, unsigned long delay, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+bool msg_mod_delayed_work(
+    struct workqueue_struct *wq, 
+    struct delayed_work *dwork, 
+    unsigned long delay, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2760,10 +4492,14 @@ bool msg_mod_delayed_work(struct workqueue_struct *wq, struct delayed_work *dwor
     return mod_delayed_work(wq, dwork, delay);
 }
 
-void msg_css_put(struct cgroup_subsys_state *css, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_css_put(
+    struct cgroup_subsys_state *css, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2794,9 +4530,14 @@ void msg_css_put(struct cgroup_subsys_state *css, int msqid_from_fs_to_kernel, i
 }
 
 // 带参宏
-void msg_wake_up_all(wait_queue_head_t *q, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_wake_up_all(
+    wait_queue_head_t *q, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2823,10 +4564,14 @@ void msg_wake_up_all(wait_queue_head_t *q, int msqid_from_fs_to_kernel, int msqi
     wake_up_all(q);
 }
 
-void msg_posix_acl_release(struct posix_acl *acl, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_posix_acl_release(
+    struct posix_acl *acl, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2856,10 +4601,14 @@ void msg_posix_acl_release(struct posix_acl *acl, int msqid_from_fs_to_kernel, i
     posix_acl_release(acl);
 }
 
-unsigned msg_read_seqbegin(const seqlock_t *sl, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+unsigned msg_read_seqbegin(
+    const seqlock_t *sl, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2889,10 +4638,15 @@ unsigned msg_read_seqbegin(const seqlock_t *sl, int msqid_from_fs_to_kernel, int
     return read_seqbegin(sl);
 }
 
-bool msg_schedule_delayed_work(struct delayed_work *dwork, unsigned long delay, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+bool msg_schedule_delayed_work(
+    struct delayed_work *dwork, 
+    unsigned long delay, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2923,10 +4677,14 @@ bool msg_schedule_delayed_work(struct delayed_work *dwork, unsigned long delay, 
     return schedule_delayed_work(dwork, delay);
 }
 
-struct dentry *msg_dget(struct dentry *dentry, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct dentry *msg_dget(
+    struct dentry *dentry, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2956,14 +4714,26 @@ struct dentry *msg_dget(struct dentry *dentry, int msqid_from_fs_to_kernel, int 
     return dget(dentry);
 }
 
-// 带参宏,为hlist_bl_for_each_entry_rcu而写的两个函数，需要在代码处将该宏定义展开
-void msg_hlist_bl_for_each_entry_rcu(struct dentry *dentry, struct hlist_bl_node *node, struct hlist_bl_head *b, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {// d_hash是member，直接在内部使用即可
+// 带参宏,为hlist_bl_for_each_entry_rcu而写的两个函数，需要在代码处将该宏定义展开，其中d_hash是member，直接在内部使用即可
+/*
+void msg_hlist_bl_for_each_entry_rcu(
+    struct dentry *dentry, 
+    struct hlist_bl_node *node, 
+    struct hlist_bl_head *b, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
 
 }
 
-struct hlist_bl_node *msg_hlist_bl_first_rcu(struct hlist_bl_head *h, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct hlist_bl_node *msg_hlist_bl_first_rcu(
+    struct hlist_bl_head *h, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -2990,9 +4760,14 @@ struct hlist_bl_node *msg_hlist_bl_first_rcu(struct hlist_bl_head *h, int msqid_
     return hlist_bl_first_rcu(h);
 }
 
-struct hlist_bl_node *msg_rcu_dereference_raw(struct hlist_bl_node *pos, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct hlist_bl_node *msg_rcu_dereference_raw(
+    struct hlist_bl_node *pos, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3018,11 +4793,18 @@ struct hlist_bl_node *msg_rcu_dereference_raw(struct hlist_bl_node *pos, int msq
   } else
     return rcu_dereference_raw(pos);
 }
+*/
 
-// 带参宏,这个函数直接在源文件里修改
-struct dentry *msg_list_entry_rcu(struct list_head *list, struct dentry *dentry, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {// d_lru是member，直接在内部使用即可
+// 带参宏,这个函数直接在源文件里修改，其中d_lru是member，直接在内部使用即可
+struct dentry *msg_list_entry_rcu(
+    struct list_head *list, 
+    struct dentry *dentry, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3050,10 +4832,13 @@ struct dentry *msg_list_entry_rcu(struct list_head *list, struct dentry *dentry,
 }
 
 // 无参宏
-int msg_cond_resched(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_cond_resched(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3083,9 +4868,14 @@ int msg_cond_resched(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
 }
 
 // 带参宏
-void msg_wake_up_interruptible(struct __wait_queue_head *ppoll, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_wake_up_interruptible(
+    struct __wait_queue_head *ppoll, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3112,9 +4902,14 @@ void msg_wake_up_interruptible(struct __wait_queue_head *ppoll, int msqid_from_f
 }
 
 // 带参宏
-void msg_seqcount_init(seqcount_t *s, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_seqcount_init(
+    seqcount_t *s, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3141,15 +4936,23 @@ void msg_seqcount_init(seqcount_t *s, int msqid_from_fs_to_kernel, int msqid_fro
 }
 
 /*
-void msg_lockdep_set_class(int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_lockdep_set_class(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
 
 }
 */
 
 // 带参宏
-void msg_mutex_init(struct mutex *mutex, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_mutex_init(
+    struct mutex *mutex, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3176,9 +4979,15 @@ void msg_mutex_init(struct mutex *mutex, int msqid_from_fs_to_kernel, int msqid_
 }
 
 // 带参宏
-void msg_wait_event(struct __wait_queue_head wq, bool condition, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_wait_event(
+    struct __wait_queue_head wq, 
+    bool condition, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs) 
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3205,10 +5014,15 @@ void msg_wait_event(struct __wait_queue_head wq, bool condition, int msqid_from_
     wait_event(wq, condition);
 }
 
-void msg_percpu_counter_add(struct percpu_counter *fbc, s64 amount, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_percpu_counter_add(
+    struct percpu_counter *fbc, 
+    s64 amount, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3240,9 +5054,14 @@ void msg_percpu_counter_add(struct percpu_counter *fbc, s64 amount, int msqid_fr
 }
 
 // 带参宏
-const struct file_operations *msg_fops_get(const struct file_operations	*fops, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+const struct file_operations *msg_fops_get(
+    const struct file_operations *fops, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3270,9 +5089,14 @@ const struct file_operations *msg_fops_get(const struct file_operations	*fops, i
 }
 
 // 带参宏
-void msg_init_waitqueue_head(struct __wait_queue_head *q, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_init_waitqueue_head(
+    struct __wait_queue_head *q, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3300,9 +5124,14 @@ void msg_init_waitqueue_head(struct __wait_queue_head *q, int msqid_from_fs_to_k
 }
 
 // 带参宏
-void msg_wake_up(struct __wait_queue_head *q, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_wake_up(
+    struct __wait_queue_head *q, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3330,9 +5159,16 @@ void msg_wake_up(struct __wait_queue_head *q, int msqid_from_fs_to_kernel, int m
 }
 
 // 带参宏
-int msg_wait_event_interruptible_timeout(struct __wait_queue_head wq, bool condition, unsigned long timeout, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+int msg_wait_event_interruptible_timeout(
+    struct __wait_queue_head wq, 
+    bool condition, 
+    unsigned long timeout, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3361,10 +5197,16 @@ int msg_wait_event_interruptible_timeout(struct __wait_queue_head wq, bool condi
     return wait_event_interruptible_timeout(wq, condition, timeout);
 }
 
-void msg_audit_inode(struct filename *name, const struct dentry *dentry, unsigned int parent, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_audit_inode(
+    struct filename *name, 
+    const struct dentry *dentry, 
+    unsigned int parent, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3396,10 +5238,16 @@ void msg_audit_inode(struct filename *name, const struct dentry *dentry, unsigne
     audit_inode(name, dentry, parent);
 }
 
-void msg_audit_inode_child(const struct inode *parent, const struct dentry *dentry, const unsigned char type, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_audit_inode_child(
+    const struct inode *parent, 
+    const struct dentry *dentry, 
+    const unsigned char type, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3432,9 +5280,15 @@ void msg_audit_inode_child(const struct inode *parent, const struct dentry *dent
 }
 
 // 带参宏
-struct hlist_node *msg_srcu_dereference(struct hlist_node *p, struct srcu_struct *sp, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+struct hlist_node *msg_srcu_dereference(
+    struct hlist_node *p, 
+    struct srcu_struct *sp, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3463,10 +5317,15 @@ struct hlist_node *msg_srcu_dereference(struct hlist_node *p, struct srcu_struct
     return srcu_dereference(p, sp);
 }
 
-// 带参宏
-void msg_kfree_rcu(struct super_block *s, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {// rcu_header是member，直接在内部使用
+// 带参宏，其中rcu_header是member，直接在内部使用
+void msg_kfree_rcu(
+    struct super_block *s, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3493,15 +5352,696 @@ void msg_kfree_rcu(struct super_block *s, int msqid_from_fs_to_kernel, int msqid
     kfree_rcu(s, rcu);
 }
 
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_lock()
+void msg_write_lock(
+    rwlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_write_lock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(rwlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    write_lock(lock);
+}
+
+// 宏，调用了定义在kernel/locking/rwsem-spinlock.c中的__init_rwsem()
+void msg_init_rwsem(
+    struct rw_semaphore *sem, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_init_rwsem);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct rw_semaphore *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = sem;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    init_rwsem(sem);
+}
+
+// 调用了定义在kernel/workqueue.c中的queue_delayed_work_on()
+bool msg_queue_delayed_work(
+    struct workqueue_struct *wq, 
+    struct delayed_work *dwork, 
+    unsigned long delay, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_queue_delayed_work);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg3(struct workqueue_struct *, struct delayed_work *, unsigned long) Argus_type;
+    Argus_type argus;
+    argus.argu1 = wq;
+    argus.argu2 = dwork;
+    argus.argu3 = delay;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    return *(bool *)(sendbuf.object_ptr);
+  } else
+    return queue_delayed_work(wq, dwork, delay);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock()
+void msg_spin_lock(
+    spinlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_spin_lock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(spinlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    spin_lock(lock);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock()
+void msg_spin_unlock(
+    spinlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_spin_unlock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(spinlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    spin_unlock(lock);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_irq()
+void msg_spin_lock_irq(
+    spinlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_spin_lock_irq);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(spinlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    spin_lock_irq(lock);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irq()
+void msg_spin_unlock_irq(
+    spinlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_spin_unlock_irq);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(spinlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    spin_unlock_irq(lock);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_trylock()
+void msg_spin_trylock(
+    spinlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_spin_trylock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(spinlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    spin_trylock(lock);
+}
+
+// 宏，调用了定义在kernel/panic.c中的warn_slowpath_null()
+void msg_WARN_ON(
+    bool condition, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_WARN_ON);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(bool) Argus_type;
+    Argus_type argus;
+    argus.argu1 = condition;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    WARN_ON(condition);
+}
+
+// 宏，调用了定义在kernel/printk/printk.c中的__printk_ratelimit()
+int msg_printk_ratelimit(
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_printk_ratelimit);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg0() Argus_type;
+    Argus_type argus;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    return *(int *)(sendbuf.object_ptr);
+  } else
+    return printk_ratelimit();
+}
+
+// 调用了定义在kernel/sched/wait.c中的out_of_line_wait_on_bit_lock()
+int msg_wait_on_bit_lock(
+    void *word, 
+    int bit, 
+    action_func_t action, 
+    unsigned mode, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_wait_on_bit_lock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg4(void *, int, action_func_t, unsigned) Argus_type;
+    Argus_type argus;
+    argus.argu1 = word;
+    argus.argu2 = bit;
+    argus.argu3 = action;
+    argus.argu4 = mode;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    return *(int *)(sendbuf.object_ptr);
+  } else
+    return wait_on_bit_lock(word, bit, action, mode);
+}
+
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_lock_irq()
+void msg_write_lock_irq(
+    rwlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_write_lock_irq);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(rwlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    write_lock_irq(lock);
+}
+
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_unlock_irq()
+void msg_write_unlock_irq(
+    rwlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_write_unlock_irq);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(rwlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    write_unlock_irq(lock);
+}
+
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_read_lock()
+void msg_read_lock(
+    rwlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_read_lock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(rwlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    read_lock(lock);
+}
+
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_read_unlock()
+void msg_read_unlock(
+    rwlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_read_unlock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(rwlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    read_unlock(lock);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irqrestore()
+void msg_spin_unlock_irqrestore(
+    spinlock_t *lock, 
+    unsigned long flags, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_spin_unlock_irqrestore);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(spinlock_t *, unsigned long) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    argus.argu2 = flags;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    spin_unlock_irqrestore(lock, flags);
+}
+
+// 调用了定义在kernel/workqueue.c中的queue_work_on()
+bool msg_queue_work(
+    struct workqueue_struct *wq, 
+    struct work_struct *work, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_queue_work);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(struct workqueue_struct *, struct work_struct *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = wq;
+    argus.argu2 = work;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    return *(bool *)(sendbuf.object_ptr);
+  } else
+    return queue_work(wq, work);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_bh()
+void msg_spin_lock_bh(
+    spinlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_spin_lock_bh);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(spinlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    spin_lock_bh(lock);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_bh()
+void msg_spin_unlock_bh(
+    spinlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_spin_unlock_bh);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(spinlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    spin_unlock_bh(lock);
+}
 
 
 /*
  * 文件系统与通用块层的交互实现
  */
-void msg_bdevname(struct block_device *bdev, char *buf, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_bdevname(
+    struct block_device *bdev, 
+    char *buf, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3522,21 +6062,25 @@ void msg_bdevname(struct block_device *bdev, char *buf, int msqid_from_fs_to_ker
     // 阻塞等待接收消息
     flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
     // 处理从kernel传过来的消息
-    const char *ret = (const char *)(sendbuf.object_ptr);
+    // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
-    return ret;
   } else
-    return bdevname(bdev, buf);
+    bdevname(bdev, buf);
 }
 
-void msg_submit_bio(int rw, struct bio *bio, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_submit_bio(
+    int rw, 
+    struct bio *bio, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3566,10 +6110,14 @@ void msg_submit_bio(int rw, struct bio *bio, int msqid_from_fs_to_kernel, int ms
     submit_bio(rw, bio);
 }
 
-void msg_put_io_context(struct io_context *ioc, int msqid_from_fs_to_kernel, int msqid_from_kernel_to_fs) {
+void msg_put_io_context(
+    struct io_context *ioc, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
   MY_PRINTK(get_current()->comm);
-  if (my_strcmp(get_current()->comm, "fs_kthread") == 0) {
-
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -3596,4 +6144,76 @@ void msg_put_io_context(struct io_context *ioc, int msqid_from_fs_to_kernel, int
 
   } else
     put_io_context(ioc);
+}
+
+void msg_blk_finish_plug(
+    struct blk_plug *plug, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_blk_finish_plug);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct blk_plug *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = plug;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    blk_finish_plug(plug);
+}
+
+void msg_blk_start_plug(
+    struct blk_plug *plug, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_blk_start_plug);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(struct blk_plug *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = plug;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
+    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    // 阻塞等待接收消息
+    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    // 处理从kernel传过来的消息
+
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+
+  } else
+    blk_start_plug(plug);
 }
