@@ -2,8 +2,9 @@
 #define __LINUX_CALLBACK_XXX_H
 
 #include <linux/lockdep.h>
-#include <linux/my_msg.h>
+//#include <linux/my_msg.h>
 // #include <linux/my_msg.h>
+#include <linux/msgA.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/mempool.h>

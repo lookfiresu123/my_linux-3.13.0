@@ -1,4 +1,4 @@
-#include <linux/my_msg.h>
+#include <linux/msgB.h>
 #include <linux/msg_xxx.h>
 #include <linux/callback_xxx.h>
 #include <linux/interactive_design.h>
@@ -22,7 +22,7 @@ static void init_msgbuf(
     bool isend, 
     void (*callback_xxx)(struct msgbuf *))
 {
-  sendbuf_ptr->mtype = mtype;
+  //sendbuf_ptr->mtype = mtype;
   sendbuf_ptr->tsk = tsk;
   sendbuf_ptr->callback = callback_xxx;
   sendbuf_ptr->msqid = msqid;
@@ -57,16 +57,16 @@ void *msg_kmem_cache_alloc(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     void *ret = sendbuf.object_ptr;// 每个msg_xxx()函数处理返回值的方法都不同
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -97,16 +97,16 @@ void msg_kmem_cache_free(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     kmem_cache_free(s, x);
 }
@@ -133,16 +133,16 @@ void msg_kfree(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     kfree(x);
 }
@@ -169,16 +169,16 @@ void msg_vfree(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     vfree(addr);
@@ -208,16 +208,16 @@ void *msg_mempool_alloc(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     void *ret = sendbuf.object_ptr;
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -249,16 +249,16 @@ void msg_mempool_free(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     mempool_free(element, pool);
@@ -286,16 +286,16 @@ struct address_space *msg_page_mapping(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     struct address_space *ret = sendbuf.object_ptr;
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -326,16 +326,16 @@ bool msg_list_lru_add(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     bool ret = *(bool *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -366,16 +366,16 @@ bool msg_list_lru_del(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     bool ret = *(bool *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -406,16 +406,16 @@ struct page *msg_find_get_page(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     struct page *ret = (struct page *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -444,16 +444,16 @@ void msg_mark_page_accessed(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     mark_page_accessed(page);
@@ -485,16 +485,16 @@ struct page *msg_find_or_create_page(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     struct page *ret = (struct page *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -525,16 +525,16 @@ void msg_cancel_dirty_page(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     cancel_dirty_page(page, account_size);
@@ -562,16 +562,16 @@ void *msg_page_address(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     void *ret = sendbuf.object_ptr;
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -600,16 +600,16 @@ int msg_bdi_has_dirty_io(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -644,16 +644,16 @@ unsigned long msg_try_to_free_pages(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     unsigned long ret = *(unsigned long *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -682,16 +682,16 @@ void msg_unlock_page(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     unlock_page(page);
@@ -721,16 +721,16 @@ void msg_account_page_dirtied(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     account_page_dirtied(page, mapping);
@@ -758,16 +758,16 @@ void msg_bdi_wakeup_thread_delayed(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     bdi_wakeup_thread_delayed(bdi);
@@ -797,16 +797,16 @@ char *msg_kstrdup(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     char *ret = (char *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -835,16 +835,16 @@ void msg_free_percpu(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     free_percpu(__pdata);
@@ -876,16 +876,16 @@ void *msg_kmemdup(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     void *ret = sendbuf.object_ptr;
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -916,16 +916,16 @@ void msg_file_ra_state_init(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     file_ra_state_init(ra, mapping);
@@ -955,16 +955,16 @@ int msg_write_one_page(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -995,16 +995,16 @@ void msg_truncate_setsize(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     truncate_setsize(inode, newsize);
@@ -1034,16 +1034,16 @@ int msg_mapping_tagged(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1074,16 +1074,16 @@ int msg_do_writepages(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1112,16 +1112,16 @@ int msg_filemap_fdatawait(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1152,16 +1152,16 @@ void msg_truncate_inode_pages(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     truncate_inode_pages(mapping, lstart);
@@ -1189,16 +1189,16 @@ void msg_unregister_shrinker(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     unregister_shrinker(shrinker);
@@ -1226,16 +1226,16 @@ void msg_list_lru_destroy(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     list_lru_destroy(lru);
@@ -1272,16 +1272,16 @@ struct kmem_cache *msg_kmem_cache_create(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     struct kmem_cache *ret = (struct kmem_cache *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1317,16 +1317,16 @@ struct page *msg_read_cache_page(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     struct page *ret = (struct page *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1357,16 +1357,16 @@ void msg_migrate_page_copy(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     migrate_page_copy(newpage, page);
@@ -1404,16 +1404,16 @@ int msg_migrate_page_move_mapping(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1442,16 +1442,16 @@ void msg_put_page(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     put_page(page);
@@ -1479,16 +1479,16 @@ int msg_filemap_write_and_wait(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1517,16 +1517,16 @@ int msg_filemap_flush(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1569,16 +1569,16 @@ long msg_get_user_pages(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     long ret = *(long *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1607,16 +1607,16 @@ int msg_register_shrinker(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1645,16 +1645,16 @@ int msg_set_page_dirty(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1686,15 +1686,15 @@ void *msg_kmem_cache_zalloc(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return sendbuf.object_ptr;
   } else
@@ -1723,14 +1723,14 @@ void msg_page_cache_release(
 		sendbuf.argus_ptr = &argus;
 		// 发送消息
 		int sendlength, flag;
-		sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-		flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+		sendlength = sizeof(struct my_msgbuf);
+		my_msgsendA(&sendbuf, sendlength);
 		// 阻塞等待接收消息
-		flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+		my_msgrcvA(&sendbuf, sendlength);
 		// 处理从kernel传过来的消息
 		getnstimeofday(&tpend);
 		timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-		printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+		//printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 	} else
 		page_cache_release(page);
 }
@@ -1763,15 +1763,15 @@ struct zoneref *msg_first_zones_zonelist(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct zoneref *)(sendbuf.object_ptr);
   } else
@@ -1802,15 +1802,15 @@ struct zonelist *msg_node_zonelist(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct zonelist *)(sendbuf.object_ptr);
   } else
@@ -1841,16 +1841,16 @@ void msg_attach_page_buffers(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     attach_page_buffers(page, head);
@@ -1876,15 +1876,15 @@ struct mnt_pcp *msg_alloc_percpu(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct mnt_pcp *)(sendbuf.object_ptr);
   } else
     return alloc_percpu(struct mnt_pcp);
@@ -1916,15 +1916,15 @@ struct page *msg_read_mapping_page(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct page *)(sendbuf.object_ptr);
   } else
@@ -1961,16 +1961,16 @@ void msg_zero_user_segments(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     zero_user_segments(page, start1, end1, start2, end2);
@@ -2002,16 +2002,16 @@ void msg_zero_user(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     zero_user(page, start, size);
@@ -2039,16 +2039,16 @@ void msg_cleancache_invalidate_fs(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     cleancache_invalidate_fs(sb);
@@ -2077,16 +2077,16 @@ void msg_lock_page(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     lock_page(page);
@@ -2117,16 +2117,16 @@ void *msg_kmalloc(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     void *ret = (void *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2158,16 +2158,16 @@ struct page *msg_grab_cache_page(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     struct page *ret = (struct page *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2199,16 +2199,16 @@ void *msg_kmalloc_large(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     void *ret = (void *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2240,16 +2240,16 @@ void *msg_kzalloc(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     void *ret = (void *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2282,16 +2282,16 @@ bool msg_capable(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     bool ret = *(bool *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2320,16 +2320,16 @@ void msg_down_read(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需存储返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     down_read(sem);
@@ -2356,16 +2356,16 @@ void msg_up_read(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需存储返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     up_read(sem);
@@ -2392,16 +2392,16 @@ void msg_down_write(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需存储返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     down_write(sem);
@@ -2429,16 +2429,16 @@ void msg_up_write(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需存储返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     up_write(sem);
@@ -2467,16 +2467,16 @@ void msg_wake_up_bit(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需存储返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     wake_up_bit(word, bit);
@@ -2506,16 +2506,16 @@ wait_queue_head_t *msg_bit_waitqueue(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     wait_queue_head_t *ret = sendbuf.object_ptr;
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2542,16 +2542,16 @@ unsigned long msg_get_seconds(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     unsigned long ret = *(unsigned long *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2580,15 +2580,15 @@ void msg_put_pid(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     put_pid(pid);
@@ -2616,16 +2616,16 @@ int msg_in_group_p(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2652,15 +2652,15 @@ void msg_yield(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     yield();
@@ -2690,16 +2690,16 @@ bool msg_inode_capable(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     bool ret = *(bool *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2732,16 +2732,16 @@ int msg_task_work_add(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2768,15 +2768,15 @@ void msg_synchronize_rcu(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     synchronize_rcu();
@@ -2808,15 +2808,15 @@ void msg_prepare_to_wait(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     prepare_to_wait(q, wait, state);
@@ -2842,15 +2842,15 @@ void msg_schedule(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     schedule();
@@ -2880,15 +2880,15 @@ void msg_finish_wait(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     finish_wait(q, wait);
@@ -2916,15 +2916,15 @@ struct timespec msg_current_fs_time(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(struct timespec *)(sendbuf.object_ptr);
   } else
@@ -2950,10 +2950,10 @@ int msg_lock_is_held(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
     return ret;
@@ -2986,15 +2986,15 @@ void msg_audit_log_link_denied(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     audit_log_link_denied(operation, link);
@@ -3026,16 +3026,16 @@ int msg_send_sig(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3066,15 +3066,15 @@ struct timespec msg_timespec_trunc(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(struct timespec *)(sendbuf.object_ptr);
   } else
@@ -3103,15 +3103,15 @@ void msg_acct_auto_close_mnt(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     acct_auto_close_mnt(m);
@@ -3145,16 +3145,16 @@ int msg___wait_on_bit(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3183,15 +3183,15 @@ void msg_free_uid(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     free_uid(up);
@@ -3219,15 +3219,15 @@ void msg_module_put(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     module_put(module);
@@ -3258,16 +3258,16 @@ kgid_t msg_make_kgid(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     kgid_t ret = *(kgid_t *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3302,16 +3302,16 @@ int msg_autoremove_wake_function(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3338,16 +3338,16 @@ struct timespec msg_current_kernel_time(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     struct timespec ret = *(struct timespec *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3376,15 +3376,15 @@ void msg_mutex_lock(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     mutex_lock(lock);
@@ -3412,15 +3412,15 @@ void msg_mutex_unlock(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     mutex_unlock(lock);
@@ -3451,16 +3451,16 @@ kuid_t msg_make_kuid(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     kuid_t ret = *(kuid_t *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3487,15 +3487,15 @@ void msg_io_schedule(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     io_schedule();
@@ -3525,15 +3525,15 @@ void msg_lg_local_lock_cpu(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     lg_local_lock_cpu(lg, cpu);
@@ -3563,15 +3563,15 @@ void msg_lg_local_unlock_cpu(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     lg_local_unlock_cpu(lg, cpu);
@@ -3601,15 +3601,15 @@ void msg_warn_slowpath_null(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     warn_slowpath_null(file, line);
@@ -3640,16 +3640,16 @@ gid_t msg_from_kgid(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     gid_t ret = *(gid_t *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3684,16 +3684,16 @@ int msg_wake_bit_function(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3722,16 +3722,16 @@ bool msg_try_module_get(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     bool ret = *(bool *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3763,16 +3763,16 @@ uid_t msg_from_kuid(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     uid_t ret = *(uid_t *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3801,15 +3801,15 @@ void msg_destroy_workqueue(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     destroy_workqueue(wq);
@@ -3837,15 +3837,15 @@ void msg_wait_for_completion(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     wait_for_completion(x);
@@ -3873,15 +3873,15 @@ void msg___module_get(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     __module_get(module);
@@ -3911,15 +3911,15 @@ void msg_call_rcu(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     call_rcu(head, func);
@@ -3947,16 +3947,16 @@ int msg_down_read_trylock(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     int ret = *(int *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3986,15 +3986,15 @@ struct filename *msg_audit_reusename(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct filename *)(sendbuf.object_ptr);
   } else
@@ -4023,16 +4023,16 @@ void msg_audit_getname(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     audit_getname(name);
@@ -4059,15 +4059,15 @@ const struct cred *msg_current_cred(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (const struct cred *)(sendbuf.object_ptr);
   } else
@@ -4096,16 +4096,16 @@ void msg_percpu_counter_inc(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     percpu_counter_inc(fbc);
@@ -4133,15 +4133,15 @@ const struct cred *msg_get_cred(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (const struct cred *)(sendbuf.object_ptr);
   } else
@@ -4170,16 +4170,16 @@ void msg_percpu_counter_dec(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     percpu_counter_dec(fbc);
@@ -4206,15 +4206,15 @@ kuid_t msg_current_fsuid(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(kuid_t *)(sendbuf.object_ptr);
   } else
@@ -4245,15 +4245,15 @@ struct posix_acl *msg_get_cached_acl_rcu(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct posix_acl *)(sendbuf.object_ptr);
   } else
@@ -4281,16 +4281,16 @@ void msg_local_irq_disable(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     local_irq_disable();
@@ -4317,16 +4317,16 @@ void msg_local_irq_enable(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     local_irq_enable();
@@ -4353,15 +4353,15 @@ void msg_might_sleep(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     might_sleep();
@@ -4388,16 +4388,16 @@ void msg_preempt_disable(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     preempt_disable();
@@ -4424,16 +4424,16 @@ void msg_preempt_enable(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     preempt_enable();
@@ -4476,16 +4476,16 @@ bool msg_mod_delayed_work(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     bool ret = *(bool *)(sendbuf.object_ptr);
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -4514,16 +4514,16 @@ void msg_css_put(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     css_put(css);
@@ -4551,15 +4551,15 @@ void msg_wake_up_all(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     wake_up_all(q);
 }
@@ -4586,16 +4586,16 @@ void msg_posix_acl_release(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     posix_acl_release(acl);
@@ -4623,15 +4623,15 @@ unsigned msg_read_seqbegin(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(unsigned *)(sendbuf.object_ptr);
   } else
@@ -4662,15 +4662,15 @@ bool msg_schedule_delayed_work(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(bool *)(sendbuf.object_ptr);
   } else
@@ -4699,15 +4699,15 @@ struct dentry *msg_dget(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct dentry *)(sendbuf.object_ptr);
   } else
@@ -4747,14 +4747,14 @@ struct hlist_bl_node *msg_hlist_bl_first_rcu(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct hlist_bl_node *)(sendbuf.object_ptr);
   } else
     return hlist_bl_first_rcu(h);
@@ -4781,14 +4781,14 @@ struct hlist_bl_node *msg_rcu_dereference_raw(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct hlist_bl_node *)(sendbuf.object_ptr);
   } else
     return rcu_dereference_raw(pos);
@@ -4818,14 +4818,14 @@ struct dentry *msg_list_entry_rcu(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct dentry *)(sendbuf.object_ptr);
   } else
     return list_entry_rcu(list, struct dentry, d_lru);
@@ -4852,15 +4852,15 @@ int msg_cond_resched(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(int *)(sendbuf.object_ptr);
   } else
@@ -4889,14 +4889,14 @@ void msg_wake_up_interruptible(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     wake_up_interruptible(ppoll);
 }
@@ -4923,14 +4923,14 @@ void msg_seqcount_init(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     seqcount_init(s);
 }
@@ -4966,14 +4966,14 @@ void msg_mutex_init(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     mutex_init(mutex);
 }
@@ -5002,14 +5002,14 @@ void msg_wait_event(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     wait_event(wq, condition);
 }
@@ -5038,16 +5038,16 @@ void msg_percpu_counter_add(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     percpu_counter_add(fbc, amount);
@@ -5075,14 +5075,14 @@ const struct file_operations *msg_fops_get(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (const struct file_operations *)(sendbuf.object_ptr);
   } else
     return fops_get(fops);
@@ -5110,15 +5110,15 @@ void msg_init_waitqueue_head(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     init_waitqueue_head(q);
 }
@@ -5145,15 +5145,15 @@ void msg_wake_up(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     wake_up(q);
 }
@@ -5184,14 +5184,14 @@ int msg_wait_event_interruptible_timeout(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(int *)(sendbuf.object_ptr);
   } else
     return wait_event_interruptible_timeout(wq, condition, timeout);
@@ -5223,16 +5223,16 @@ void msg_audit_inode(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     audit_inode(name, dentry, parent);
@@ -5264,16 +5264,16 @@ void msg_audit_inode_child(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     audit_inode_child(parent, dentry, type);
@@ -5303,15 +5303,15 @@ struct hlist_node *msg_srcu_dereference(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct hlist_node *)(sendbuf.object_ptr);
   } else
     return srcu_dereference(p, sp);
@@ -5339,15 +5339,15 @@ void msg_kfree_rcu(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     kfree_rcu(s, rcu);
 }
@@ -5374,15 +5374,15 @@ void msg_write_lock(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     write_lock(lock);
 }
@@ -5409,15 +5409,15 @@ void msg_init_rwsem(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     init_rwsem(sem);
 }
@@ -5448,14 +5448,14 @@ bool msg_queue_delayed_work(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(bool *)(sendbuf.object_ptr);
   } else
     return queue_delayed_work(wq, dwork, delay);
@@ -5483,15 +5483,15 @@ void msg_spin_lock(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_lock(lock);
 }
@@ -5518,15 +5518,15 @@ void msg_spin_unlock(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_unlock(lock);
 }
@@ -5553,15 +5553,15 @@ void msg_spin_lock_irq(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_lock_irq(lock);
 }
@@ -5588,15 +5588,15 @@ void msg_spin_unlock_irq(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_unlock_irq(lock);
 }
@@ -5623,15 +5623,15 @@ void msg_spin_trylock(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_trylock(lock);
 }
@@ -5658,15 +5658,15 @@ void msg_WARN_ON(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     WARN_ON(condition);
 }
@@ -5691,14 +5691,14 @@ int msg_printk_ratelimit(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(int *)(sendbuf.object_ptr);
   } else
     return printk_ratelimit();
@@ -5732,14 +5732,14 @@ int msg_wait_on_bit_lock(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(int *)(sendbuf.object_ptr);
   } else
     return wait_on_bit_lock(word, bit, action, mode);
@@ -5767,15 +5767,15 @@ void msg_write_lock_irq(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     write_lock_irq(lock);
 }
@@ -5802,15 +5802,15 @@ void msg_write_unlock_irq(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     write_unlock_irq(lock);
 }
@@ -5837,15 +5837,15 @@ void msg_read_lock(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     read_lock(lock);
 }
@@ -5872,15 +5872,15 @@ void msg_read_unlock(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     read_unlock(lock);
 }
@@ -5909,15 +5909,15 @@ void msg_spin_unlock_irqrestore(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_unlock_irqrestore(lock, flags);
 }
@@ -5946,14 +5946,14 @@ bool msg_queue_work(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(bool *)(sendbuf.object_ptr);
   } else
     return queue_work(wq, work);
@@ -5981,15 +5981,15 @@ void msg_spin_lock_bh(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_lock_bh(lock);
 }
@@ -6016,15 +6016,15 @@ void msg_spin_unlock_bh(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_unlock_bh(lock);
 }
@@ -6057,16 +6057,16 @@ void msg_bdevname(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
     // 无需处理返回值
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     bdevname(bdev, buf);
@@ -6096,15 +6096,15 @@ void msg_submit_bio(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     submit_bio(rw, bio);
@@ -6132,15 +6132,15 @@ void msg_put_io_context(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     put_io_context(ioc);
@@ -6168,15 +6168,15 @@ void msg_blk_finish_plug(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     blk_finish_plug(plug);
@@ -6204,15 +6204,15 @@ void msg_blk_start_plug(
     sendbuf.argus_ptr = &argus;
     // 发送消息
     int sendlength, flag;
-    sendlength = sizeof(struct my_msgbuf) - sizeof(long);
-    flag = my_msgsnd(msqid_from_fs_to_kernel, &sendbuf, sendlength, 0);
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
-    flag = my_msgrcv(msqid_from_kernel_to_fs, &sendbuf, sendlength, 3, 0);
+    my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     blk_start_plug(plug);

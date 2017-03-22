@@ -1,6 +1,7 @@
 #include <linux/lockdep.h>
-#include <linux/my_msg.h>
+//#include <linux/my_msg.h>
 // #include <linux/my_msg.h>
+#include <linux/msgA.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/mempool.h>
@@ -83,8 +84,8 @@ void callback_kmem_cache_alloc(struct my_msgbuf *this) {
   void *ret = kmem_cache_alloc(ptr->argu1, ptr->argu2);// kmem_cache_alloc()函数
   this->object_ptr = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_kmem_cache_free(struct my_msgbuf *this) {
@@ -94,8 +95,8 @@ void callback_kmem_cache_free(struct my_msgbuf *this) {
   kmem_cache_free(ptr->argu1, ptr->argu2);// kmem_cache_free()函数
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_kfree(struct my_msgbuf *this) {
@@ -105,8 +106,8 @@ void callback_kfree(struct my_msgbuf *this) {
   kfree(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_vfree(struct my_msgbuf *this) {
@@ -116,8 +117,8 @@ void callback_vfree(struct my_msgbuf *this) {
   vfree(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_mempool_alloc(struct my_msgbuf *this) {
@@ -127,8 +128,8 @@ void callback_mempool_alloc(struct my_msgbuf *this) {
   void *ret = mempool_alloc(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;//保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_mempool_free(struct my_msgbuf *this) {
@@ -138,8 +139,8 @@ void callback_mempool_free(struct my_msgbuf *this) {
   mempool_free(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_page_mapping(struct my_msgbuf *this) {
@@ -149,8 +150,8 @@ void callback_page_mapping(struct my_msgbuf *this) {
   struct address_space *ret = page_mapping(ptr->argu1);
   this->object_ptr = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_list_lru_add(struct my_msgbuf *this) {
@@ -161,8 +162,8 @@ void callback_list_lru_add(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
   *(bool *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_list_lru_del(struct my_msgbuf *this) {
@@ -173,8 +174,8 @@ void callback_list_lru_del(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
   *(bool *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_find_get_page(struct my_msgbuf *this) {
@@ -184,8 +185,8 @@ void callback_find_get_page(struct my_msgbuf *this) {
   struct page *ret = find_get_page(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;//保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_mark_page_accessed(struct my_msgbuf *this) {
@@ -195,8 +196,8 @@ void callback_mark_page_accessed(struct my_msgbuf *this) {
   mark_page_accessed(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_find_or_create_page(struct my_msgbuf *this) {
@@ -206,8 +207,8 @@ void callback_find_or_create_page(struct my_msgbuf *this) {
   struct page *ret = find_or_create_page(ptr->argu1, ptr->argu2, ptr->argu3);
   this->object_ptr = ret;//保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_cancel_dirty_page(struct my_msgbuf *this) {
@@ -217,8 +218,8 @@ void callback_cancel_dirty_page(struct my_msgbuf *this) {
   cancel_dirty_page(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_page_address(struct my_msgbuf *this) {
@@ -228,8 +229,8 @@ void callback_page_address(struct my_msgbuf *this) {
   void *ret = page_address(ptr->argu1);
   this->object_ptr = ret;//保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_bdi_has_dirty_io(struct my_msgbuf *this) {
@@ -240,8 +241,8 @@ void callback_bdi_has_dirty_io(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 
@@ -253,8 +254,8 @@ void callback_try_to_free_pages(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(unsigned long), GFP_KERNEL);
   *(unsigned long *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_unlock_page(struct my_msgbuf *this) {
@@ -264,8 +265,8 @@ void callback_unlock_page(struct my_msgbuf *this) {
   unlock_page(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_account_page_dirtied(struct my_msgbuf *this) {
@@ -275,8 +276,8 @@ void callback_account_page_dirtied(struct my_msgbuf *this) {
   account_page_dirtied(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_bdi_wakeup_thread_delayed(struct my_msgbuf *this) {
@@ -286,8 +287,8 @@ void callback_bdi_wakeup_thread_delayed(struct my_msgbuf *this) {
   bdi_wakeup_thread_delayed(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_kstrdup(struct my_msgbuf *this) {
@@ -297,8 +298,8 @@ void callback_kstrdup(struct my_msgbuf *this) {
   char *ret = kstrdup(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_free_percpu(struct my_msgbuf *this) {
@@ -308,8 +309,8 @@ void callback_free_percpu(struct my_msgbuf *this) {
   free_percpu(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_kmemdup(struct my_msgbuf *this) {
@@ -319,8 +320,8 @@ void callback_kmemdup(struct my_msgbuf *this) {
   void *ret = kmemdup(ptr->argu1, ptr->argu2, ptr->argu3);
   this->object_ptr = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_file_ra_state_init(struct my_msgbuf *this) {
@@ -330,8 +331,8 @@ void callback_file_ra_state_init(struct my_msgbuf *this) {
   file_ra_state_init(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_write_one_page(struct my_msgbuf *this) {
@@ -342,8 +343,8 @@ void callback_write_one_page(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_truncate_setsize(struct my_msgbuf *this) {
@@ -353,8 +354,8 @@ void callback_truncate_setsize(struct my_msgbuf *this) {
   truncate_setsize(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_mapping_tagged(struct my_msgbuf *this) {
@@ -365,8 +366,8 @@ void callback_mapping_tagged(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_do_writepages(struct my_msgbuf *this) {
@@ -377,8 +378,8 @@ void callback_do_writepages(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_filemap_fdatawait(struct my_msgbuf *this) {
@@ -389,8 +390,8 @@ void callback_filemap_fdatawait(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_truncate_inode_pages(struct my_msgbuf *this) {
@@ -400,8 +401,8 @@ void callback_truncate_inode_pages(struct my_msgbuf *this) {
   truncate_inode_pages(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_unregister_shrinker(struct my_msgbuf *this) {
@@ -411,8 +412,8 @@ void callback_unregister_shrinker(struct my_msgbuf *this) {
   unregister_shrinker(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_list_lru_destroy(struct my_msgbuf *this) {
@@ -422,8 +423,8 @@ void callback_list_lru_destroy(struct my_msgbuf *this) {
   list_lru_destroy(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_kmem_cache_create(struct my_msgbuf *this) {
@@ -433,8 +434,8 @@ void callback_kmem_cache_create(struct my_msgbuf *this) {
   struct kmem_cache *ret = kmem_cache_create(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4, ptr->argu5);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_read_cache_page(struct my_msgbuf *this) {
@@ -444,8 +445,8 @@ void callback_read_cache_page(struct my_msgbuf *this) {
   struct page *ret = read_cache_page(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_migrate_page_copy(struct my_msgbuf *this) {
@@ -455,8 +456,8 @@ void callback_migrate_page_copy(struct my_msgbuf *this) {
   migrate_page_copy(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_migrate_page_move_mapping(struct my_msgbuf *this) {
@@ -467,8 +468,8 @@ void callback_migrate_page_move_mapping(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_put_page(struct my_msgbuf *this) {
@@ -478,8 +479,8 @@ void callback_put_page(struct my_msgbuf *this) {
   put_page(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 /*
@@ -490,8 +491,8 @@ void callback_find_or_create_page(struct my_msgbuf *this) {
   struct page *ret = find_or_create_page(ptr->argu1, ptr->argu2, ptr->argu3);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 */
 
@@ -503,8 +504,8 @@ void callback_filemap_write_and_wait(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_filemap_flush(struct my_msgbuf *this) {
@@ -515,8 +516,8 @@ void callback_filemap_flush(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_get_user_pages(struct my_msgbuf *this) {
@@ -527,8 +528,8 @@ void callback_get_user_pages(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(long), GFP_KERNEL);
   *(long *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_register_shrinker(struct my_msgbuf *this) {
@@ -539,8 +540,8 @@ void callback_register_shrinker(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_set_page_dirty(struct my_msgbuf *this) {
@@ -551,8 +552,8 @@ void callback_set_page_dirty(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // include-mm
@@ -563,8 +564,8 @@ void callback_kmem_cache_zalloc(struct my_msgbuf *this) {
   void *ret = kmem_cache_zalloc(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_page_cache_release(struct my_msgbuf *this) {
@@ -573,8 +574,8 @@ void callback_page_cache_release(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   page_cache_release(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_first_zones_zonelist(struct my_msgbuf *this) {
@@ -584,8 +585,8 @@ void callback_first_zones_zonelist(struct my_msgbuf *this) {
   struct zoneref *ret = first_zones_zonelist(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_node_zonelist(struct my_msgbuf *this) {
@@ -595,8 +596,8 @@ void callback_node_zonelist(struct my_msgbuf *this) {
   struct zonelist *ret = node_zonelist(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_attach_page_buffers(struct my_msgbuf *this) {
@@ -606,8 +607,8 @@ void callback_attach_page_buffers(struct my_msgbuf *this) {
   attach_page_buffers(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_alloc_percpu(struct my_msgbuf *this) {
@@ -617,8 +618,8 @@ void callback_alloc_percpu(struct my_msgbuf *this) {
   struct mnt_pcp *ret = alloc_percpu(struct mnt_pcp);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_read_mapping_page(struct my_msgbuf *this) {
@@ -628,8 +629,8 @@ void callback_read_mapping_page(struct my_msgbuf *this) {
   struct page *ret = read_mapping_page(ptr->argu1, ptr->argu2, ptr->argu3);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_zero_user_segments(struct my_msgbuf *this) {
@@ -639,8 +640,8 @@ void callback_zero_user_segments(struct my_msgbuf *this) {
   zero_user_segments(ptr->argu1, ptr->argu2, ptr->argu3, ptr->argu4, ptr->argu5);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_zero_user(struct my_msgbuf *this) {
@@ -650,8 +651,8 @@ void callback_zero_user(struct my_msgbuf *this) {
   zero_user(ptr->argu1, ptr->argu2, ptr->argu3);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_cleancache_invalidate_fs(struct my_msgbuf *this) {
@@ -661,8 +662,8 @@ void callback_cleancache_invalidate_fs(struct my_msgbuf *this) {
   cleancache_invalidate_fs(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在mm/filemap.c中的__lock_page()
@@ -673,8 +674,8 @@ void callback_lock_page(struct my_msgbuf *this) {
   lock_page(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在mm/slub.c中的__kmalloc()和定义在mm/slub.c中的kmem_cache_alloc_trace()
@@ -685,8 +686,8 @@ void callback_kmalloc(struct my_msgbuf *this) {
   void *ret = kmalloc(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在mm/filemap.c中的find_or_create_page()
@@ -697,8 +698,8 @@ void callback_grab_cache_page(struct my_msgbuf *this) {
   struct page *ret = grab_cache_page(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在mm/slab_common.c中的kmalloc_order_trace()
@@ -709,8 +710,8 @@ void callback_kmalloc_large(struct my_msgbuf *this) {
   void *ret = kmalloc_large(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在include/linux/slab.h中的kmalloc()
@@ -721,8 +722,8 @@ void callback_kzalloc(struct my_msgbuf *this) {
   void *ret = kzalloc(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 
@@ -737,8 +738,8 @@ void callback_capable(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
   *(bool *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_down_read(struct my_msgbuf *this) {
@@ -748,8 +749,8 @@ void callback_down_read(struct my_msgbuf *this) {
   down_read(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_up_read(struct my_msgbuf *this) {
@@ -759,8 +760,8 @@ void callback_up_read(struct my_msgbuf *this) {
   up_read(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_down_write(struct my_msgbuf *this) {
@@ -770,8 +771,8 @@ void callback_down_write(struct my_msgbuf *this) {
   down_write(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_up_write(struct my_msgbuf *this) {
@@ -781,8 +782,8 @@ void callback_up_write(struct my_msgbuf *this) {
   up_write(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_wake_up_bit(struct my_msgbuf *this) {
@@ -792,8 +793,8 @@ void callback_wake_up_bit(struct my_msgbuf *this) {
   wake_up_bit(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_bit_waitqueue(struct my_msgbuf *this) {
@@ -803,8 +804,8 @@ void callback_bit_waitqueue(struct my_msgbuf *this) {
   wait_queue_head_t *ret = bit_waitqueue(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;//保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_get_seconds(struct my_msgbuf *this) {
@@ -815,8 +816,8 @@ void callback_get_seconds(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(unsigned long), GFP_KERNEL);
   *(unsigned long *)(this->object_ptr) = ret;//保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_put_pid(struct my_msgbuf *this) {
@@ -826,8 +827,8 @@ void callback_put_pid(struct my_msgbuf *this) {
   put_pid(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_in_group_p(struct my_msgbuf *this) {
@@ -838,8 +839,8 @@ void callback_in_group_p(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;//保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_yield(struct my_msgbuf *this) {
@@ -849,8 +850,8 @@ void callback_yield(struct my_msgbuf *this) {
   yield();
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_inode_capable(struct my_msgbuf *this) {
@@ -861,8 +862,8 @@ void callback_inode_capable(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
   *(bool *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_task_work_add(struct my_msgbuf *this) {
@@ -873,8 +874,8 @@ void callback_task_work_add(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_synchronize_rcu(struct my_msgbuf *this) {
@@ -884,8 +885,8 @@ void callback_synchronize_rcu(struct my_msgbuf *this) {
   synchronize_rcu();
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_prepare_to_wait(struct my_msgbuf *this) {
@@ -895,8 +896,8 @@ void callback_prepare_to_wait(struct my_msgbuf *this) {
   prepare_to_wait(ptr->argu1, ptr->argu2, ptr->argu3);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_schedule(struct my_msgbuf *this) {
@@ -906,8 +907,8 @@ void callback_schedule(struct my_msgbuf *this) {
   schedule();
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_finish_wait(struct my_msgbuf *this) {
@@ -917,8 +918,8 @@ void callback_finish_wait(struct my_msgbuf *this) {
   finish_wait(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_current_fs_time(struct my_msgbuf *this) {
@@ -930,8 +931,8 @@ void callback_current_fs_time(struct my_msgbuf *this) {
   ((struct timespec *)(this->object_ptr))->tv_sec = ret.tv_sec;// 保存返回值
   ((struct timespec *)(this->object_ptr))->tv_nsec = ret.tv_nsec;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_audit_log_link_denied(struct my_msgbuf *this) {
@@ -941,8 +942,8 @@ void callback_audit_log_link_denied(struct my_msgbuf *this) {
   audit_log_link_denied(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_send_sig(struct my_msgbuf *this) {
@@ -953,8 +954,8 @@ void callback_send_sig(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_timespec_trunc(struct my_msgbuf *this) {
@@ -966,8 +967,8 @@ void callback_timespec_trunc(struct my_msgbuf *this) {
   ((struct timespec *)(this->object_ptr))->tv_sec = ret.tv_sec;// 保存返回值
   ((struct timespec *)(this->object_ptr))->tv_nsec = ret.tv_nsec;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_acct_auto_close_mnt(struct my_msgbuf *this) {
@@ -977,8 +978,8 @@ void callback_acct_auto_close_mnt(struct my_msgbuf *this) {
   acct_auto_close_mnt(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback___wait_on_bit(struct my_msgbuf *this) {
@@ -989,8 +990,8 @@ void callback___wait_on_bit(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_free_uid(struct my_msgbuf *this) {
@@ -1000,8 +1001,8 @@ void callback_free_uid(struct my_msgbuf *this) {
   free_uid(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_module_put(struct my_msgbuf *this) {
@@ -1011,8 +1012,8 @@ void callback_module_put(struct my_msgbuf *this) {
   module_put(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 这个直接在include/linux/fs.h中的i_gid_write()中发送msg_make_kgid()，因为i_gid_write()使用到了文件系统的数据对象，因此不能发送msg_i_gid_write()
@@ -1024,8 +1025,8 @@ void callback_make_kgid(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(kgid_t), GFP_KERNEL);
   *(kgid_t *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_autoremove_wake_function(struct my_msgbuf *this) {
@@ -1036,8 +1037,8 @@ void callback_autoremove_wake_function(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_current_kernel_time(struct my_msgbuf *this) {
@@ -1049,8 +1050,8 @@ void callback_current_kernel_time(struct my_msgbuf *this) {
   ((struct timespec *)(this->object_ptr))->tv_sec = ret.tv_sec;// 保存返回值
   ((struct timespec *)(this->object_ptr))->tv_nsec = ret.tv_nsec;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_mutex_lock(struct my_msgbuf *this) {
@@ -1060,8 +1061,8 @@ void callback_mutex_lock(struct my_msgbuf *this) {
   mutex_lock(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_mutex_unlock(struct my_msgbuf *this) {
@@ -1071,8 +1072,8 @@ void callback_mutex_unlock(struct my_msgbuf *this) {
   mutex_unlock(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 这个直接在include/linux/fs.h中的i_gid_write()中发送msg_make_kgid()，因为i_gid_write()使用到了文件系统的数据对象，因此不能发送msg_i_uid_write()
@@ -1084,8 +1085,8 @@ void callback_make_kuid(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(kuid_t), GFP_KERNEL);
   *(kuid_t *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_io_schedule(struct my_msgbuf *this) {
@@ -1095,8 +1096,8 @@ void callback_io_schedule(struct my_msgbuf *this) {
   io_schedule();
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_lg_local_lock_cpu(struct my_msgbuf *this) {
@@ -1106,8 +1107,8 @@ void callback_lg_local_lock_cpu(struct my_msgbuf *this) {
   lg_local_lock_cpu(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_lg_local_unlock_cpu(struct my_msgbuf *this) {
@@ -1117,8 +1118,8 @@ void callback_lg_local_unlock_cpu(struct my_msgbuf *this) {
   lg_local_unlock_cpu(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_warn_slowpath_null(struct my_msgbuf *this) {
@@ -1128,8 +1129,8 @@ void callback_warn_slowpath_null(struct my_msgbuf *this) {
   warn_slowpath_null(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 这个直接在include/linux/fs.h中的i_gid_read()中发送msg_from_kgid()，因为i_gid_read()使用到了文件系统的数据对象，因此不能发送msg_i_gid_read()
@@ -1141,8 +1142,8 @@ void callback_from_kgid(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(gid_t), GFP_KERNEL);
   *(gid_t *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_wake_bit_function(struct my_msgbuf *this) {
@@ -1153,8 +1154,8 @@ void callback_wake_bit_function(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_try_module_get(struct my_msgbuf *this) {
@@ -1165,8 +1166,8 @@ void callback_try_module_get(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
   *(bool *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 这个直接在include/linux/fs.h中的i_uid_read()中发送msg_from_kuid()，因为i_uid_read()使用到了文件系统的数据对象，因此不能发送msg_i_uid_read()
@@ -1178,8 +1179,8 @@ void callback_from_kuid(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(uid_t), GFP_KERNEL);
   *(uid_t *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_destroy_workqueue(struct my_msgbuf *this) {
@@ -1189,8 +1190,8 @@ void callback_destroy_workqueue(struct my_msgbuf *this) {
   destroy_workqueue(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_wait_for_completion(struct my_msgbuf *this) {
@@ -1200,8 +1201,8 @@ void callback_wait_for_completion(struct my_msgbuf *this) {
   wait_for_completion(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback___module_get(struct my_msgbuf *this) {
@@ -1211,8 +1212,8 @@ void callback___module_get(struct my_msgbuf *this) {
   __module_get(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_call_rcu(struct my_msgbuf *this) {
@@ -1222,8 +1223,8 @@ void callback_call_rcu(struct my_msgbuf *this) {
   call_rcu(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_down_read_trylock(struct my_msgbuf *this) {
@@ -1234,8 +1235,8 @@ void callback_down_read_trylock(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // include-kernel
@@ -1246,8 +1247,8 @@ void callback_audit_reusename(struct my_msgbuf *this) {
   struct filename *ret = audit_reusename(ptr->argu1);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_audit_getname(struct my_msgbuf *this) {
@@ -1256,8 +1257,8 @@ void callback_audit_getname(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   audit_getname(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 无参宏
@@ -1268,8 +1269,8 @@ void callback_current_cred(struct my_msgbuf *this) {
   const struct cred *ret = current_cred();
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_percpu_counter_inc(struct my_msgbuf *this) {
@@ -1278,8 +1279,8 @@ void callback_percpu_counter_inc(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   percpu_counter_inc(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_get_cred(struct my_msgbuf *this) {
@@ -1289,8 +1290,8 @@ void callback_get_cred(struct my_msgbuf *this) {
   const struct cred *ret = get_cred(ptr->argu1);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_percpu_counter_dec(struct my_msgbuf *this) {
@@ -1299,8 +1300,8 @@ void callback_percpu_counter_dec(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   percpu_counter_dec(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 无参宏
@@ -1312,8 +1313,8 @@ void callback_current_fsuid(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(kuid_t), GFP_KERNEL);
   *(kuid_t *)(this->object_ptr) = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_get_cached_acl_rcu(struct my_msgbuf *this) {
@@ -1323,8 +1324,8 @@ void callback_get_cached_acl_rcu(struct my_msgbuf *this) {
   struct posix_acl *ret = get_cached_acl_rcu(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_local_irq_disable(struct my_msgbuf *this) {
@@ -1333,8 +1334,8 @@ void callback_local_irq_disable(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   local_irq_disable();
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_local_irq_enable(struct my_msgbuf *this) {
@@ -1343,8 +1344,8 @@ void callback_local_irq_enable(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   local_irq_enable();
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_might_sleep(struct my_msgbuf *this) {
@@ -1353,8 +1354,8 @@ void callback_might_sleep(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   might_sleep();
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_preempt_disable(struct my_msgbuf *this) {
@@ -1363,8 +1364,8 @@ void callback_preempt_disable(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   preempt_disable();
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_preempt_enable(struct my_msgbuf *this) {
@@ -1373,8 +1374,8 @@ void callback_preempt_enable(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   preempt_enable();
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 带参宏，展开宏定义并用已经写好的msg_list_entry_rcu替换list_entry_rcu
@@ -1390,8 +1391,8 @@ void callback_mod_delayed_work(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
   *(bool *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_css_put(struct my_msgbuf *this) {
@@ -1400,8 +1401,8 @@ void callback_css_put(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   css_put(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_wake_up_all(struct my_msgbuf *this) {
@@ -1410,8 +1411,8 @@ void callback_wake_up_all(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   wake_up_all(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 
@@ -1421,8 +1422,8 @@ void callback_posix_acl_release(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   posix_acl_release(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_read_seqbegin(struct my_msgbuf *this) {
@@ -1433,8 +1434,8 @@ void callback_read_seqbegin(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(unsigned), GFP_KERNEL);
   *(unsigned *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_schedule_delayed_work(struct my_msgbuf *this) {
@@ -1445,8 +1446,8 @@ void callback_schedule_delayed_work(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
   *(bool *)(this->object_ptr) = ret;// 保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_dget(struct my_msgbuf *this) {
@@ -1456,8 +1457,8 @@ void callback_dget(struct my_msgbuf *this) {
   struct dentry *ret = dget(ptr->argu1);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 /* 为hlist_bl_for_each_entry_rcu而写的两个函数，需要在代码处将该宏定义展开*/
@@ -1468,8 +1469,8 @@ void callback_hlist_bl_first_rcu(struct my_msgbuf *this) {
   struct hlist_bl_node *ret = hlist_bl_first_rcu(ptr->argu1);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_rcu_dereference_raw(struct my_msgbuf *this) {
@@ -1479,8 +1480,8 @@ void callback_rcu_dereference_raw(struct my_msgbuf *this) {
   struct hlist_bl_node *ret = rcu_dereference_raw(ptr->argu1);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 
@@ -1491,8 +1492,8 @@ void callback_list_entry_rcu(struct my_msgbuf *this) {
   struct dentry *ret = list_entry_rcu(ptr->argu1, struct dentry, d_lru);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_cond_resched(struct my_msgbuf *this) {
@@ -1503,8 +1504,8 @@ void callback_cond_resched(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_wake_up_interruptible(struct my_msgbuf *this) {
@@ -1513,8 +1514,8 @@ void callback_wake_up_interruptible(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   wake_up_interruptible(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_seqcount_init(struct my_msgbuf *this) {
@@ -1523,8 +1524,8 @@ void callback_seqcount_init(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   seqcount_init(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 /*
@@ -1539,8 +1540,8 @@ void callback_mutex_init(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   mutex_init(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_wait_event(struct my_msgbuf *this) {
@@ -1549,8 +1550,8 @@ void callback_wait_event(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   wait_event(ptr->argu1, ptr->argu2);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_percpu_counter_add(struct my_msgbuf *this) {
@@ -1559,8 +1560,8 @@ void callback_percpu_counter_add(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   percpu_counter_add(ptr->argu1, ptr->argu2);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_fops_get(struct my_msgbuf *this) {
@@ -1570,8 +1571,8 @@ void callback_fops_get(struct my_msgbuf *this) {
   const struct file_operations *ret = fops_get(ptr->argu1);
   this->object_ptr = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_init_waitqueue_head(struct my_msgbuf *this) {
@@ -1580,8 +1581,8 @@ void callback_init_waitqueue_head(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   init_waitqueue_head(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_wake_up(struct my_msgbuf *this) {
@@ -1590,8 +1591,8 @@ void callback_wake_up(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   wake_up(ptr->argu1);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_wait_event_interruptible_timeout(struct my_msgbuf *this) {
@@ -1602,8 +1603,8 @@ void callback_wait_event_interruptible_timeout(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_audit_inode(struct my_msgbuf *this) {
@@ -1612,8 +1613,8 @@ void callback_audit_inode(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   audit_inode(ptr->argu1, ptr->argu2, ptr->argu3);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_audit_inode_child(struct my_msgbuf *this) {
@@ -1622,8 +1623,8 @@ void callback_audit_inode_child(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   audit_inode_child(ptr->argu1, ptr->argu2, ptr->argu3);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_srcu_dereference(struct my_msgbuf *this) {
@@ -1634,8 +1635,8 @@ void callback_srcu_dereference(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_kfree_rcu(struct my_msgbuf *this) {
@@ -1644,8 +1645,8 @@ void callback_kfree_rcu(struct my_msgbuf *this) {
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   kfree_rcu(ptr->argu1, rcu);
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_lock()
@@ -1656,8 +1657,8 @@ void callback_write_lock(struct my_msgbuf *this) {
   write_lock(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 宏，调用了定义在kernel/locking/rwsem-spinlock.c中的__init_rwsem()
@@ -1668,8 +1669,8 @@ void callback_init_rwsem(struct my_msgbuf *this) {
   init_rwsem(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/workqueue.c中的queue_delayed_work_on()
@@ -1681,8 +1682,8 @@ void callback_queue_delayed_work(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
   *(bool *)(this->object_ptr) = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock()
@@ -1693,8 +1694,8 @@ void callback_spin_lock(struct my_msgbuf *this) {
   spin_lock(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock()
@@ -1705,8 +1706,8 @@ void callback_spin_unlock(struct my_msgbuf *this) {
   spin_unlock(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_irq()
@@ -1717,8 +1718,8 @@ void callback_spin_lock_irq(struct my_msgbuf *this) {
   spin_lock_irq(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irq()
@@ -1729,8 +1730,8 @@ void callback_spin_unlock_irq(struct my_msgbuf *this) {
   spin_unlock_irq(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_trylock()
@@ -1741,8 +1742,8 @@ void callback_spin_trylock(struct my_msgbuf *this) {
   spin_trylock(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 宏，调用了定义在kernel/panic.c中的warn_slowpath_null()
@@ -1753,8 +1754,8 @@ void callback_WARN_ON(struct my_msgbuf *this) {
   WARN_ON(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 宏，调用了定义在kernel/printk/printk.c中的__printk_ratelimit()
@@ -1766,8 +1767,8 @@ void callback_printk_ratelimit(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/sched/wait.c中的out_of_line_wait_on_bit_lock()
@@ -1779,8 +1780,8 @@ void callback_wait_on_bit_lock(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
   *(int *)(this->object_ptr) = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_lock_irq()
@@ -1791,8 +1792,8 @@ void callback_write_lock_irq(struct my_msgbuf *this) {
   write_lock_irq(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_unlock_irq()
@@ -1803,8 +1804,8 @@ void callback_write_unlock_irq(struct my_msgbuf *this) {
   write_unlock_irq(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 宏，调用了定义在kernel/locking/spinlock.c中的_raw_read_lock()
@@ -1815,8 +1816,8 @@ void callback_read_lock(struct my_msgbuf *this) {
   read_lock(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 宏，调用了定义在kernel/locking/spinlock.c中的_raw_read_unlock()
@@ -1827,8 +1828,8 @@ void callback_read_unlock(struct my_msgbuf *this) {
   read_unlock(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irqrestore()
@@ -1839,8 +1840,8 @@ void callback_spin_unlock_irqrestore(struct my_msgbuf *this) {
   spin_unlock_irqrestore(ptr->argu1, ptr->argu2);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/workqueue.c中的queue_work_on()
@@ -1852,8 +1853,8 @@ void callback_queue_work(struct my_msgbuf *this) {
   this->object_ptr = kmalloc(sizeof(bool), GFP_KERNEL);
   *(bool *)(this->object_ptr) = ret;
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_bh()
@@ -1864,8 +1865,8 @@ void callback_spin_lock_bh(struct my_msgbuf *this) {
   spin_lock_bh(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_bh()
@@ -1876,8 +1877,8 @@ void callback_spin_unlock_bh(struct my_msgbuf *this) {
   spin_unlock_bh(ptr->argu1);
   // 无需传递返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 
@@ -1892,8 +1893,8 @@ void callback_bdevname(struct my_msgbuf *this) {
   const char *ret = bdevname(ptr->argu1, ptr->argu2);
   this->object_ptr = ret;//保存返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_submit_bio(struct my_msgbuf *this) {
@@ -1903,8 +1904,8 @@ void callback_submit_bio(struct my_msgbuf *this) {
   submit_bio(ptr->argu1, ptr->argu2);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_put_io_context(struct my_msgbuf *this) {
@@ -1914,8 +1915,8 @@ void callback_put_io_context(struct my_msgbuf *this) {
   put_io_context(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_blk_finish_plug(struct my_msgbuf *this) {
@@ -1925,8 +1926,8 @@ void callback_blk_finish_plug(struct my_msgbuf *this) {
   blk_finish_plug(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
 
 void callback_blk_start_plug(struct my_msgbuf *this) {
@@ -1936,6 +1937,6 @@ void callback_blk_start_plug(struct my_msgbuf *this) {
   blk_start_plug(ptr->argu1);
   // 无需存储返回值
   // 返回消息给发送方
-  int sendlength = sizeof(*this) - sizeof(long);
-  int flag = my_msgsnd(this->msqid, this, sendlength, 0);
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
 }
