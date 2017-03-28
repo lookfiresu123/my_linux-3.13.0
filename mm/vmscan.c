@@ -51,6 +51,7 @@
 #include <linux/balloon_compaction.h>
 
 #include "internal.h"
+#include <linux/interactive_design.h>
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/vmscan.h>
@@ -179,6 +180,7 @@ static unsigned long get_lru_size(struct lruvec *lruvec, enum lru_list lru)
  */
 int register_shrinker(struct shrinker *shrinker)
 {
+    MY_PRINTK(get_current()->comm);
 	size_t size = sizeof(*shrinker->nr_deferred);
 
 	/*

@@ -36,6 +36,7 @@
 #include <asm/tlbflush.h>
 #include <asm/mmu_context.h>
 #include "internal.h"
+#include <linux/interactive_design.h>
 
 #if 0
 #define kenter(FMT, ...) \
@@ -195,6 +196,7 @@ long get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
 		    int write, int force, struct page **pages,
 		    struct vm_area_struct **vmas)
 {
+    MY_PRINTK(get_current()->comm);
 	int flags = 0;
 
 	if (write)

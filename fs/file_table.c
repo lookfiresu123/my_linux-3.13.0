@@ -56,7 +56,10 @@ static inline void file_free(struct file *f)
 	// percpu_counter_dec(&nr_files);
 	msg_percpu_counter_dec(&nr_files, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	file_check_state(f);
-	call_rcu(&f->f_u.fu_rcuhead, file_free_rcu);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      call_rcu(&f->f_u.fu_rcuhead, file_free_rcu);
+  else
+      msg_call_rcu(&f->f_u.fu_rcuhead, file_free_rcu, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 /*

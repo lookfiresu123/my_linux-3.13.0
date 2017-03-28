@@ -62,10 +62,10 @@ bool isAddWaitQueue(wait_queue_t *data, struct task_struct *tsk){
 }
 
 void wakeupProc(void){
-	printk(KERN_INFO "other process is interruptible and i will wake up it!\n");
+	//printk(KERN_INFO "other process is interruptible and i will wake up it!\n");
 	acqNextProc();		
 	int a = wake_up_process(nexttsk);
-	printk(KERN_INFO "my_fun2():wake_up_process returns %d, process->comm is %s\n", a, nexttsk->comm);
+	//printk(KERN_INFO "my_fun2():wake_up_process returns %d, process->comm is %s\n", a, nexttsk->comm);
 }
 void AreceiveB(struct my_msgbuf *rcvbuf, int msgsz){
 
@@ -83,16 +83,16 @@ EXPORT_SYMBOL(AreceiveB);
 
 void AsendB(struct my_msgbuf *sendbuf, int msgsz){
 	struct task_struct *tmp_tsk = current;
-	printk(KERN_INFO "In AsendB: head addr = %p, current  = %s, and addr  = %p\n", &head, current->comm, current);
+	//printk(KERN_INFO "In AsendB: head addr = %p, current  = %s, and addr  = %p\n", &head, current->comm, current);
 	spin_lock(&shmArea);
 	my_msgsendB(sendbuf, msgsz);
 	spin_unlock(&shmArea);
 	//printk(KERN_INFO "In AsendB: current  = %s, and addr  = %p\n", current->comm, current);
 	//printk(KERN_INFO "before: head addr is %p,  current is %p\n", &head,  tmp_tsk);
 	wait_queue_t data;
-	printk(KERN_INFO "before : head addr is %p, data addr = %p\n", &head, &data);
+	//printk(KERN_INFO "before : head addr is %p, data addr = %p\n", &head, &data);
 	bool res = isAddWaitQueue(&data, tmp_tsk);
-	printk(KERN_INFO "after: head addr is %p, data addr is %p, current is %p\n", &head, &data, tmp_tsk);
+	//printk(KERN_INFO "after: head addr is %p, data addr is %p, current is %p\n", &head, &data, tmp_tsk);
 	struct task_struct *data_private = (struct task_struct *)(&data.private);
 	//printk(KERN_INFO "and data.private = %p\n", &data.private);
 	if(res){

@@ -88,6 +88,7 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/sched.h>
+#include <linux/interactive_design.h>
 
 void start_bandwidth_timer(struct hrtimer *period_timer, ktime_t period)
 {
@@ -3696,6 +3697,7 @@ EXPORT_SYMBOL_GPL(yield_to);
  */
 void __sched io_schedule(void)
 {
+    MY_PRINTK(get_current()->comm);
 	struct rq *rq = raw_rq();
 
 	delayacct_blkio_start();

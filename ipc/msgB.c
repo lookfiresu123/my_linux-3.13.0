@@ -69,15 +69,11 @@ bool isSuccSendA(struct my_msgbuf *sendbuf, int msgsz){
 
 } 
 void my_msgsendA(struct my_msgbuf *sendbuf, int msgsz){
-    printk("my_msgsendA(): %s\n", get_current()->comm);
-    //printk("msgsendB_begin_addr = %p\n", msgsendB_begin_addr);
-    //printk("msgrcvB_begin_addr = %p\n", msgrcvB_begin_addr); 
-    //printk("msgsendA_begin_addr = %p\n", msgsendA_begin_addr); 
-   // printk("msgrcvA_begin_addr = %p\n", msgrcvA_begin_addr); 
+    //printk("my_msgsendA(): %s\n", get_current()->comm);
   while(!isSuccSendA(sendbuf, msgsz)){
          //printk(KERN_INFO "sendA message is error!\n");
     }
-    printk("my_msgsendA success\n");
+    //printk("my_msgsendA success\n");
 
 }
 EXPORT_SYMBOL(my_msgsendA);
@@ -105,16 +101,9 @@ bool isSuccRcvA(struct my_msgbuf *rcvbuf, int msgsz){
     return true;
 }
 void my_msgrcvA(struct my_msgbuf *rcvbuf, int msgsz){
-    printk("my_msgrcvA(): %s\n", get_current()->comm);
-    //printk("before: msgsendB_begin_addr = %p\n", msgsendB_begin_addr);
-    //printk("msgrcvB_begin_addr = %p\n", msgrcvB_begin_addr); 
-   // printk("msgsendA_begin_addr = %p\n", msgsendA_begin_addr); 
-    //printk("before: msgrcvA_begin_addr = %p\n", msgrcvA_begin_addr); 
+    //printk("my_msgrcvA(): %s\n", get_current()->comm);
     while(!isSuccRcvA(rcvbuf, msgsz)){
-        //printk(KERN_INFO "receiveA message error!\n"); 
     }
-     //printk("afer: msgsendB_begin_addr = %p\n", msgsendB_begin_addr);
-     //printk("afer: msgrcvA_begin_addr = %p\n", msgrcvA_begin_addr);
-    printk(" my_msgrcvA success\n");
+    //printk(" my_msgrcvA success\n");
 }
 EXPORT_SYMBOL(my_msgrcvA);

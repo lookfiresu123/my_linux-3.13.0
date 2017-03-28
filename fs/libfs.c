@@ -18,6 +18,8 @@
 #include <asm/uaccess.h>
 
 #include "internal.h"
+#include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 static inline int simple_positive(struct dentry *dentry)
 {

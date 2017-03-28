@@ -37,6 +37,7 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/filemap.h>
+#include <linux/interactive_design.h>
 
 /*
  * FIXME: remove all knowledge of the buffer layer from the core VM
@@ -258,6 +259,7 @@ EXPORT_SYMBOL(filemap_fdatawrite_range);
  */
 int filemap_flush(struct address_space *mapping)
 {
+    MY_PRINTK(get_current()->comm);
 	return __filemap_fdatawrite(mapping, WB_SYNC_NONE);
 }
 EXPORT_SYMBOL(filemap_flush);
@@ -332,6 +334,7 @@ EXPORT_SYMBOL(filemap_fdatawait);
 
 int filemap_write_and_wait(struct address_space *mapping)
 {
+    MY_PRINTK(get_current()->comm);
 	int err = 0;
 
 	if (mapping->nrpages) {
@@ -1899,6 +1902,7 @@ EXPORT_SYMBOL(read_cache_page_gfp);
  */
 struct page *read_cache_page(struct address_space *mapping, pgoff_t index, int (*filler)(void *, struct page *), void *data)
 {
+    MY_PRINTK(get_current()->comm);
 	return wait_on_page_read(read_cache_page_async(mapping, index, filler, data));
 }
 EXPORT_SYMBOL(read_cache_page);

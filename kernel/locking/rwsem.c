@@ -11,6 +11,7 @@
 #include <linux/rwsem.h>
 
 #include <linux/atomic.h>
+#include <linux/interactive_design.h>
 
 /*
  * lock for reading
@@ -30,6 +31,7 @@ EXPORT_SYMBOL(down_read);
  */
 int down_read_trylock(struct rw_semaphore *sem)
 {
+    MY_PRINTK(get_current()->comm);
 	int ret = __down_read_trylock(sem);
 
 	if (ret == 1)

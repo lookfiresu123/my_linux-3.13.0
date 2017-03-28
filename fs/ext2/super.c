@@ -183,7 +183,10 @@ static void ext2_i_callback(struct rcu_head *head)
 
 static void ext2_destroy_inode(struct inode *inode)
 {
-	call_rcu(&inode->i_rcu, ext2_i_callback);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        call_rcu(&inode->i_rcu, ext2_i_callback);
+    else
+        msg_call_rcu(&inode->i_rcu, ext2_i_callback, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static void init_once(void *foo)

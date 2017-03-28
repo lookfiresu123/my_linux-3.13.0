@@ -15,6 +15,7 @@
 #include <linux/hardirq.h> /* for in_interrupt() */
 #include <linux/hugetlb_inline.h>
 #include <linux/interactive_design.h>
+//#include <linux/msg_xxx.h>
 
 /*
  * Bits in mapping->flags.  The lower __GFP_BITS_SHIFT bits are the page
@@ -27,6 +28,8 @@ enum mapping_flags {
 	AS_UNEVICTABLE	= __GFP_BITS_SHIFT + 3,	/* e.g., ramdisk, SHM_LOCK */
 	AS_BALLOON_MAP  = __GFP_BITS_SHIFT + 4, /* balloon page special map */
 };
+
+extern struct page *msg_read_cache_page(struct address_space *, pgoff_t, int (*)(void *, struct page *), void *, int, int);
 
 static inline void mapping_set_error(struct address_space *mapping, int error)
 {
@@ -293,7 +296,10 @@ static inline struct page *read_mapping_page(struct address_space *mapping,
 {
   MY_PRINTK(get_current()->comm);
 	filler_t *filler = (filler_t *)mapping->a_ops->readpage;
-	return read_cache_page(mapping, index, filler, data);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      return read_cache_page(mapping, index, filler, data);
+  else
+      return msg_read_cache_page(mapping, index, filler, data, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 /*

@@ -42,6 +42,7 @@
 #endif /* #else #ifdef CONFIG_RCU_TRACE */
 
 #include "rcu.h"
+#include <linux/interactive_design.h>
 
 /* Forward declarations for tiny_plugin.h. */
 struct rcu_ctrlblk;
@@ -368,6 +369,7 @@ static void __call_rcu(struct rcu_head *head,
  */
 void call_rcu_sched(struct rcu_head *head, void (*func)(struct rcu_head *rcu))
 {
+    MY_PRINTK(get_current()->comm);
 	__call_rcu(head, func, &rcu_sched_ctrlblk);
 }
 EXPORT_SYMBOL_GPL(call_rcu_sched);

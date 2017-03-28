@@ -25,6 +25,7 @@
 #include <linux/spinlock.h>
 #include <linux/interrupt.h>
 #include <linux/debug_locks.h>
+#include <linux/interactive_design.h>
 
 /*
  * In the DEBUG case we are using the "NULL fastpath" for mutexes,
@@ -93,6 +94,7 @@ __mutex_lock_slowpath(atomic_t *lock_count);
  */
 void __sched mutex_lock(struct mutex *lock)
 {
+    MY_PRINTK(get_current()->comm);
 	might_sleep();
 	/*
 	 * The locking fastpath is the 1->0 transition from
@@ -240,6 +242,7 @@ static __used noinline void __sched __mutex_unlock_slowpath(atomic_t *lock_count
  */
 void __sched mutex_unlock(struct mutex *lock)
 {
+    MY_PRINTK(get_current()->comm);
 	/*
 	 * The unlocking fastpath is the 0->1 transition from 'locked'
 	 * into 'unlocked' state:

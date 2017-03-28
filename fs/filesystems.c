@@ -15,6 +15,8 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <asm/uaccess.h>
+#include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 /*
  * Handling of filesystem drivers list.
@@ -35,7 +37,10 @@ static DEFINE_RWLOCK(file_systems_lock);
 /* WARNING: This can be used only if we _already_ own a reference */
 void get_filesystem(struct file_system_type *fs)
 {
-	__module_get(fs->owner);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        __module_get(fs->owner);
+    else
+        msg___module_get(fs->owner, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 void put_filesystem(struct file_system_type *fs)

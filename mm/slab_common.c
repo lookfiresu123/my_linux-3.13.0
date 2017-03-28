@@ -22,6 +22,7 @@
 #include <trace/events/kmem.h>
 
 #include "slab.h"
+#include <linux/interactive_design.h> 
 
 enum slab_state slab_state;
 LIST_HEAD(slab_caches);
@@ -247,6 +248,7 @@ struct kmem_cache *
 kmem_cache_create(const char *name, size_t size, size_t align,
 		  unsigned long flags, void (*ctor)(void *))
 {
+    MY_PRINTK(get_current()->comm);
 	return kmem_cache_create_memcg(NULL, name, size, align, flags, ctor, NULL);
 }
 EXPORT_SYMBOL(kmem_cache_create);

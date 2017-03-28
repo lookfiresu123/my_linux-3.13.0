@@ -65,6 +65,8 @@
 #include "coredump.h"
 
 #include <trace/events/sched.h>
+#include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 int suid_dumpable = 0;
 
@@ -190,8 +192,11 @@ static struct page *get_arg_page(struct linux_binprm *bprm, unsigned long pos,
 			return NULL;
 	}
 #endif
-	ret = get_user_pages(current, bprm->mm, pos,
-			1, write, 1, &page, NULL);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      ret = get_user_pages(current, bprm->mm, pos, 1, write, 1, &page, NULL);
+  else
+      ret = msg_get_user_pages(current, bprm->mm, pos, 1, write, 1, &page, NULL, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+
 	if (ret <= 0)
 		return NULL;
 
@@ -217,7 +222,10 @@ static struct page *get_arg_page(struct linux_binprm *bprm, unsigned long pos,
 		 */
 		rlim = current->signal->rlim;
 		if (size > ACCESS_ONCE(rlim[RLIMIT_STACK].rlim_cur) / 4) {
-			put_page(page);
+        if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+            put_page(page);
+        else
+            msg_put_page(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 			return NULL;
 		}
 	}
@@ -227,7 +235,10 @@ static struct page *get_arg_page(struct linux_binprm *bprm, unsigned long pos,
 
 static void put_arg_page(struct page *page)
 {
-	put_page(page);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        put_page(page);
+    else
+        msg_put_page(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static void free_arg_page(struct linux_binprm *bprm, int i)
@@ -1384,8 +1395,8 @@ int search_binary_handler(struct linux_binprm *bprm)
  retry:
 	read_lock(&binfmt_lock);
 	list_for_each_entry(fmt, &formats, lh) {
-		if (!try_module_get(fmt->module))
-			continue;
+      if (!msg_try_module_get(fmt->module, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs))
+          continue;
 		read_unlock(&binfmt_lock);
 		bprm->recursion_depth++;
 		retval = fmt->load_binary(bprm);

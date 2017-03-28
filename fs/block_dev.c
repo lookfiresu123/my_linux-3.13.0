@@ -30,6 +30,8 @@
 #include <linux/aio.h>
 #include <asm/uaccess.h>
 #include "internal.h"
+#include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 struct bdev_inode {
 	struct block_device bdev;
@@ -176,9 +178,16 @@ int __sync_blockdev(struct block_device *bdev, int wait)
 {
 	if (!bdev)
 		return 0;
-	if (!wait)
-		return filemap_flush(bdev->bd_inode->i_mapping);
-	return filemap_write_and_wait(bdev->bd_inode->i_mapping);
+	if (!wait) {
+      if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+          return filemap_flush(bdev->bd_inode->i_mapping);
+      else
+          return msg_filemap_flush(bdev->bd_inode->i_mapping, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+  }
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      return filemap_write_and_wait(bdev->bd_inode->i_mapping);
+  else
+      return msg_filemap_write_and_wait(bdev->bd_inode->i_mapping, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 /*

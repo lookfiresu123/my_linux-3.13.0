@@ -1455,9 +1455,17 @@ static int lookup_slow(struct nameidata *nd, struct path *path)
 	parent = nd->path.dentry;
 	BUG_ON(nd->inode != parent->d_inode);
 
-	mutex_lock(&parent->d_inode->i_mutex);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_lock(&parent->d_inode->i_mutex);
+  else
+      msg_mutex_lock(&parent->d_inode->i_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+
 	dentry = __lookup_hash(&nd->last, parent, nd->flags);
-	mutex_unlock(&parent->d_inode->i_mutex);
+
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_unlock(&parent->d_inode->i_mutex);
+  else
+      msg_mutex_unlock(&parent->d_inode->i_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	if (IS_ERR(dentry))
 		return PTR_ERR(dentry);
 	path->mnt = nd->path.mnt;
@@ -2926,9 +2934,17 @@ retry_lookup:
 		 * dropping this one anyway.
 		 */
 	}
-	mutex_lock(&dir->d_inode->i_mutex);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_lock(&dir->d_inode->i_mutex);
+  else
+      msg_mutex_lock(&dir->d_inode->i_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+
 	error = lookup_open(nd, path, file, op, got_write, opened);
-	mutex_unlock(&dir->d_inode->i_mutex);
+
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_unlock(&dir->d_inode->i_mutex);
+  else
+      msg_mutex_unlock(&dir->d_inode->i_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 
 	if (error <= 0) {
 		if (error)
@@ -4345,7 +4361,10 @@ void page_put_link(struct dentry *dentry, struct nameidata *nd, void *cookie)
 
 	if (page) {
 		kunmap(page);
-		page_cache_release(page);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        page_cache_release(page);
+    else
+        msg_page_cache_release(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	}
 }
 

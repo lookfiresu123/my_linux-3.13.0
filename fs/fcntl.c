@@ -25,6 +25,8 @@
 #include <asm/poll.h>
 #include <asm/siginfo.h>
 #include <asm/uaccess.h>
+#include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 #define SETFL_MASK (O_APPEND | O_NONBLOCK | O_NDELAY | O_DIRECT | O_NOATIME)
 
@@ -577,7 +579,10 @@ int fasync_remove_entry(struct file *filp, struct fasync_struct **fapp)
 		spin_unlock_irq(&fa->fa_lock);
 
 		*fp = fa->fa_next;
-		call_rcu(&fa->fa_rcu, fasync_free_rcu);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        call_rcu(&fa->fa_rcu, fasync_free_rcu);
+    else
+        msg_call_rcu(&fa->fa_rcu, fasync_free_rcu, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		filp->f_flags &= ~FASYNC;
 		result = 1;
 		break;

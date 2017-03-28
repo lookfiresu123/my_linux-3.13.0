@@ -3,6 +3,7 @@
 #include <linux/lglock.h>
 #include <linux/cpu.h>
 #include <linux/string.h>
+#include <linux/interactive_design.h>
 
 /*
  * Note there is no uninit, so lglocks cannot be defined in
@@ -40,6 +41,7 @@ EXPORT_SYMBOL(lg_local_unlock);
 
 void lg_local_lock_cpu(struct lglock *lg, int cpu)
 {
+    MY_PRINTK(get_current()->comm);
 	arch_spinlock_t *lock;
 
 	preempt_disable();
@@ -51,6 +53,7 @@ EXPORT_SYMBOL(lg_local_lock_cpu);
 
 void lg_local_unlock_cpu(struct lglock *lg, int cpu)
 {
+    MY_PRINTK(get_current()->comm);
 	arch_spinlock_t *lock;
 
 	lock_release(&lg->lock_dep_map, 1, _RET_IP_);

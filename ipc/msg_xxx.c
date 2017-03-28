@@ -72,6 +72,7 @@ void *msg_kmem_cache_alloc(
   } else
     return kmem_cache_alloc(s, gfpflags);
 }
+EXPORT_SYMBOL(msg_kmem_cache_alloc);
 
 void msg_kmem_cache_free(
     struct kmem_cache *s, 
@@ -110,6 +111,7 @@ void msg_kmem_cache_free(
   } else
     kmem_cache_free(s, x);
 }
+EXPORT_SYMBOL(msg_kmem_cache_free);
 
 void msg_kfree(
     const void *x, 
@@ -146,6 +148,7 @@ void msg_kfree(
   } else
     kfree(x);
 }
+EXPORT_SYMBOL(msg_kfree);
 
 void msg_vfree(
     const void *addr, 
@@ -183,6 +186,7 @@ void msg_vfree(
   } else
     vfree(addr);
 }
+EXPORT_SYMBOL(msg_vfree);
 
 void *msg_mempool_alloc(
     mempool_t *pool, 
@@ -223,6 +227,7 @@ void *msg_mempool_alloc(
   } else
     return mempool_alloc(pool, gfp_mask);
 }
+EXPORT_SYMBOL(msg_mempool_alloc);
 
 void msg_mempool_free(
     void *element, 
@@ -263,6 +268,7 @@ void msg_mempool_free(
   } else
     mempool_free(element, pool);
 }
+EXPORT_SYMBOL(msg_mempool_free);
 
 struct address_space *msg_page_mapping(
     struct page *page, 
@@ -301,6 +307,7 @@ struct address_space *msg_page_mapping(
   } else
     return page_mapping(page);
 }
+EXPORT_SYMBOL(msg_page_mapping);
 
 bool msg_list_lru_add(
     struct list_lru *lru, 
@@ -341,6 +348,7 @@ bool msg_list_lru_add(
   } else
     return list_lru_add(lru, item);
 }
+EXPORT_SYMBOL(msg_list_lru_add);
 
 bool msg_list_lru_del(
     struct list_lru *lru, 
@@ -381,6 +389,7 @@ bool msg_list_lru_del(
   } else
     return list_lru_del(lru, item);
 }
+EXPORT_SYMBOL(msg_list_lru_del);
 
 struct page *msg_find_get_page(
     struct address_space *mapping, 
@@ -421,6 +430,7 @@ struct page *msg_find_get_page(
   } else
     return find_get_page(mapping, index);
 }
+EXPORT_SYMBOL(msg_find_get_page);
 
 void msg_mark_page_accessed(
     struct page *page, 
@@ -458,6 +468,7 @@ void msg_mark_page_accessed(
   } else
     mark_page_accessed(page);
 }
+EXPORT_SYMBOL(msg_mark_page_accessed);
 
 struct page *msg_find_or_create_page(
     struct address_space *mapping, 
@@ -500,6 +511,7 @@ struct page *msg_find_or_create_page(
   } else
     return find_or_create_page(mapping, index, gfp_mask);
 }
+EXPORT_SYMBOL(msg_find_or_create_page);
 
 void msg_cancel_dirty_page(
     struct page *page, 
@@ -539,6 +551,7 @@ void msg_cancel_dirty_page(
   } else
     cancel_dirty_page(page, account_size);
 }
+EXPORT_SYMBOL(msg_cancel_dirty_page);
 
 void *msg_page_address(
     const struct page *page, 
@@ -577,6 +590,7 @@ void *msg_page_address(
   } else
     return page_address(page);
 }
+EXPORT_SYMBOL(msg_page_address);
 
 int msg_bdi_has_dirty_io(
     struct backing_dev_info *bdi, 
@@ -615,6 +629,7 @@ int msg_bdi_has_dirty_io(
   } else
     return bdi_has_dirty_io(bdi);
 }
+EXPORT_SYMBOL(msg_bdi_has_dirty_io);
 
 unsigned long msg_try_to_free_pages(
     struct zonelist *zonelist, 
@@ -659,6 +674,7 @@ unsigned long msg_try_to_free_pages(
   } else
     return try_to_free_pages(zonelist, order, gfp_mask, mask);
 }
+EXPORT_SYMBOL(msg_try_to_free_pages);
 
 void msg_unlock_page(
     struct page *page, 
@@ -696,6 +712,7 @@ void msg_unlock_page(
   } else
     unlock_page(page);
 }
+EXPORT_SYMBOL(msg_unlock_page);
 
 void msg_account_page_dirtied(
     struct page *page, 
@@ -735,6 +752,7 @@ void msg_account_page_dirtied(
   } else
     account_page_dirtied(page, mapping);
 }
+EXPORT_SYMBOL(msg_account_page_dirtied);
 
 void msg_bdi_wakeup_thread_delayed(
     struct backing_dev_info *bdi, 
@@ -772,6 +790,7 @@ void msg_bdi_wakeup_thread_delayed(
   } else
     bdi_wakeup_thread_delayed(bdi);
 }
+EXPORT_SYMBOL(msg_bdi_wakeup_thread_delayed);
 
 char *msg_kstrdup(
     const char *s, 
@@ -812,6 +831,7 @@ char *msg_kstrdup(
   } else
     return kstrdup(s, gfp);
 }
+EXPORT_SYMBOL(msg_kstrdup);
 
 void msg_free_percpu(
     void __percpu *__pdata, 
@@ -849,6 +869,7 @@ void msg_free_percpu(
   } else
     free_percpu(__pdata);
 }
+EXPORT_SYMBOL(msg_free_percpu);
 
 void *msg_kmemdup(
     const void *src, 
@@ -891,6 +912,7 @@ void *msg_kmemdup(
   } else
     return kmemdup(src, len, gfp);
 }
+EXPORT_SYMBOL(msg_kmemdup);
 
 void msg_file_ra_state_init(
     struct file_ra_state *ra, 
@@ -930,6 +952,7 @@ void msg_file_ra_state_init(
   } else
     file_ra_state_init(ra, mapping);
 }
+EXPORT_SYMBOL(msg_file_ra_state_init);
 
 int msg_write_one_page(
     struct page *page, 
@@ -970,6 +993,7 @@ int msg_write_one_page(
   } else
     return write_one_page(page, wait);
 }
+EXPORT_SYMBOL(msg_write_one_page);
 
 void msg_truncate_setsize(
     struct inode *inode, 
@@ -1009,6 +1033,7 @@ void msg_truncate_setsize(
   } else
     truncate_setsize(inode, newsize);
 }
+EXPORT_SYMBOL(msg_truncate_setsize);
 
 int msg_mapping_tagged(
     struct address_space *mapping, 
@@ -1049,6 +1074,7 @@ int msg_mapping_tagged(
   } else
     return mapping_tagged(mapping, tag);
 }
+EXPORT_SYMBOL(msg_mapping_tagged);
 
 int msg_do_writepages(
     struct address_space *mapping, 
@@ -1089,6 +1115,7 @@ int msg_do_writepages(
   } else
     return do_writepages(mapping, wbc);
 }
+EXPORT_SYMBOL(msg_do_writepages);
 
 int msg_filemap_fdatawait(
     struct address_space *mapping, 
@@ -1127,6 +1154,7 @@ int msg_filemap_fdatawait(
   } else
     return filemap_fdatawait(mapping);
 }
+EXPORT_SYMBOL(msg_filemap_fdatawait);
 
 void msg_truncate_inode_pages(
     struct address_space *mapping, 
@@ -1166,6 +1194,7 @@ void msg_truncate_inode_pages(
   } else
     truncate_inode_pages(mapping, lstart);
 }
+EXPORT_SYMBOL(msg_truncate_inode_pages);
 
 void msg_unregister_shrinker(
     struct shrinker *shrinker, 
@@ -1203,6 +1232,7 @@ void msg_unregister_shrinker(
   } else
     unregister_shrinker(shrinker);
 }
+EXPORT_SYMBOL(msg_unregister_shrinker);
 
 void msg_list_lru_destroy(
     struct list_lru *lru, 
@@ -1240,7 +1270,7 @@ void msg_list_lru_destroy(
   } else
     list_lru_destroy(lru);
 }
-
+EXPORT_SYMBOL(msg_list_lru_destroy);
 
 struct kmem_cache *msg_kmem_cache_create(
     const char *name, 
@@ -1287,7 +1317,7 @@ struct kmem_cache *msg_kmem_cache_create(
   } else
     return kmem_cache_create(name, size, align, flags, ctor);
 }
-
+EXPORT_SYMBOL(msg_kmem_cache_create);
 
 struct page *msg_read_cache_page(
     struct address_space *mapping, 
@@ -1332,6 +1362,7 @@ struct page *msg_read_cache_page(
   } else
     return read_cache_page(mapping, index, filler, data);
 }
+EXPORT_SYMBOL(msg_read_cache_page);
 
 void msg_migrate_page_copy(
     struct page *newpage, 
@@ -1371,6 +1402,7 @@ void msg_migrate_page_copy(
   } else
     migrate_page_copy(newpage, page);
 }
+EXPORT_SYMBOL(msg_migrate_page_copy);
 
 int msg_migrate_page_move_mapping(
     struct address_space *mapping, 
@@ -1419,6 +1451,7 @@ int msg_migrate_page_move_mapping(
   } else
     return migrate_page_move_mapping(mapping, newpage, page, head, mode, extra_count);
 }
+EXPORT_SYMBOL(msg_migrate_page_move_mapping);
 
 void msg_put_page(
     struct page *page, 
@@ -1456,6 +1489,7 @@ void msg_put_page(
   } else
     put_page(page);
 }
+EXPORT_SYMBOL(msg_put_page);
 
 int msg_filemap_write_and_wait(
     struct address_space *mapping, 
@@ -1494,6 +1528,7 @@ int msg_filemap_write_and_wait(
   } else
     return filemap_write_and_wait(mapping);
 }
+EXPORT_SYMBOL(msg_filemap_write_and_wait);
 
 int msg_filemap_flush(
     struct address_space *mapping, 
@@ -1532,6 +1567,7 @@ int msg_filemap_flush(
   } else
     return filemap_flush(mapping);
 }
+EXPORT_SYMBOL(msg_filemap_flush);
 
 long msg_get_user_pages(
     struct task_struct *tsk, 
@@ -1584,6 +1620,7 @@ long msg_get_user_pages(
   } else
     return get_user_pages(tsk, mm, start, nr_pages, write, force, pages, vmas);
 }
+EXPORT_SYMBOL(msg_get_user_pages);
 
 int msg_register_shrinker(
     struct shrinker *shrinker, 
@@ -1622,6 +1659,7 @@ int msg_register_shrinker(
   } else
     return register_shrinker(shrinker);
 }
+EXPORT_SYMBOL(msg_register_shrinker);
 
 int msg_set_page_dirty(
     struct page *page, 
@@ -1660,6 +1698,7 @@ int msg_set_page_dirty(
   } else
     return set_page_dirty(page);
 }
+EXPORT_SYMBOL(msg_set_page_dirty);
 
 // include-mm
 void *msg_kmem_cache_zalloc(
@@ -1700,6 +1739,7 @@ void *msg_kmem_cache_zalloc(
   } else
     return kmem_cache_zalloc(k, flags);
 }
+EXPORT_SYMBOL(msg_kmem_cache_zalloc);
 
 // 带参宏
 void msg_page_cache_release(
@@ -1734,6 +1774,7 @@ void msg_page_cache_release(
 	} else
 		page_cache_release(page);
 }
+EXPORT_SYMBOL(msg_page_cache_release);
 
 struct zoneref *msg_first_zones_zonelist(
     struct zonelist *zonelist, 
@@ -1777,6 +1818,7 @@ struct zoneref *msg_first_zones_zonelist(
   } else
     return first_zones_zonelist(zonelist, highest_zoneidx, nodes, zone);
 }
+EXPORT_SYMBOL(msg_first_zones_zonelist);
 
 struct zonelist *msg_node_zonelist(
     int nid, 
@@ -1816,6 +1858,7 @@ struct zonelist *msg_node_zonelist(
   } else
     return node_zonelist(nid, flags);
 }
+EXPORT_SYMBOL(msg_node_zonelist);
 
 void msg_attach_page_buffers(
     struct page *page, 
@@ -1855,6 +1898,7 @@ void msg_attach_page_buffers(
   } else
     attach_page_buffers(page, head);
 }
+EXPORT_SYMBOL(msg_attach_page_buffers);
 
 // 带参宏
 struct mnt_pcp *msg_alloc_percpu(
@@ -1889,6 +1933,7 @@ struct mnt_pcp *msg_alloc_percpu(
   } else
     return alloc_percpu(struct mnt_pcp);
 }
+EXPORT_SYMBOL(msg_alloc_percpu);
 
 struct page *msg_read_mapping_page(
     struct address_space *mapping, 
@@ -1930,6 +1975,7 @@ struct page *msg_read_mapping_page(
   } else
     return read_mapping_page(mapping, index, data);
 }
+EXPORT_SYMBOL(msg_read_mapping_page);
 
 void msg_zero_user_segments(
     struct page *page, 
@@ -1975,6 +2021,7 @@ void msg_zero_user_segments(
   } else
     zero_user_segments(page, start1, end1, start2, end2);
 }
+EXPORT_SYMBOL(msg_zero_user_segments);
 
 void msg_zero_user(
     struct page *page, 
@@ -2016,6 +2063,7 @@ void msg_zero_user(
   } else
     zero_user(page, start, size);
 }
+EXPORT_SYMBOL(msg_zero_user);
 
 void msg_cleancache_invalidate_fs(
     struct super_block *sb, 
@@ -2053,6 +2101,7 @@ void msg_cleancache_invalidate_fs(
   } else
     cleancache_invalidate_fs(sb);
 }
+EXPORT_SYMBOL(msg_cleancache_invalidate_fs);
 
 // 调用了定义在mm/filemap.c中的__lock_page()
 void msg_lock_page(
@@ -2091,6 +2140,7 @@ void msg_lock_page(
   } else
     lock_page(page);
 }
+EXPORT_SYMBOL(msg_lock_page);
 
 // 调用了定义在mm/slub.c中的__kmalloc()和定义在mm/slub.c中的kmem_cache_alloc_trace()
 void *msg_kmalloc(
@@ -2132,6 +2182,7 @@ void *msg_kmalloc(
   } else
     return kmalloc(size, flags);
 }
+EXPORT_SYMBOL(msg_kmalloc);
 
 // 调用了定义在mm/filemap.c中的find_or_create_page()
 struct page *msg_grab_cache_page(
@@ -2173,6 +2224,7 @@ struct page *msg_grab_cache_page(
   } else
     return grab_cache_page(mapping, index);
 }
+EXPORT_SYMBOL(msg_grab_cache_page);
 
 // 调用了定义在mm/slab_common.c中的kmalloc_order_trace()
 void *msg_kmalloc_large(
@@ -2214,6 +2266,7 @@ void *msg_kmalloc_large(
   } else
     return kmalloc_large(size, flags);
 }
+EXPORT_SYMBOL(msg_kmalloc_large);
 
 // 调用了定义在include/linux/slab.h中的kmalloc()
 void *msg_kzalloc(
@@ -2255,6 +2308,7 @@ void *msg_kzalloc(
   } else
     return kzalloc(size, flags);
 }
+EXPORT_SYMBOL(msg_kzalloc);
 
 
 /*
@@ -2297,6 +2351,7 @@ bool msg_capable(
   } else
     return capable(cap);
 }
+EXPORT_SYMBOL(msg_capable);
 
 void msg_down_read(
     struct rw_semaphore *sem, 
@@ -2334,6 +2389,7 @@ void msg_down_read(
   } else
     down_read(sem);
 }
+EXPORT_SYMBOL(msg_down_read);
 
 void msg_up_read(
     struct rw_semaphore *sem, 
@@ -2370,6 +2426,7 @@ void msg_up_read(
   } else
     up_read(sem);
 }
+EXPORT_SYMBOL(msg_up_read);
 
 void msg_down_write(
     struct rw_semaphore *sem, 
@@ -2406,6 +2463,7 @@ void msg_down_write(
   } else
     down_write(sem);
 }
+EXPORT_SYMBOL(msg_down_write);
 
 void msg_up_write(
     struct rw_semaphore *sem, 
@@ -2443,6 +2501,7 @@ void msg_up_write(
   } else
     up_write(sem);
 }
+EXPORT_SYMBOL(msg_up_write);
 
 void msg_wake_up_bit(
     void *word, 
@@ -2481,6 +2540,7 @@ void msg_wake_up_bit(
   } else
     wake_up_bit(word, bit);
 }
+EXPORT_SYMBOL(msg_wake_up_bit);
 
 wait_queue_head_t *msg_bit_waitqueue(
     void *word, 
@@ -2521,6 +2581,7 @@ wait_queue_head_t *msg_bit_waitqueue(
   } else
     return bit_waitqueue(word, bit);
 }
+EXPORT_SYMBOL(msg_bit_waitqueue);
 
 unsigned long msg_get_seconds(
     int msqid_from_fs_to_kernel, 
@@ -2557,6 +2618,7 @@ unsigned long msg_get_seconds(
   } else
     return get_seconds();
 }
+EXPORT_SYMBOL(msg_get_seconds);
 
 void msg_put_pid(
     struct pid *pid, 
@@ -2593,6 +2655,7 @@ void msg_put_pid(
   } else
     put_pid(pid);
 }
+EXPORT_SYMBOL(msg_put_pid);
 
 int msg_in_group_p(
     kgid_t grp, 
@@ -2631,6 +2694,7 @@ int msg_in_group_p(
   } else
     return in_group_p(grp);
 }
+EXPORT_SYMBOL(msg_in_group_p);
 
 void msg_yield(
     int msqid_from_fs_to_kernel, 
@@ -2665,6 +2729,7 @@ void msg_yield(
   } else
     yield();
 }
+EXPORT_SYMBOL(msg_yield);
 
 bool msg_inode_capable(
     const struct inode *inode, 
@@ -2705,6 +2770,7 @@ bool msg_inode_capable(
   } else
     return inode_capable(inode, cap);
 }
+EXPORT_SYMBOL(msg_inode_capable);
 
 int msg_task_work_add(
     struct task_struct *task, 
@@ -2747,6 +2813,7 @@ int msg_task_work_add(
   } else
     return task_work_add(task, twork, notify);
 }
+EXPORT_SYMBOL(msg_task_work_add);
 
 void msg_synchronize_rcu(
     int msqid_from_fs_to_kernel, 
@@ -2781,6 +2848,7 @@ void msg_synchronize_rcu(
   } else
     synchronize_rcu();
 }
+EXPORT_SYMBOL(msg_synchronize_rcu);
 
 void msg_prepare_to_wait(
     wait_queue_head_t *q, 
@@ -2821,6 +2889,7 @@ void msg_prepare_to_wait(
   } else
     prepare_to_wait(q, wait, state);
 }
+EXPORT_SYMBOL(msg_prepare_to_wait);
 
 void msg_schedule(
     int msqid_from_fs_to_kernel, 
@@ -2855,6 +2924,7 @@ void msg_schedule(
   } else
     schedule();
 }
+EXPORT_SYMBOL(msg_schedule);
 
 void msg_finish_wait(
     wait_queue_head_t *q, 
@@ -2893,6 +2963,7 @@ void msg_finish_wait(
   } else
     finish_wait(q, wait);
 }
+EXPORT_SYMBOL(msg_finish_wait);
 
 struct timespec msg_current_fs_time(
     struct super_block *sb, 
@@ -2930,6 +3001,7 @@ struct timespec msg_current_fs_time(
   } else
     return current_fs_time(sb);
 }
+EXPORT_SYMBOL(msg_current_fs_time);
 
 /*
 int msg_lock_is_held(
@@ -2999,6 +3071,7 @@ void msg_audit_log_link_denied(
   } else
     audit_log_link_denied(operation, link);
 }
+EXPORT_SYMBOL(msg_audit_log_link_denied);
 
 int msg_send_sig(
     int sig, 
@@ -3041,6 +3114,7 @@ int msg_send_sig(
   } else
     return send_sig(sig, p, priv);
 }
+EXPORT_SYMBOL(msg_send_sig);
 
 struct timespec msg_timespec_trunc(
     struct timespec t, 
@@ -3080,6 +3154,7 @@ struct timespec msg_timespec_trunc(
   } else
     return timespec_trunc(t, gran);
 }
+EXPORT_SYMBOL(msg_timespec_trunc);
 
 void msg_acct_auto_close_mnt(
     struct vfsmount *m, 
@@ -3116,6 +3191,7 @@ void msg_acct_auto_close_mnt(
   } else
     acct_auto_close_mnt(m);
 }
+EXPORT_SYMBOL(msg_acct_auto_close_mnt);
 
 int msg___wait_on_bit(
     wait_queue_head_t *wq, 
@@ -3160,6 +3236,7 @@ int msg___wait_on_bit(
   } else
     return __wait_on_bit(wq, q, action, mode);
 }
+EXPORT_SYMBOL(msg___wait_on_bit);
 
 void msg_free_uid(
     struct user_struct *up, 
@@ -3196,6 +3273,7 @@ void msg_free_uid(
   } else
     free_uid(up);
 }
+EXPORT_SYMBOL(msg_free_uid);
 
 void msg_module_put(
     struct module *module, 
@@ -3232,6 +3310,7 @@ void msg_module_put(
   } else
     module_put(module);
 }
+EXPORT_SYMBOL(msg_module_put);
 
 // 这个直接在include/linux/fs.h中的i_gid_write()中发送msg_make_kgid()，因为i_gid_write()使用到了文件系统的数据对象，因此不能发送msg_i_gid_write()
 kgid_t msg_make_kgid(
@@ -3273,6 +3352,7 @@ kgid_t msg_make_kgid(
   } else
     return make_kgid(ns, gid);
 }
+EXPORT_SYMBOL(msg_make_kgid);
 
 int msg_autoremove_wake_function(
     wait_queue_t *wait, 
@@ -3317,6 +3397,7 @@ int msg_autoremove_wake_function(
   } else
     return autoremove_wake_function(wait, mode, sync, key);
 }
+EXPORT_SYMBOL(msg_autoremove_wake_function);
 
 struct timespec msg_current_kernel_time(
     int msqid_from_fs_to_kernel, 
@@ -3353,6 +3434,7 @@ struct timespec msg_current_kernel_time(
   } else
     return current_kernel_time();
 }
+EXPORT_SYMBOL(msg_current_kernel_time);
 
 void msg_mutex_lock(
     struct mutex *lock, 
@@ -3389,6 +3471,7 @@ void msg_mutex_lock(
   } else
     mutex_lock(lock);
 }
+EXPORT_SYMBOL(msg_mutex_lock);
 
 void msg_mutex_unlock(
     struct mutex *lock, 
@@ -3425,6 +3508,7 @@ void msg_mutex_unlock(
   } else
     mutex_unlock(lock);
 }
+EXPORT_SYMBOL(msg_mutex_unlock);
 
 // 这个直接在include/linux/fs.h中的i_gid_write()中发送msg_make_kgid()，因为i_gid_write()使用到了文件系统的数据对象，因此不能发送msg_i_uid_write()
 kuid_t msg_make_kuid(
@@ -3466,6 +3550,7 @@ kuid_t msg_make_kuid(
   } else
     return make_kuid(ns, uid);
 }
+EXPORT_SYMBOL(msg_make_kuid);
 
 void msg_io_schedule(
     int msqid_from_fs_to_kernel, 
@@ -3500,6 +3585,7 @@ void msg_io_schedule(
   } else
     io_schedule();
 }
+EXPORT_SYMBOL(msg_io_schedule);
 
 void msg_lg_local_lock_cpu(
     struct lglock *lg, 
@@ -3538,6 +3624,7 @@ void msg_lg_local_lock_cpu(
   } else
     lg_local_lock_cpu(lg, cpu);
 }
+EXPORT_SYMBOL(msg_lg_local_lock_cpu);
 
 void msg_lg_local_unlock_cpu(
     struct lglock *lg, 
@@ -3576,6 +3663,7 @@ void msg_lg_local_unlock_cpu(
   } else
     lg_local_unlock_cpu(lg, cpu);
 }
+EXPORT_SYMBOL(msg_lg_local_unlock_cpu);
 
 void msg_warn_slowpath_null(
     const char *file, 
@@ -3614,6 +3702,7 @@ void msg_warn_slowpath_null(
   } else
     warn_slowpath_null(file, line);
 }
+EXPORT_SYMBOL(msg_warn_slowpath_null);
 
 // 这个直接在include/linux/fs.h中的i_gid_read()中发送msg_from_kgid()，因为i_gid_read()使用到了文件系统的数据对象，因此不能发送msg_i_gid_read()
 gid_t msg_from_kgid(
@@ -3655,6 +3744,7 @@ gid_t msg_from_kgid(
   } else
     return from_kgid(targ, kgid);
 }
+EXPORT_SYMBOL(msg_from_kgid);
 
 int msg_wake_bit_function(
     wait_queue_t *wait, 
@@ -3699,6 +3789,7 @@ int msg_wake_bit_function(
   } else
     return wake_bit_function(wait, mode, sync, arg);
 }
+EXPORT_SYMBOL(msg_wake_bit_function);
 
 bool msg_try_module_get(
     struct module *module, 
@@ -3737,6 +3828,7 @@ bool msg_try_module_get(
   } else
     return try_module_get(module);
 }
+EXPORT_SYMBOL(msg_try_module_get);
 
 // 这个直接在include/linux/fs.h中的i_uid_read()中发送msg_from_kuid()，因为i_uid_read()使用到了文件系统的数据对象，因此不能发送msg_i_uid_read()
 uid_t msg_from_kuid(
@@ -3778,6 +3870,7 @@ uid_t msg_from_kuid(
   } else
     return from_kuid(targ, kuid);
 }
+EXPORT_SYMBOL(msg_from_kuid);
 
 void msg_destroy_workqueue(
     struct workqueue_struct *wq, 
@@ -3814,6 +3907,7 @@ void msg_destroy_workqueue(
   } else
     destroy_workqueue(wq);
 }
+EXPORT_SYMBOL(msg_destroy_workqueue);
 
 void msg_wait_for_completion(
     struct completion *x, 
@@ -3850,6 +3944,7 @@ void msg_wait_for_completion(
   } else
     wait_for_completion(x);
 }
+EXPORT_SYMBOL(msg_wait_for_completion);
 
 void msg___module_get(
     struct module *module, 
@@ -3886,6 +3981,7 @@ void msg___module_get(
   } else
     __module_get(module);
 }
+EXPORT_SYMBOL(msg___module_get);
 
 void msg_call_rcu(
     struct rcu_head *head, 
@@ -3924,6 +4020,7 @@ void msg_call_rcu(
   } else
     call_rcu(head, func);
 }
+EXPORT_SYMBOL(msg_call_rcu);
 
 int msg_down_read_trylock(
     struct rw_semaphore *sem, 
@@ -3962,6 +4059,7 @@ int msg_down_read_trylock(
   } else
     return down_read_trylock(sem);
 }
+EXPORT_SYMBOL(msg_down_read_trylock);
 
 // include-kernel
 struct filename *msg_audit_reusename(
@@ -4000,6 +4098,7 @@ struct filename *msg_audit_reusename(
   } else
     return audit_reusename(name);
 }
+EXPORT_SYMBOL(msg_audit_reusename);
 
 void msg_audit_getname(
     struct filename *name, 
@@ -4037,6 +4136,7 @@ void msg_audit_getname(
   } else
     audit_getname(name);
 }
+EXPORT_SYMBOL(msg_audit_getname);
 
 // 无参宏
 const struct cred *msg_current_cred(
@@ -4073,6 +4173,7 @@ const struct cred *msg_current_cred(
   } else
     return current_cred();
 }
+EXPORT_SYMBOL(msg_current_cred);
 
 void msg_percpu_counter_inc(
     struct percpu_counter *fbc, 
@@ -4110,6 +4211,7 @@ void msg_percpu_counter_inc(
   } else
     percpu_counter_inc(fbc);
 }
+EXPORT_SYMBOL(msg_percpu_counter_inc);
 
 const struct cred *msg_get_cred(
     const struct cred *cred, 
@@ -4147,6 +4249,7 @@ const struct cred *msg_get_cred(
   } else
     return get_cred(cred);
 }
+EXPORT_SYMBOL(msg_get_cred);
 
 void msg_percpu_counter_dec(
     struct percpu_counter *fbc, 
@@ -4184,6 +4287,7 @@ void msg_percpu_counter_dec(
   } else
     percpu_counter_dec(fbc);
 }
+EXPORT_SYMBOL(msg_percpu_counter_dec);
 
 // 无参宏
 kuid_t msg_current_fsuid(
@@ -4220,6 +4324,7 @@ kuid_t msg_current_fsuid(
   } else
     return current_fsuid();
 }
+EXPORT_SYMBOL(msg_current_fsuid);
 
 struct posix_acl *msg_get_cached_acl_rcu(
     struct inode *inode, 
@@ -4259,6 +4364,7 @@ struct posix_acl *msg_get_cached_acl_rcu(
   } else
     return get_cached_acl_rcu(inode, type);
 }
+EXPORT_SYMBOL(msg_get_cached_acl_rcu);
 
 // 无参宏
 void msg_local_irq_disable(
@@ -4295,6 +4401,7 @@ void msg_local_irq_disable(
   } else
     local_irq_disable();
 }
+EXPORT_SYMBOL(msg_local_irq_disable);
 
 // 无参宏
 void msg_local_irq_enable(
@@ -4331,6 +4438,7 @@ void msg_local_irq_enable(
   } else
     local_irq_enable();
 }
+EXPORT_SYMBOL(msg_local_irq_enable);
 
 // 无参宏
 void msg_might_sleep(
@@ -4366,6 +4474,7 @@ void msg_might_sleep(
   } else
     might_sleep();
 }
+EXPORT_SYMBOL(msg_might_sleep);
 
 // 无参宏
 void msg_preempt_disable(
@@ -4402,6 +4511,7 @@ void msg_preempt_disable(
   } else
     preempt_disable();
 }
+EXPORT_SYMBOL(msg_preempt_disable);
 
 // 无参宏
 void msg_preempt_enable(
@@ -4438,6 +4548,7 @@ void msg_preempt_enable(
   } else
     preempt_enable();
 }
+EXPORT_SYMBOL(msg_preempt_enable);
 
 // 带参宏，其中bdi_list是全局变量
 /*
@@ -4491,6 +4602,7 @@ bool msg_mod_delayed_work(
   } else
     return mod_delayed_work(wq, dwork, delay);
 }
+EXPORT_SYMBOL(msg_mod_delayed_work);
 
 void msg_css_put(
     struct cgroup_subsys_state *css, 
@@ -4528,6 +4640,7 @@ void msg_css_put(
   } else
     css_put(css);
 }
+EXPORT_SYMBOL(msg_css_put);
 
 // 带参宏
 void msg_wake_up_all(
@@ -4563,6 +4676,7 @@ void msg_wake_up_all(
   } else
     wake_up_all(q);
 }
+EXPORT_SYMBOL(msg_wake_up_all);
 
 void msg_posix_acl_release(
     struct posix_acl *acl, 
@@ -4600,6 +4714,7 @@ void msg_posix_acl_release(
   } else
     posix_acl_release(acl);
 }
+EXPORT_SYMBOL(msg_posix_acl_release);
 
 unsigned msg_read_seqbegin(
     const seqlock_t *sl, 
@@ -4637,6 +4752,7 @@ unsigned msg_read_seqbegin(
   } else
     return read_seqbegin(sl);
 }
+EXPORT_SYMBOL(msg_read_seqbegin);
 
 bool msg_schedule_delayed_work(
     struct delayed_work *dwork, 
@@ -4676,6 +4792,7 @@ bool msg_schedule_delayed_work(
   } else
     return schedule_delayed_work(dwork, delay);
 }
+EXPORT_SYMBOL(msg_schedule_delayed_work);
 
 struct dentry *msg_dget(
     struct dentry *dentry, 
@@ -4713,6 +4830,7 @@ struct dentry *msg_dget(
   } else
     return dget(dentry);
 }
+EXPORT_SYMBOL(msg_dget);
 
 // 带参宏,为hlist_bl_for_each_entry_rcu而写的两个函数，需要在代码处将该宏定义展开，其中d_hash是member，直接在内部使用即可
 /*
@@ -4830,6 +4948,7 @@ struct dentry *msg_list_entry_rcu(
   } else
     return list_entry_rcu(list, struct dentry, d_lru);
 }
+EXPORT_SYMBOL(msg_list_entry_rcu);
 
 // 无参宏
 int msg_cond_resched(
@@ -4866,6 +4985,7 @@ int msg_cond_resched(
   } else
     return cond_resched();
 }
+EXPORT_SYMBOL(msg_cond_resched);
 
 // 带参宏
 void msg_wake_up_interruptible(
@@ -4900,6 +5020,7 @@ void msg_wake_up_interruptible(
   } else
     wake_up_interruptible(ppoll);
 }
+EXPORT_SYMBOL(msg_wake_up_interruptible);
 
 // 带参宏
 void msg_seqcount_init(
@@ -4934,6 +5055,7 @@ void msg_seqcount_init(
   } else
     seqcount_init(s);
 }
+EXPORT_SYMBOL(msg_seqcount_init);
 
 /*
 void msg_lockdep_set_class(
@@ -4977,6 +5099,7 @@ void msg_mutex_init(
   } else
     mutex_init(mutex);
 }
+EXPORT_SYMBOL(msg_mutex_init);
 
 // 带参宏
 void msg_wait_event(
@@ -5013,6 +5136,7 @@ void msg_wait_event(
   } else
     wait_event(wq, condition);
 }
+EXPORT_SYMBOL(msg_wait_event);
 
 void msg_percpu_counter_add(
     struct percpu_counter *fbc, 
@@ -5052,6 +5176,7 @@ void msg_percpu_counter_add(
   } else
     percpu_counter_add(fbc, amount);
 }
+EXPORT_SYMBOL(msg_percpu_counter_add);
 
 // 带参宏
 const struct file_operations *msg_fops_get(
@@ -5087,6 +5212,7 @@ const struct file_operations *msg_fops_get(
   } else
     return fops_get(fops);
 }
+EXPORT_SYMBOL(msg_fops_get);
 
 // 带参宏
 void msg_init_waitqueue_head(
@@ -5122,6 +5248,7 @@ void msg_init_waitqueue_head(
   } else
     init_waitqueue_head(q);
 }
+EXPORT_SYMBOL(msg_init_waitqueue_head);
 
 // 带参宏
 void msg_wake_up(
@@ -5157,6 +5284,7 @@ void msg_wake_up(
   } else
     wake_up(q);
 }
+EXPORT_SYMBOL(msg_wake_up);
 
 // 带参宏
 int msg_wait_event_interruptible_timeout(
@@ -5196,6 +5324,7 @@ int msg_wait_event_interruptible_timeout(
   } else
     return wait_event_interruptible_timeout(wq, condition, timeout);
 }
+EXPORT_SYMBOL(msg_wait_event_interruptible_timeout);
 
 void msg_audit_inode(
     struct filename *name, 
@@ -5237,6 +5366,7 @@ void msg_audit_inode(
   } else
     audit_inode(name, dentry, parent);
 }
+EXPORT_SYMBOL(msg_audit_inode);
 
 void msg_audit_inode_child(
     const struct inode *parent, 
@@ -5278,6 +5408,7 @@ void msg_audit_inode_child(
   } else
     audit_inode_child(parent, dentry, type);
 }
+EXPORT_SYMBOL(msg_audit_inode_child);
 
 // 带参宏
 struct hlist_node *msg_srcu_dereference(
@@ -5316,6 +5447,7 @@ struct hlist_node *msg_srcu_dereference(
   } else
     return srcu_dereference(p, sp);
 }
+EXPORT_SYMBOL(msg_srcu_dereference);
 
 // 带参宏，其中rcu_header是member，直接在内部使用
 void msg_kfree_rcu(
@@ -5351,6 +5483,7 @@ void msg_kfree_rcu(
   } else
     kfree_rcu(s, rcu);
 }
+EXPORT_SYMBOL(msg_kfree_rcu);
 
 // 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_lock()
 void msg_write_lock(
@@ -5386,6 +5519,7 @@ void msg_write_lock(
   } else
     write_lock(lock);
 }
+EXPORT_SYMBOL(msg_write_lock);
 
 // 宏，调用了定义在kernel/locking/rwsem-spinlock.c中的__init_rwsem()
 void msg_init_rwsem(
@@ -5421,6 +5555,7 @@ void msg_init_rwsem(
   } else
     init_rwsem(sem);
 }
+EXPORT_SYMBOL(msg_init_rwsem);
 
 // 调用了定义在kernel/workqueue.c中的queue_delayed_work_on()
 bool msg_queue_delayed_work(
@@ -5460,6 +5595,7 @@ bool msg_queue_delayed_work(
   } else
     return queue_delayed_work(wq, dwork, delay);
 }
+EXPORT_SYMBOL(msg_queue_delayed_work);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock()
 void msg_spin_lock(
@@ -5495,6 +5631,7 @@ void msg_spin_lock(
   } else
     spin_lock(lock);
 }
+EXPORT_SYMBOL(msg_spin_lock);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock()
 void msg_spin_unlock(
@@ -5530,6 +5667,7 @@ void msg_spin_unlock(
   } else
     spin_unlock(lock);
 }
+EXPORT_SYMBOL(msg_spin_unlock);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_irq()
 void msg_spin_lock_irq(
@@ -5565,6 +5703,7 @@ void msg_spin_lock_irq(
   } else
     spin_lock_irq(lock);
 }
+EXPORT_SYMBOL(msg_spin_lock_irq);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irq()
 void msg_spin_unlock_irq(
@@ -5600,6 +5739,7 @@ void msg_spin_unlock_irq(
   } else
     spin_unlock_irq(lock);
 }
+EXPORT_SYMBOL(msg_spin_unlock_irq);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_trylock()
 void msg_spin_trylock(
@@ -5635,6 +5775,7 @@ void msg_spin_trylock(
   } else
     spin_trylock(lock);
 }
+EXPORT_SYMBOL(msg_spin_trylock);
 
 // 宏，调用了定义在kernel/panic.c中的warn_slowpath_null()
 void msg_WARN_ON(
@@ -5670,6 +5811,7 @@ void msg_WARN_ON(
   } else
     WARN_ON(condition);
 }
+EXPORT_SYMBOL(msg_WARN_ON);
 
 // 宏，调用了定义在kernel/printk/printk.c中的__printk_ratelimit()
 int msg_printk_ratelimit(
@@ -5703,6 +5845,7 @@ int msg_printk_ratelimit(
   } else
     return printk_ratelimit();
 }
+EXPORT_SYMBOL(msg_printk_ratelimit);
 
 // 调用了定义在kernel/sched/wait.c中的out_of_line_wait_on_bit_lock()
 int msg_wait_on_bit_lock(
@@ -5744,6 +5887,7 @@ int msg_wait_on_bit_lock(
   } else
     return wait_on_bit_lock(word, bit, action, mode);
 }
+EXPORT_SYMBOL(msg_wait_on_bit_lock);
 
 // 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_lock_irq()
 void msg_write_lock_irq(
@@ -5779,6 +5923,7 @@ void msg_write_lock_irq(
   } else
     write_lock_irq(lock);
 }
+EXPORT_SYMBOL(msg_write_lock_irq);
 
 // 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_unlock_irq()
 void msg_write_unlock_irq(
@@ -5814,6 +5959,7 @@ void msg_write_unlock_irq(
   } else
     write_unlock_irq(lock);
 }
+EXPORT_SYMBOL(msg_write_unlock_irq);
 
 // 宏，调用了定义在kernel/locking/spinlock.c中的_raw_read_lock()
 void msg_read_lock(
@@ -5849,6 +5995,7 @@ void msg_read_lock(
   } else
     read_lock(lock);
 }
+EXPORT_SYMBOL(msg_read_lock);
 
 // 宏，调用了定义在kernel/locking/spinlock.c中的_raw_read_unlock()
 void msg_read_unlock(
@@ -5884,6 +6031,7 @@ void msg_read_unlock(
   } else
     read_unlock(lock);
 }
+EXPORT_SYMBOL(msg_read_unlock);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irqrestore()
 void msg_spin_unlock_irqrestore(
@@ -5921,6 +6069,7 @@ void msg_spin_unlock_irqrestore(
   } else
     spin_unlock_irqrestore(lock, flags);
 }
+EXPORT_SYMBOL(msg_spin_unlock_irqrestore);
 
 // 调用了定义在kernel/workqueue.c中的queue_work_on()
 bool msg_queue_work(
@@ -5958,6 +6107,7 @@ bool msg_queue_work(
   } else
     return queue_work(wq, work);
 }
+EXPORT_SYMBOL(msg_queue_work);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_bh()
 void msg_spin_lock_bh(
@@ -5993,6 +6143,7 @@ void msg_spin_lock_bh(
   } else
     spin_lock_bh(lock);
 }
+EXPORT_SYMBOL(msg_spin_lock_bh);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_bh()
 void msg_spin_unlock_bh(
@@ -6028,6 +6179,7 @@ void msg_spin_unlock_bh(
   } else
     spin_unlock_bh(lock);
 }
+EXPORT_SYMBOL(msg_spin_unlock_bh);
 
 
 /*
@@ -6071,6 +6223,7 @@ void msg_bdevname(
   } else
     bdevname(bdev, buf);
 }
+EXPORT_SYMBOL(msg_bdevname);
 
 void msg_submit_bio(
     int rw, 
@@ -6109,6 +6262,7 @@ void msg_submit_bio(
   } else
     submit_bio(rw, bio);
 }
+EXPORT_SYMBOL(msg_submit_bio);
 
 void msg_put_io_context(
     struct io_context *ioc, 
@@ -6145,6 +6299,7 @@ void msg_put_io_context(
   } else
     put_io_context(ioc);
 }
+EXPORT_SYMBOL(msg_put_io_context);
 
 void msg_blk_finish_plug(
     struct blk_plug *plug, 
@@ -6181,6 +6336,7 @@ void msg_blk_finish_plug(
   } else
     blk_finish_plug(plug);
 }
+EXPORT_SYMBOL(msg_blk_finish_plug);
 
 void msg_blk_start_plug(
     struct blk_plug *plug, 
@@ -6217,3 +6373,4 @@ void msg_blk_start_plug(
   } else
     blk_start_plug(plug);
 }
+EXPORT_SYMBOL(msg_blk_start_plug);

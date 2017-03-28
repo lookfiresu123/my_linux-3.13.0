@@ -1280,7 +1280,10 @@ void writeback_inodes_sb_nr(struct super_block *sb, unsigned long nr, enum wb_re
 		return;
 	WARN_ON(!rwsem_is_locked(&sb->s_umount));
 	bdi_queue_work(sb->s_bdi, &work);
-	wait_for_completion(&done);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      wait_for_completion(&done);
+  else
+      msg_wait_for_completion(&done, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 EXPORT_SYMBOL(writeback_inodes_sb_nr);
 
@@ -1365,7 +1368,10 @@ void sync_inodes_sb(struct super_block *sb, unsigned long older_than_this)
 	WARN_ON(!rwsem_is_locked(&sb->s_umount));
 
 	bdi_queue_work(sb->s_bdi, &work);
-	wait_for_completion(&done);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      wait_for_completion(&done);
+  else
+      msg_wait_for_completion(&done, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 
 	wait_sb_inodes(sb);
 }

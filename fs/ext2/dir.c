@@ -69,7 +69,10 @@ static inline unsigned ext2_chunk_size(struct inode *inode)
 static inline void ext2_put_page(struct page *page)
 {
 	kunmap(page);
-	page_cache_release(page);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      page_cache_release(page);
+  else
+      msg_page_cache_release(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static inline unsigned long dir_pages(struct inode *inode)

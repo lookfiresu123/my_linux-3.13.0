@@ -68,7 +68,10 @@ EXPORT_SYMBOL(touch_buffer);
 
 static int sleep_on_buffer(void *word)
 {
-	io_schedule();
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        io_schedule();
+    else
+        msg_io_schedule(msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	return 0;
 }
 
@@ -273,7 +276,10 @@ static struct buffer_head *__find_get_block_slow(struct block_device *bdev, sect
 	}
 out_unlock:
 	spin_unlock(&bd_mapping->private_lock);
-	page_cache_release(page);
+  if (my_strcmp(get_current(), "fs_kthread") != 0)
+      page_cache_release(page);
+  else
+      msg_put_page(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 out:
 	return ret;
 }
@@ -1058,7 +1064,10 @@ done:
 	ret = (block < end_block) ? 1 : -ENXIO;
 failed:
 	unlock_page(page);
-	page_cache_release(page);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      page_cache_release(page);
+  else
+      msg_put_page(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	return ret;
 }
 
@@ -2735,7 +2744,10 @@ int nobh_truncate_page(struct address_space *mapping, loff_t from, get_block_t *
 	if (page_has_buffers(page)) {
 has_buffers:
 		unlock_page(page);
-		page_cache_release(page);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        page_cache_release(page);
+    else
+        msg_put_page(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		return block_truncate_page(mapping, from, get_block);
 	}
 
@@ -2771,12 +2783,18 @@ has_buffers:
 			goto has_buffers;
 	}
 	zero_user(page, offset, length);
-	set_page_dirty(page);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      set_page_dirty(page);
+  else
+      msg_set_page_dirty(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	err = 0;
 
 unlock:
 	unlock_page(page);
-	page_cache_release(page);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      page_cache_release(page);
+  else
+      msg_put_page(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 out:
 	return err;
 }
@@ -2851,7 +2869,10 @@ int block_truncate_page(struct address_space *mapping, loff_t from, get_block_t 
 
 unlock:
 	unlock_page(page);
-	page_cache_release(page);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      page_cache_release(page);
+  else
+      msg_put_page(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 out:
 	return err;
 }

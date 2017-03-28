@@ -29,6 +29,7 @@
 #include <linux/oom.h>
 #include <linux/smpboot.h>
 #include "../time/tick-internal.h"
+#include <linux/interactive_design.h>
 
 #define RCU_KTHREAD_PRIO 1
 
@@ -675,6 +676,7 @@ static void rcu_preempt_do_callbacks(void)
  */
 void call_rcu(struct rcu_head *head, void (*func)(struct rcu_head *rcu))
 {
+    MY_PRINTK(get_current()->comm);
 	__call_rcu(head, func, &rcu_preempt_state, -1, 0);
 }
 EXPORT_SYMBOL_GPL(call_rcu);

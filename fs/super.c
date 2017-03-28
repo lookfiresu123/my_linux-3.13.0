@@ -281,7 +281,10 @@ void deactivate_locked_super(struct super_block *s)
 		fs->kill_sb(s);
 
 		/* caches are now gone, we can safely kill the shrinker now */
-		unregister_shrinker(&s->s_shrink);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        unregister_shrinker(&s->s_shrink);
+    else
+        msg_unregister_shrinker(&s->s_shrink, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 
 		put_filesystem(fs);
 		put_super(s);
@@ -360,7 +363,7 @@ bool grab_super_passive(struct super_block *sb)
 	sb->s_count++;
 	spin_unlock(&sb_lock);
 
-	if (down_read_trylock(&sb->s_umount)) {
+	if (msg_down_read_trylock(&sb->s_umount, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)) {
 		if (sb->s_root && (sb->s_flags & MS_BORN))
 			return true;
 		up_read(&sb->s_umount);
@@ -398,7 +401,10 @@ void generic_shutdown_super(struct super_block *sb)
 		evict_inodes(sb);
 
 		if (sb->s_dio_done_wq) {
-			destroy_workqueue(sb->s_dio_done_wq);
+        if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+            destroy_workqueue(sb->s_dio_done_wq);
+        else
+            msg_destroy_workqueue(sb->s_dio_done_wq, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 			sb->s_dio_done_wq = NULL;
 		}
 
@@ -471,7 +477,10 @@ retry:
 	hlist_add_head(&s->s_instances, &type->fs_supers);
 	spin_unlock(&sb_lock);
 	get_filesystem(type);
-	register_shrinker(&s->s_shrink);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      register_shrinker(&s->s_shrink);
+  else
+      msg_register_shrinker(&s->s_shrink, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	return s;
 }
 

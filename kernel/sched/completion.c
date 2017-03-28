@@ -13,6 +13,7 @@
 
 #include <linux/sched.h>
 #include <linux/completion.h>
+#include <linux/interactive_design.h>
 
 /**
  * complete: - signals a single thread waiting on this completion
@@ -119,6 +120,7 @@ wait_for_common_io(struct completion *x, long timeout, int state)
  */
 void __sched wait_for_completion(struct completion *x)
 {
+    MY_PRINTK(get_current()->comm);
 	wait_for_common(x, MAX_SCHEDULE_TIMEOUT, TASK_UNINTERRUPTIBLE);
 }
 EXPORT_SYMBOL(wait_for_completion);

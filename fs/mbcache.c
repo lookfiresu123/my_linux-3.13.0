@@ -36,6 +36,8 @@
 #include <linux/sched.h>
 #include <linux/init.h>
 #include <linux/mbcache.h>
+#include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 
 #ifdef MB_CACHE_DEBUG

@@ -44,6 +44,7 @@
 #include <trace/events/migrate.h>
 
 #include "internal.h"
+#include <linux/interactive_design.h>
 
 /*
  * migrate_prep() needs to be called before we start compiling a list of pages
@@ -320,6 +321,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
 		struct buffer_head *head, enum migrate_mode mode,
 		int extra_count)
 {
+    MY_PRINTK(get_current()->comm);
 	int expected_count = 1 + extra_count;
 	void **pslot;
 
@@ -496,6 +498,7 @@ static void copy_huge_page(struct page *dst, struct page *src)
  */
 void migrate_page_copy(struct page *newpage, struct page *page)
 {
+    MY_PRINTK(get_current()->comm);
 	int cpupid;
 
 	if (PageHuge(page) || PageTransHuge(page))

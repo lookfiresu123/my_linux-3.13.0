@@ -32,6 +32,8 @@
 
 #include <asm/byteorder.h>
 #include <uapi/linux/fs.h>
+#include <linux/interactive_design.h>
+//#include <linux/msg_xxx.h>
 
 struct export_operations;
 struct hd_geometry;
@@ -48,6 +50,12 @@ struct cred;
 struct swap_info_struct;
 struct seq_file;
 struct workqueue_struct;
+
+extern uid_t msg_from_kuid(struct user_namespace *, kuid_t, int, int);
+extern gid_t msg_from_kgid(struct user_namespace *, kgid_t, int, int);
+extern kgid_t msg_make_kgid(struct user_namespace *, gid_t, int, int);
+extern kuid_t msg_make_kuid(struct user_namespace *, uid_t, int, int);
+
 
 extern void __init inode_init(void);
 extern void __init inode_init_early(void);
@@ -705,22 +713,34 @@ static inline void i_size_write(struct inode *inode, loff_t i_size)
  */
 static inline uid_t i_uid_read(const struct inode *inode)
 {
-	return from_kuid(&init_user_ns, inode->i_uid);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        return from_kuid(&init_user_ns, inode->i_uid);
+    else
+        return msg_from_kuid(&init_user_ns, inode->i_uid, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static inline gid_t i_gid_read(const struct inode *inode)
 {
-	return from_kgid(&init_user_ns, inode->i_gid);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        return from_kgid(&init_user_ns, inode->i_gid);
+    else
+        return msg_from_kgid(&init_user_ns, inode->i_gid, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static inline void i_uid_write(struct inode *inode, uid_t uid)
 {
-	inode->i_uid = make_kuid(&init_user_ns, uid);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        inode->i_uid = make_kuid(&init_user_ns, uid);
+    else
+        inode->i_uid = msg_make_kuid(&init_user_ns, uid, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static inline void i_gid_write(struct inode *inode, gid_t gid)
 {
-	inode->i_gid = make_kgid(&init_user_ns, gid);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        inode->i_gid = make_kgid(&init_user_ns, gid);
+    else
+        inode->i_gid = msg_make_kgid(&init_user_ns, gid, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static inline unsigned iminor(const struct inode *inode)

@@ -58,10 +58,16 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs, s
 	if (ret)
 		newattrs.ia_valid |= ret | ATTR_FORCE;
 
-	mutex_lock(&dentry->d_inode->i_mutex);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_lock(&dentry->d_inode->i_mutex);
+  else
+      msg_mutex_lock(&dentry->d_inode->i_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	/* Note any delegations or leases have already been broken: */
 	ret = notify_change(dentry, &newattrs, NULL);
-	mutex_unlock(&dentry->d_inode->i_mutex);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_unlock(&dentry->d_inode->i_mutex);
+  else
+      msg_mutex_unlock(&dentry->d_inode->i_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	return ret;
 }
 

@@ -68,6 +68,7 @@
 #include <asm/pgtable.h>
 
 #include "internal.h"
+#include <linux/interactive_design.h>
 
 #ifdef LAST_CPUPID_NOT_IN_PAGE_FLAGS
 #warning Unfortunate NUMA and NUMA Balancing config, growing page-frame for last_cpupid.
@@ -2008,6 +2009,7 @@ long get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
 		unsigned long start, unsigned long nr_pages, int write,
 		int force, struct page **pages, struct vm_area_struct **vmas)
 {
+    MY_PRINTK(get_current()->comm);
 	int flags = FOLL_TOUCH;
 
 	if (pages)

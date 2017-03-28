@@ -20,7 +20,7 @@ static int my_strcmp(const char *cs, const char *ct) {
 
 #define MY_PRINTK(info)                                                 \
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0 || my_strcmp(get_current()->comm, "kernel_kthread") == 0)	\
-    printk("%s(): %s\n", __FUNCTION__, info)
+    printk("%s(): current = %p, get_current() = %p, get_current()->comm = %s\n", __FUNCTION__, current, get_current(), info)
 
 #define MY_DUMP_STACK()                                                 \
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0 || my_strcmp(get_current()->comm, "kernel_kthread") == 0) \

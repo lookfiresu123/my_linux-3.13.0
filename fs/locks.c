@@ -131,6 +131,8 @@
 #include <linux/lglock.h>
 
 #include <asm/uaccess.h>
+#include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 #define IS_POSIX(fl)	(fl->fl_flags & FL_POSIX)
 #define IS_FLOCK(fl)	(fl->fl_flags & FL_FLOCK)
@@ -526,9 +528,15 @@ static inline void locks_delete_global_locks(struct file_lock *fl)
 	 */
 	if (hlist_unhashed(&fl->fl_link))
 		return;
-	lg_local_lock_cpu(&file_lock_lglock, fl->fl_link_cpu);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      lg_local_lock_cpu(&file_lock_lglock, fl->fl_link_cpu);
+  else
+      msg_lg_local_lock_cpu(&file_lock_lglock, fl->fl_link_cpu, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	hlist_del_init(&fl->fl_link);
-	lg_local_unlock_cpu(&file_lock_lglock, fl->fl_link_cpu);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      lg_local_unlock_cpu(&file_lock_lglock, fl->fl_link_cpu);
+  else
+      msg_lg_local_unlock_cpu(&file_lock_lglock, fl->fl_link_cpu, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static unsigned long posix_owner_key(struct file_lock *fl)

@@ -66,6 +66,7 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/module.h>
+#include <linux/interactive_design.h>
 
 #ifndef ARCH_SHF_SMALL
 #define ARCH_SHF_SMALL 0
@@ -950,6 +951,7 @@ EXPORT_SYMBOL(__module_get);
 
 bool try_module_get(struct module *module)
 {
+    MY_PRINTK(get_current()->comm);
 	bool ret = true;
 
 	if (module) {

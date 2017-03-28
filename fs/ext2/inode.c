@@ -37,6 +37,7 @@
 #include "xip.h"
 #include "xattr.h"
 #include <linux/interactive_design.h>
+#include <linux/msg_xxx.h>
 
 static int __ext2_write_inode(struct inode *inode, int do_sync);
 
@@ -659,7 +660,10 @@ static int ext2_get_blocks(struct inode *inode, sector_t iblock, unsigned long m
 	if (!create || err == -EIO)
 		goto cleanup;
 
-	mutex_lock(&ei->truncate_mutex);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_lock(&ei->truncate_mutex);
+  else
+      msg_mutex_lock(&ei->truncate_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	/*
 	 * If the indirect block is missing while we are reading
 	 * the chain(ext2_get_branch() returns -EAGAIN err), or
@@ -680,7 +684,10 @@ static int ext2_get_blocks(struct inode *inode, sector_t iblock, unsigned long m
 		partial = ext2_get_branch(inode, depth, offsets, chain, &err);
 		if (!partial) {
 			count++;
-			mutex_unlock(&ei->truncate_mutex);
+      if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+          mutex_unlock(&ei->truncate_mutex);
+      else
+          msg_mutex_unlock(&ei->truncate_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 			if (err)
 				goto cleanup;
 			clear_buffer_new(bh_result);
@@ -712,7 +719,10 @@ static int ext2_get_blocks(struct inode *inode, sector_t iblock, unsigned long m
 				offsets + (partial - chain), partial);
 
 	if (err) {
-		mutex_unlock(&ei->truncate_mutex);
+      if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+          mutex_unlock(&ei->truncate_mutex);
+      else
+          msg_mutex_unlock(&ei->truncate_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		goto cleanup;
 	}
 
@@ -723,13 +733,19 @@ static int ext2_get_blocks(struct inode *inode, sector_t iblock, unsigned long m
 		err = ext2_clear_xip_target (inode,
 			le32_to_cpu(chain[depth-1].key));
 		if (err) {
-			mutex_unlock(&ei->truncate_mutex);
+        if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+            mutex_unlock(&ei->truncate_mutex);
+        else
+            msg_mutex_unlock(&ei->truncate_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 			goto cleanup;
 		}
 	}
 
 	ext2_splice_branch(inode, iblock, partial, indirect_blks, count);
-	mutex_unlock(&ei->truncate_mutex);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_unlock(&ei->truncate_mutex);
+  else
+      msg_mutex_unlock(&ei->truncate_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	set_buffer_new(bh_result);
 got_it:
 	map_bh(bh_result, inode->i_sb, le32_to_cpu(chain[depth-1].key));
@@ -1073,7 +1089,10 @@ static void __ext2_truncate_blocks(struct inode *inode, loff_t offset)
 	 * From here we block out all ext2_get_block() callers who want to
 	 * modify the block allocation tree.
 	 */
-	mutex_lock(&ei->truncate_mutex);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_lock(&ei->truncate_mutex);
+  else
+      msg_mutex_lock(&ei->truncate_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 
 	if (n == 1) {
 		ext2_free_data(inode, i_data+offsets[0],
@@ -1130,7 +1149,10 @@ do_indirects:
 
 	ext2_discard_reservation(inode);
 
-	mutex_unlock(&ei->truncate_mutex);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_unlock(&ei->truncate_mutex);
+  else
+      msg_mutex_unlock(&ei->truncate_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static void ext2_truncate_blocks(struct inode *inode, loff_t offset)

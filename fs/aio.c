@@ -45,6 +45,8 @@
 #include <asm/uaccess.h>
 
 #include "internal.h"
+#include <linux/interactive_design.h> 
+#include <linux/msg_xxx.h>
 
 #define AIO_RING_MAGIC			0xa10a10a1
 #define AIO_RING_COMPAT_FEATURES	1
@@ -309,9 +311,15 @@ static int aio_migratepage(struct address_space *mapping, struct page *new, stru
 	BUG_ON(PageWriteback(old));
 	get_page(new);
 
-	rc = migrate_page_move_mapping(mapping, new, old, NULL, mode, 1);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      rc = migrate_page_move_mapping(mapping, new, old, NULL, mode, 1);
+  else
+      rc = msg_migrate_page_move_mapping(mapping, new, old, NULL, mode, 1, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	if (rc != MIGRATEPAGE_SUCCESS) {
-		put_page(new);
+      if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+          put_page(new);
+      else
+          msg_put_page(new, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		return rc;
 	}
 
@@ -324,7 +332,10 @@ static int aio_migratepage(struct address_space *mapping, struct page *new, stru
 	if (ctx) {
 		pgoff_t idx;
 		spin_lock_irqsave(&ctx->completion_lock, flags);
-		migrate_page_copy(new, old);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        migrate_page_copy(new, old);
+    else
+        msg_migrate_page_copy(new, old, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		idx = old->index;
 		if (idx < (pgoff_t)ctx->nr_pages) {
 			/* And only do the move if things haven't changed */

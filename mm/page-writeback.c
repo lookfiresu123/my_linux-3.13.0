@@ -2210,6 +2210,7 @@ EXPORT_SYMBOL(redirty_page_for_writepage);
  */
 int set_page_dirty(struct page *page)
 {
+    MY_PRINTK(get_current()->comm);
 	struct address_space *mapping = page_mapping(page);
 
 	if (likely(mapping)) {

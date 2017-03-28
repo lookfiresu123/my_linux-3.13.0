@@ -259,8 +259,12 @@ static void d_free(struct dentry *dentry)
 	/* if dentry was never visible to RCU, immediate free is OK */
 	if (!(dentry->d_flags & DCACHE_RCUACCESS))
 		__d_free(&dentry->d_u.d_rcu);
-	else
-		call_rcu(&dentry->d_u.d_rcu, __d_free);
+	else {
+      if (my_strcmp(get_current()->comm, "fs_kthread")  != 0)
+          call_rcu(&dentry->d_u.d_rcu, __d_free);
+      else
+          msg_call_rcu(&dentry->d_u.d_rcu, __d_free, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+  }
 }
 
 /**
@@ -1361,7 +1365,7 @@ void shrink_dcache_for_umount(struct super_block *sb)
 {
 	struct dentry *dentry;
 
-	if (down_read_trylock(&sb->s_umount))
+	if (msg_down_read_trylock(&sb->s_umount, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs))
 		BUG();
 
 	dentry = sb->s_root;

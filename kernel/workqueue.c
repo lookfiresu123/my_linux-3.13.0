@@ -50,6 +50,7 @@
 #include <linux/uaccess.h>
 
 #include "workqueue_internal.h"
+#include <linux/interactive_design.h>
 
 enum {
 	/*
@@ -4271,6 +4272,7 @@ EXPORT_SYMBOL_GPL(__alloc_workqueue_key);
  */
 void destroy_workqueue(struct workqueue_struct *wq)
 {
+    MY_PRINTK(get_current()->comm);
 	struct pool_workqueue *pwq;
 	int node;
 
