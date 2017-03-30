@@ -133,8 +133,17 @@
 
 #else /* !CONFIG_TRACE_IRQFLAGS_SUPPORT */
 
-#define local_irq_enable()	do { raw_local_irq_enable(); } while (0)
-#define local_irq_disable()	do { raw_local_irq_disable(); } while (0)
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+
+// #define local_irq_enable()	do { raw_local_irq_enable(); } while (0)
+extern void msg_local_irq_enable(int, int);
+#define local_irq_enable() msg_local_irq_enable(msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
+// #define local_irq_disable()	do { raw_local_irq_disable(); } while (0)
+extern void msg_local_irq_disable(int, int);
+#define local_irq_disable() msg_local_irq_disable(msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #define local_irq_save(flags)					\
 	do {							\
 		raw_local_irq_save(flags);			\

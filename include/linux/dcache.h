@@ -355,12 +355,17 @@ static inline struct dentry *dget_dlock(struct dentry *dentry)
 	return dentry;
 }
 
+extern struct dentry *msg_dget(struct dentry *, int, int);
+
 static inline struct dentry *dget(struct dentry *dentry)
 {
-  MY_PRINTK(get_current()->comm);
-	if (dentry)
-		lockref_get(&dentry->d_lockref);
-	return dentry;
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        if (dentry)
+            lockref_get(&dentry->d_lockref);
+        return dentry;
+    } else
+        return msg_dget(dentry, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 extern struct dentry *dget_parent(struct dentry *dentry);

@@ -190,23 +190,28 @@ static inline void clear_highpage(struct page *page)
 	kunmap_atomic(kaddr);
 }
 
+extern void msg_zero_user_segments(struct page *, unsigned, unsigned, unsigned, unsigned, int, int);
+
 static inline void zero_user_segments(struct page *page,
 	unsigned start1, unsigned end1,
 	unsigned start2, unsigned end2)
 {
-  MY_PRINTK(get_current()->comm);
-	void *kaddr = kmap_atomic(page);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        void *kaddr = kmap_atomic(page);
 
-	BUG_ON(end1 > PAGE_SIZE || end2 > PAGE_SIZE);
+        BUG_ON(end1 > PAGE_SIZE || end2 > PAGE_SIZE);
 
-	if (end1 > start1)
-		memset(kaddr + start1, 0, end1 - start1);
+        if (end1 > start1)
+            memset(kaddr + start1, 0, end1 - start1);
 
-	if (end2 > start2)
-		memset(kaddr + start2, 0, end2 - start2);
+        if (end2 > start2)
+            memset(kaddr + start2, 0, end2 - start2);
 
-	kunmap_atomic(kaddr);
-	flush_dcache_page(page);
+        kunmap_atomic(kaddr);
+        flush_dcache_page(page);
+    } else
+        msg_zero_user_segments(page, start1, end1, start2, end2, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static inline void zero_user_segment(struct page *page,
@@ -215,11 +220,16 @@ static inline void zero_user_segment(struct page *page,
 	zero_user_segments(page, start, end, 0, 0);
 }
 
+extern void msg_zero_user(struct page *, unsigned, unsigned, int, int);
+
 static inline void zero_user(struct page *page,
 	unsigned start, unsigned size)
 {
-  MY_PRINTK(get_current()->comm);
-	zero_user_segments(page, start, start + size, 0, 0);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        zero_user_segments(page, start, start + size, 0, 0);
+    } else
+        msg_zero_user(page, start, size, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 #ifndef __HAVE_ARCH_COPY_USER_HIGHPAGE

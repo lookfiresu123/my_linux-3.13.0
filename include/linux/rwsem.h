@@ -67,12 +67,19 @@ static inline int rwsem_is_locked(struct rw_semaphore *sem)
 extern void __init_rwsem(struct rw_semaphore *sem, const char *name,
 			 struct lock_class_key *key);
 
+/*
 #define init_rwsem(sem)						\
 do {								\
 	static struct lock_class_key __key;			\
 								\
 	__init_rwsem((sem), #sem, &__key);			\
 } while (0)
+*/
+extern void msg_init_rwsem(struct rw_semaphore *, int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+#define init_rwsem(sem) msg_init_rwsem(sem, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 
 /*
  * lock for reading

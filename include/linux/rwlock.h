@@ -58,11 +58,19 @@ do {								\
  * regardless of whether CONFIG_SMP or CONFIG_PREEMPT are set. The various
  * methods are defined as nops in the case they are not required.
  */
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+
 #define read_trylock(lock)	__cond_lock(lock, _raw_read_trylock(lock))
 #define write_trylock(lock)	__cond_lock(lock, _raw_write_trylock(lock))
 
-#define write_lock(lock)	_raw_write_lock(lock)
+// #define write_lock(lock)	_raw_write_lock(lock)
+extern void msg_write_lock(rwlock_t *, int, int);
+#define write_lock(lock) msg_write_lock(lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #define read_lock(lock)		_raw_read_lock(lock)
+extern void msg_read_lock(rwlock_t *,int, int);
+#define read_lock(lock) msg_read_lock(lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
 
 #if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
 
@@ -92,14 +100,25 @@ do {								\
 
 #endif
 
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+
 #define read_lock_irq(lock)		_raw_read_lock_irq(lock)
 #define read_lock_bh(lock)		_raw_read_lock_bh(lock)
-#define write_lock_irq(lock)		_raw_write_lock_irq(lock)
+//#define write_lock_irq(lock)		_raw_write_lock_irq(lock)
+extern void msg_write_lock_irq(rwlock_t *, int, int);
+#define write_lock_irq(lock) msg_write_lock_irq(lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #define write_lock_bh(lock)		_raw_write_lock_bh(lock)
-#define read_unlock(lock)		_raw_read_unlock(lock)
+//#define read_unlock(lock)		_raw_read_unlock(lock)
+extern void msg_read_unlock(rwlock_t *, int, int);
+#define read_unlock(lock) msg_read_unlock(lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #define write_unlock(lock)		_raw_write_unlock(lock)
 #define read_unlock_irq(lock)		_raw_read_unlock_irq(lock)
-#define write_unlock_irq(lock)		_raw_write_unlock_irq(lock)
+//#define write_unlock_irq(lock)		_raw_write_unlock_irq(lock)
+extern void msg_write_unlock_irq(rwlock_t *, int, int);
+#define write_unlock_irq(lock) msg_write_unlock_irq(lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
 
 #define read_unlock_irqrestore(lock, flags)			\
 	do {							\

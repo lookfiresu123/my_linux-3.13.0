@@ -84,7 +84,12 @@ static inline void seqcount_lockdep_reader_access(const seqcount_t *s)
 
 #else
 # define SEQCOUNT_DEP_MAP_INIT(lockname)
-# define seqcount_init(s) __seqcount_init(s, NULL, NULL)
+//# define seqcount_init(s) __seqcount_init(s, NULL, NULL)
+extern void msg_seqcount_init(seqcount_t *, int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+#define seqcount_init(s) msg_seqcount_init(s, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 # define seqcount_lockdep_reader_access(x)
 #endif
 

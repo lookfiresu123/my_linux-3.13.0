@@ -196,7 +196,11 @@ static inline int srcu_read_lock_held(struct srcu_struct *sp)
  * is enabled, invoking this outside of an RCU read-side critical
  * section will result in an RCU-lockdep splat.
  */
-#define srcu_dereference(p, sp) srcu_dereference_check((p), (sp), 0)
+//#define srcu_dereference(p, sp) srcu_dereference_check((p), (sp), 0)
+extern struct hlist_node *msg_srcu_dereference(struct hlist_node *, struct srcu_struct *, int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+#define srcu_dereference(p, sp) msg_srcu_dereference(p, sp, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
 
 /**
  * srcu_read_lock - register a new reader for an SRCU-protected structure.

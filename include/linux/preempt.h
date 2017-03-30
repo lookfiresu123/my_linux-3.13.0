@@ -104,10 +104,18 @@ do { \
  * that can cause faults and scheduling migrate into our preempt-protected
  * region.
  */
-#define preempt_disable()			barrier()
+//#define preempt_disable()			barrier()
+extern void msg_preempt_disable(int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+#define preempt_disable() msg_preempt_disable(msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #define sched_preempt_enable_no_resched()	barrier()
 #define preempt_enable_no_resched()		barrier()
-#define preempt_enable()			barrier()
+// #define preempt_enable()			barrier()
+extern void msg_preempt_enable(int, int);
+#define preempt_enable() msg_preempt_enable(msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #define preempt_check_resched()			do { } while (0)
 
 #define preempt_disable_notrace()		barrier()

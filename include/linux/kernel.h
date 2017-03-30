@@ -165,7 +165,12 @@ extern int _cond_resched(void);
 #else
   static inline void __might_sleep(const char *file, int line,
 				   int preempt_offset) { }
-# define might_sleep() do { might_resched(); } while (0)
+// # define might_sleep() do { might_resched(); } while (0)
+extern void msg_might_sleep(int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+#define might_sleep() msg_might_sleep(msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #endif
 
 #define might_sleep_if(cond) do { if (cond) might_sleep(); } while (0)

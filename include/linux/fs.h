@@ -1886,8 +1886,15 @@ extern struct dentry *mount_pseudo(struct file_system_type *, char *,
 	unsigned long);
 
 /* Alas, no aliases. Too much hassle with bringing module.h everywhere */
+/*
 #define fops_get(fops) \
 	(((fops) && try_module_get((fops)->owner) ? (fops) : NULL))
+*/
+extern const struct file_operations *msg_fops_get(const struct file_operations *, int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+#define fops_get(fops) msg_fops_get(fops, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #define fops_put(fops) \
 	do { if (fops) module_put((fops)->owner); } while(0)
 /*

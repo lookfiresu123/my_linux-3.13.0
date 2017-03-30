@@ -143,29 +143,47 @@ static inline void audit_syscall_exit(void *pt_regs)
 		__audit_syscall_exit(success, return_code);
 	}
 }
+
+extern struct filename *msg_audit_reusename(const __user char *, int, int);
+
 static inline struct filename *audit_reusename(const __user char *name)
 {
-  MY_PRINTK(get_current()->comm);
-	if (unlikely(!audit_dummy_context()))
-		return __audit_reusename(name);
-	return NULL;
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        if (unlikely(!audit_dummy_context()))
+            return __audit_reusename(name);
+        return NULL;
+    } else
+        return msg_audit_reusename(name, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
+
+extern void msg_audit_getname(struct filename *, int, int);
+
 static inline void audit_getname(struct filename *name)
 {
-  MY_PRINTK(get_current()->comm);
-	if (unlikely(!audit_dummy_context()))
-		__audit_getname(name);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        if (unlikely(!audit_dummy_context()))
+            __audit_getname(name);
+    } else
+        msg_audit_getname(name, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
+
+extern void msg_audit_inode(struct filename *, const struct dentry *, unsigned int, int, int);
+
 static inline void audit_inode(struct filename *name,
 				const struct dentry *dentry,
 				unsigned int parent) {
-  MY_PRINTK(get_current()->comm);
-	if (unlikely(!audit_dummy_context())) {
-		unsigned int flags = 0;
-		if (parent)
-			flags |= AUDIT_INODE_PARENT;
-		__audit_inode(name, dentry, flags);
-	}
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        if (unlikely(!audit_dummy_context())) {
+            unsigned int flags = 0;
+            if (parent)
+                flags |= AUDIT_INODE_PARENT;
+            __audit_inode(name, dentry, flags);
+        }
+    } else
+        msg_audit_inode(name, dentry, parent, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 static inline void audit_inode_parent_hidden(struct filename *name,
 						const struct dentry *dentry)
@@ -174,12 +192,18 @@ static inline void audit_inode_parent_hidden(struct filename *name,
 		__audit_inode(name, dentry,
 				AUDIT_INODE_PARENT | AUDIT_INODE_HIDDEN);
 }
+
+extern void msg_audit_inode_child(const struct inode *, const struct dentry *, const unsigned char, int, int);
+
 static inline void audit_inode_child(const struct inode *parent,
 				     const struct dentry *dentry,
 				     const unsigned char type) {
-  MY_PRINTK(get_current()->comm);
-	if (unlikely(!audit_dummy_context()))
-		__audit_inode_child(parent, dentry, type);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        if (unlikely(!audit_dummy_context()))
+            __audit_inode_child(parent, dentry, type);
+    } else
+        msg_audit_inode_child(parent, dentry, type, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 void audit_core_dumps(long signr);
 

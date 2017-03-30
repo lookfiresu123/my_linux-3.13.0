@@ -1784,9 +1784,10 @@ struct zoneref *msg_first_zones_zonelist(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -1815,8 +1816,10 @@ struct zoneref *msg_first_zones_zonelist(
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct zoneref *)(sendbuf.object_ptr);
-  } else
-    return first_zones_zonelist(zonelist, highest_zoneidx, nodes, zone);
+  } else {
+    //return first_zones_zonelist(zonelist, highest_zoneidx, nodes, zone);
+    return next_zones_zonelist(zonelist->_zonerefs, highest_zoneidx, nodes, zone);
+  }
 }
 EXPORT_SYMBOL(msg_first_zones_zonelist);
 
@@ -4143,9 +4146,10 @@ const struct cred *msg_current_cred(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -4171,7 +4175,7 @@ const struct cred *msg_current_cred(
 
     return (const struct cred *)(sendbuf.object_ptr);
   } else
-    return current_cred();
+    return rcu_dereference_protected(current->cred, 1);
 }
 EXPORT_SYMBOL(msg_current_cred);
 
@@ -4218,9 +4222,10 @@ const struct cred *msg_get_cred(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -4371,9 +4376,10 @@ void msg_local_irq_disable(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -4398,8 +4404,10 @@ void msg_local_irq_disable(
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
-  } else
-    local_irq_disable();
+  } else {
+        // local_irq_disable();
+        do { raw_local_irq_disable(); } while (0);
+    }
 }
 EXPORT_SYMBOL(msg_local_irq_disable);
 
@@ -4408,9 +4416,10 @@ void msg_local_irq_enable(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -4435,8 +4444,10 @@ void msg_local_irq_enable(
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
-  } else
-    local_irq_enable();
+  } else {
+    // local_irq_enable();
+    do { raw_local_irq_enable(); } while (0);
+  }
 }
 EXPORT_SYMBOL(msg_local_irq_enable);
 
@@ -4445,9 +4456,10 @@ void msg_might_sleep(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -4471,8 +4483,10 @@ void msg_might_sleep(
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
-  } else
-    might_sleep();
+  } else {
+    // might_sleep();
+    do { might_resched(); } while (0);
+  }
 }
 EXPORT_SYMBOL(msg_might_sleep);
 
@@ -4481,9 +4495,10 @@ void msg_preempt_disable(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -4508,8 +4523,10 @@ void msg_preempt_disable(
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
-  } else
-    preempt_disable();
+  } else {
+    // preempt_disable();
+    barrier();
+    }
 }
 EXPORT_SYMBOL(msg_preempt_disable);
 
@@ -4518,9 +4535,10 @@ void msg_preempt_enable(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -4545,8 +4563,10 @@ void msg_preempt_enable(
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
-  } else
-    preempt_enable();
+  } else {
+    //preempt_enable();
+    barrier();
+    }
 }
 EXPORT_SYMBOL(msg_preempt_enable);
 
@@ -4648,9 +4668,10 @@ void msg_wake_up_all(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -4673,8 +4694,10 @@ void msg_wake_up_all(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    wake_up_all(q);
+  } else {
+    // wake_up_all(q);
+    __wake_up(q, TASK_NORMAL, 0, NULL);
+  }
 }
 EXPORT_SYMBOL(msg_wake_up_all);
 
@@ -4955,9 +4978,10 @@ int msg_cond_resched(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -4982,8 +5006,10 @@ int msg_cond_resched(
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(int *)(sendbuf.object_ptr);
-  } else
-    return cond_resched();
+  } else {
+    //return cond_resched();
+    return ({ __might_sleep(__FILE__, __LINE__, 0); _cond_resched(); });
+  }
 }
 EXPORT_SYMBOL(msg_cond_resched);
 
@@ -4993,9 +5019,10 @@ void msg_wake_up_interruptible(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5017,8 +5044,10 @@ void msg_wake_up_interruptible(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    wake_up_interruptible(ppoll);
+  } else {
+    //wake_up_interruptible(ppoll);
+    __wake_up(ppoll, TASK_INTERRUPTIBLE, 1, NULL);
+    }
 }
 EXPORT_SYMBOL(msg_wake_up_interruptible);
 
@@ -5028,9 +5057,10 @@ void msg_seqcount_init(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5052,8 +5082,10 @@ void msg_seqcount_init(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    seqcount_init(s);
+  } else {
+    // seqcount_init(s);
+    __seqcount_init(s, NULL, NULL);
+  }
 }
 EXPORT_SYMBOL(msg_seqcount_init);
 
@@ -5072,9 +5104,10 @@ void msg_mutex_init(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5096,8 +5129,10 @@ void msg_mutex_init(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    mutex_init(mutex);
+  } else {
+    //mutex_init(mutex);
+    do { static struct lock_class_key __key; __mutex_init((mutex), "", &__key); } while (0);
+  }
 }
 EXPORT_SYMBOL(msg_mutex_init);
 
@@ -5108,9 +5143,10 @@ void msg_wait_event(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs) 
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5133,8 +5169,14 @@ void msg_wait_event(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    wait_event(wq, condition);
+  } else {
+    // wait_event(wq, condition);
+    do {
+        if (condition)
+            break;
+        __wait_event(wq, condition);
+    } while (0);
+  }
 }
 EXPORT_SYMBOL(msg_wait_event);
 
@@ -5184,9 +5226,10 @@ const struct file_operations *msg_fops_get(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5209,8 +5252,10 @@ const struct file_operations *msg_fops_get(
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (const struct file_operations *)(sendbuf.object_ptr);
-  } else
-    return fops_get(fops);
+  } else {
+    // return fops_get(fops);
+    return (((fops) && try_module_get((fops)->owner) ? (fops) : NULL));
+    }
 }
 EXPORT_SYMBOL(msg_fops_get);
 
@@ -5220,9 +5265,10 @@ void msg_init_waitqueue_head(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5245,8 +5291,10 @@ void msg_init_waitqueue_head(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    init_waitqueue_head(q);
+  } else {
+    // init_waitqueue_head(q);
+    do { static struct lock_class_key __key; __init_waitqueue_head((q), "", &__key); } while (0);
+  }
 }
 EXPORT_SYMBOL(msg_init_waitqueue_head);
 
@@ -5256,9 +5304,10 @@ void msg_wake_up(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5281,8 +5330,10 @@ void msg_wake_up(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    wake_up(q);
+  } else {
+    // wake_up(q);
+    __wake_up(q, TASK_NORMAL, 1, NULL);
+  }
 }
 EXPORT_SYMBOL(msg_wake_up);
 
@@ -5294,9 +5345,10 @@ int msg_wait_event_interruptible_timeout(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5321,8 +5373,13 @@ int msg_wait_event_interruptible_timeout(
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(int *)(sendbuf.object_ptr);
-  } else
-    return wait_event_interruptible_timeout(wq, condition, timeout);
+  } else {
+    // return wait_event_interruptible_timeout(wq, condition, timeout);
+    long __ret = timeout; 
+    if (!___wait_cond_timeout(condition))
+        __ret = __wait_event_interruptible_timeout(wq, condition, timeout);
+    return __ret;
+    }
 }
 EXPORT_SYMBOL(msg_wait_event_interruptible_timeout);
 
@@ -5417,9 +5474,10 @@ struct hlist_node *msg_srcu_dereference(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5444,8 +5502,10 @@ struct hlist_node *msg_srcu_dereference(
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct hlist_node *)(sendbuf.object_ptr);
-  } else
-    return srcu_dereference(p, sp);
+  } else {
+    // return srcu_dereference(p, sp);
+    return srcu_dereference_check((p), (sp), 0);
+  }
 }
 EXPORT_SYMBOL(msg_srcu_dereference);
 
@@ -5455,9 +5515,10 @@ void msg_kfree_rcu(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5480,8 +5541,10 @@ void msg_kfree_rcu(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
+  } else {
     kfree_rcu(s, rcu);
+    //__kfree_rcu(&((ptr)->rcu_head), offsetof(typeof(*(ptr)), rcu_head));
+  }
 }
 EXPORT_SYMBOL(msg_kfree_rcu);
 
@@ -5491,9 +5554,10 @@ void msg_write_lock(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5516,8 +5580,10 @@ void msg_write_lock(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    write_lock(lock);
+  } else {
+    // write_lock(lock);
+    _raw_write_lock(lock);
+  }
 }
 EXPORT_SYMBOL(msg_write_lock);
 
@@ -5527,9 +5593,10 @@ void msg_init_rwsem(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5552,8 +5619,10 @@ void msg_init_rwsem(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    init_rwsem(sem);
+  } else {
+    //init_rwsem(sem);
+    do { static struct lock_class_key __key; __init_rwsem((sem), "", &__key); } while (0);
+  }
 }
 EXPORT_SYMBOL(msg_init_rwsem);
 
@@ -5603,9 +5672,10 @@ void msg_spin_lock(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5628,8 +5698,10 @@ void msg_spin_lock(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_lock(lock);
+  } else {
+    //spin_lock(lock);
+    raw_spin_lock(&lock->rlock);
+  }
 }
 EXPORT_SYMBOL(msg_spin_lock);
 
@@ -5639,9 +5711,10 @@ void msg_spin_unlock(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5664,8 +5737,10 @@ void msg_spin_unlock(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_unlock(lock);
+  } else {
+    //spin_unlock(lock);
+    raw_spin_unlock(&lock->rlock);
+  }
 }
 EXPORT_SYMBOL(msg_spin_unlock);
 
@@ -5675,9 +5750,10 @@ void msg_spin_lock_irq(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5700,8 +5776,10 @@ void msg_spin_lock_irq(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_lock_irq(lock);
+  } else {
+    // spin_lock_irq(lock);
+    raw_spin_lock_irq(&lock->rlock);
+  }
 }
 EXPORT_SYMBOL(msg_spin_lock_irq);
 
@@ -5711,9 +5789,10 @@ void msg_spin_unlock_irq(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5736,20 +5815,23 @@ void msg_spin_unlock_irq(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_unlock_irq(lock);
+  } else {
+    //spin_unlock_irq(lock);   
+    raw_spin_unlock_irq(&lock->rlock); 
+  }
 }
 EXPORT_SYMBOL(msg_spin_unlock_irq);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_trylock()
-void msg_spin_trylock(
+int msg_spin_trylock(
     spinlock_t *lock, 
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5768,12 +5850,16 @@ void msg_spin_trylock(
     // 阻塞等待接收消息
     my_msgrcvA(&sendbuf, sendlength);
     // 处理从kernel传过来的消息
+    int ret = *(int *)(sendbuf.object_ptr);
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_trylock(lock);
+    return ret;
+  } else {
+    //spin_trylock(lock);
+    return raw_spin_trylock(&lock->rlock);
+  }
 }
 EXPORT_SYMBOL(msg_spin_trylock);
 
@@ -5895,9 +5981,10 @@ void msg_write_lock_irq(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5920,8 +6007,10 @@ void msg_write_lock_irq(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    write_lock_irq(lock);
+  } else {
+    //write_lock_irq(lock);
+    _raw_write_lock_irq(lock);
+  }
 }
 EXPORT_SYMBOL(msg_write_lock_irq);
 
@@ -5931,9 +6020,10 @@ void msg_write_unlock_irq(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5956,8 +6046,10 @@ void msg_write_unlock_irq(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    write_unlock_irq(lock);
+  } else {
+    // write_unlock_irq(lock);
+    _raw_write_lock_irq(lock);
+    }
 }
 EXPORT_SYMBOL(msg_write_unlock_irq);
 
@@ -5967,9 +6059,10 @@ void msg_read_lock(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5992,8 +6085,10 @@ void msg_read_lock(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    read_lock(lock);
+  } else {
+    // read_lock(lock);
+    _raw_read_lock(lock);
+  }
 }
 EXPORT_SYMBOL(msg_read_lock);
 
@@ -6003,9 +6098,10 @@ void msg_read_unlock(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -6028,8 +6124,10 @@ void msg_read_unlock(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    read_unlock(lock);
+  } else {
+    //read_unlock(lock);
+    _raw_read_unlock(lock);
+  }
 }
 EXPORT_SYMBOL(msg_read_unlock);
 
@@ -6115,9 +6213,10 @@ void msg_spin_lock_bh(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -6140,8 +6239,10 @@ void msg_spin_lock_bh(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_lock_bh(lock);
+  } else {
+    // spin_lock_bh(lock);
+    raw_spin_lock_bh(&lock->rlock);
+  }
 }
 EXPORT_SYMBOL(msg_spin_lock_bh);
 
@@ -6151,9 +6252,10 @@ void msg_spin_unlock_bh(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  // MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -6176,8 +6278,10 @@ void msg_spin_unlock_bh(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_unlock_bh(lock);
+  } else {
+    // spin_unlock_bh(lock);
+    raw_spin_unlock_bh(&lock->rlock);
+  }
 }
 EXPORT_SYMBOL(msg_spin_unlock_bh);
 

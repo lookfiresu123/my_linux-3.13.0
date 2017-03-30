@@ -67,12 +67,18 @@ struct task_struct;
 
 extern void __init_waitqueue_head(wait_queue_head_t *q, const char *name, struct lock_class_key *);
 
+/*
 #define init_waitqueue_head(q)				\
 	do {						\
 		static struct lock_class_key __key;	\
 							\
 		__init_waitqueue_head((q), #q, &__key);	\
 	} while (0)
+*/
+extern void msg_init_waitqueue_head(struct __wait_queue_head *, int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+#define init_waitqueue_head(q) msg_init_waitqueue_head(q, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
 
 #ifdef CONFIG_LOCKDEP
 # define __WAIT_QUEUE_HEAD_INIT_ONSTACK(name) \
@@ -156,13 +162,25 @@ int out_of_line_wait_on_bit_lock(void *, int, int (*)(void *), unsigned);
 int out_of_line_wait_on_atomic_t(atomic_t *, int (*)(atomic_t *), unsigned);
 wait_queue_head_t *bit_waitqueue(void *, int);
 
-#define wake_up(x)			__wake_up(x, TASK_NORMAL, 1, NULL)
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+
+//#define wake_up(x)			__wake_up(x, TASK_NORMAL, 1, NULL)
+extern void msg_wake_up(struct __wait_queue_head *q, int, int);
+#define wake_up(x) msg_wake_up(x, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #define wake_up_nr(x, nr)		__wake_up(x, TASK_NORMAL, nr, NULL)
-#define wake_up_all(x)			__wake_up(x, TASK_NORMAL, 0, NULL)
+//#define wake_up_all(x)			__wake_up(x, TASK_NORMAL, 0, NULL)
+extern void msg_wake_up_all(wait_queue_head_t *, int, int);
+#define wake_up_all(x) msg_wake_up_all(x, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #define wake_up_locked(x)		__wake_up_locked((x), TASK_NORMAL, 1)
 #define wake_up_all_locked(x)		__wake_up_locked((x), TASK_NORMAL, 0)
 
-#define wake_up_interruptible(x)	__wake_up(x, TASK_INTERRUPTIBLE, 1, NULL)
+//#define wake_up_interruptible(x)	__wake_up(x, TASK_INTERRUPTIBLE, 1, NULL)
+extern void msg_wake_up_interruptible(struct __wait_queue_head *, int, int);
+#define wake_up_interruptible(x) msg_wake_up_interruptible(x, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
 #define wake_up_interruptible_nr(x, nr)	__wake_up(x, TASK_INTERRUPTIBLE, nr, NULL)
 #define wake_up_interruptible_all(x)	__wake_up(x, TASK_INTERRUPTIBLE, 0, NULL)
 #define wake_up_interruptible_sync(x)	__wake_up_sync((x), TASK_INTERRUPTIBLE, 1)
@@ -241,12 +259,18 @@ __out:	__ret;								\
  * wake_up() has to be called after changing any variable that could
  * change the result of the wait condition.
  */
+/*
 #define wait_event(wq, condition)					\
 do {									\
 	if (condition)							\
 		break;							\
 	__wait_event(wq, condition);					\
 } while (0)
+*/
+extern void msg_wait_event(struct __wait_queue_head, bool, int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+#define wait_event(wq, condition) msg_wait_event(wq, condition, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
 
 #define __wait_event_timeout(wq, condition, timeout)			\
 	___wait_event(wq, ___wait_cond_timeout(condition),		\
@@ -353,6 +377,8 @@ do {									\
  * a signal, or the remaining jiffies (at least 1) if the @condition
  * evaluated to %true before the @timeout elapsed.
  */
+
+/*
 #define wait_event_interruptible_timeout(wq, condition, timeout)	\
 ({									\
 	long __ret = timeout;						\
@@ -361,6 +387,13 @@ do {									\
 						condition, timeout);	\
 	__ret;								\
 })
+*/
+extern int msg_wait_event_interruptible_timeout(struct __wait_queue_head, bool, unsigned long, int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+#define wait_event_interruptible_timeout(wq, condition, timeout) msg_wait_event_interruptible_timeout(wq, condition, timeout, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
+
+
 
 #define __wait_event_hrtimeout(wq, condition, timeout, state)		\
 ({									\

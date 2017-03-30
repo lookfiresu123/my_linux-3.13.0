@@ -73,12 +73,18 @@ posix_acl_dup(struct posix_acl *acl)
 /*
  * Free an ACL handle.
  */
+
+extern void msg_posix_acl_release(struct posix_acl *, int, int);
+
 static inline void
 posix_acl_release(struct posix_acl *acl)
 {
-  MY_PRINTK(get_current()->comm);
-	if (acl && atomic_dec_and_test(&acl->a_refcount))
-		kfree_rcu(acl, a_rcu);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        if (acl && atomic_dec_and_test(&acl->a_refcount))
+            kfree_rcu(acl, a_rcu);
+    } else
+        msg_posix_acl_release(acl, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 
@@ -123,10 +129,15 @@ static inline struct posix_acl *get_cached_acl(struct inode *inode, int type)
 	return acl;
 }
 
+extern struct posix_acl *msg_get_cached_acl_rcu(struct inode *, int, int, int);
+
 static inline struct posix_acl *get_cached_acl_rcu(struct inode *inode, int type)
 {
-  MY_PRINTK(get_current()->comm);
-	return rcu_dereference(*acl_by_type(inode, type));
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        return rcu_dereference(*acl_by_type(inode, type));
+    } else
+        return msg_get_cached_acl_rcu(inode, type, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static inline void set_cached_acl(struct inode *inode,

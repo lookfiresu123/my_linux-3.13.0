@@ -223,6 +223,11 @@ static inline struct cred *get_new_cred(struct cred *cred)
  * accidental alteration of a set of credentials that should be considered
  * immutable.
  */
+
+extern const struct cred *msg_get_cred(const struct cred *, int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+
 static inline const struct cred *get_cred(const struct cred *cred)
 {
   // MY_PRINTK(get_current()->comm);
@@ -257,8 +262,18 @@ static inline void put_cred(const struct cred *_cred)
  * Access the subjective credentials of the current task.  RCU-safe,
  * since nobody else can modify it.
  */
+
+extern const struct cred *msg_current_cred(int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+
+/*
 #define current_cred() \
 	rcu_dereference_protected(current->cred, 1)
+*/
+
+#define current_cred() \
+    msg_current_cred(msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
 
 /**
  * __task_cred - Access a task's objective credentials

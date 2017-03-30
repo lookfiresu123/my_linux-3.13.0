@@ -2483,10 +2483,16 @@ static inline int signal_pending_state(long state, struct task_struct *p)
  */
 extern int _cond_resched(void);
 
+/*
 #define cond_resched() ({			\
 	__might_sleep(__FILE__, __LINE__, 0);	\
 	_cond_resched();			\
 })
+*/
+extern int msg_cond_resched(int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+#define cond_resched() msg_cond_resched(msqid_from_fs_to_kernel, msqid_from_kernel_to_fs)
 
 extern int __cond_resched_lock(spinlock_t *lock);
 

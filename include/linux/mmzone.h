@@ -18,7 +18,8 @@
 #include <linux/page-flags-layout.h>
 #include <linux/atomic.h>
 #include <asm/page.h>
-// #include <linux/interactive_design.h>
+//#include <linux/interactive_design.h>
+
 
 /* Free memory management - zoned buddy allocator.  */
 #ifndef CONFIG_FORCE_MAX_ZONEORDER
@@ -1001,14 +1002,18 @@ struct zoneref *next_zones_zonelist(struct zoneref *z,
  * used to iterate the zonelist with next_zones_zonelist by advancing it by
  * one before calling.
  */
+
+extern struct zoneref *msg_first_zones_zonelist(struct zonelist *, enum zone_type, nodemask_t *, struct zone **, int, int);
+extern int msqid_from_fs_to_kernel;
+extern int msqid_from_kernel_to_fs;
+
 static inline struct zoneref *first_zones_zonelist(struct zonelist *zonelist,
 					enum zone_type highest_zoneidx,
 					nodemask_t *nodes,
 					struct zone **zone)
 {
-  // MY_PRINTK(get_current()->comm);
-	return next_zones_zonelist(zonelist->_zonerefs, highest_zoneidx, nodes,
-								zone);
+    return msg_first_zones_zonelist(zonelist->_zonerefs, highest_zoneidx, nodes, zone, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+    // return next_zones_zonelist(zonelist->_zonerefs, highest_zoneidx, nodes, zone);
 }
 
 /**

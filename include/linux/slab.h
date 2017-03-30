@@ -16,6 +16,7 @@
 #include <linux/workqueue.h>
 #include <linux/interactive_design.h>
 
+extern void *msg_kmem_cache_malloc(struct kmem_cache *, gfp_t, int, int);
 
 /*
  * Flags to pass to kmem_cache_create().
@@ -380,10 +381,15 @@ kmalloc_order_trace(size_t size, gfp_t flags, unsigned int order)
 }
 #endif
 
+extern void *msg_kmalloc_large(size_t, gfp_t, int, int);
+
 static __always_inline void *kmalloc_large(size_t size, gfp_t flags)
 {
-	unsigned int order = get_order(size);
-	return kmalloc_order_trace(size, flags, order);
+    if (strcmp(get_current()->comm, "fs_kthread") != 0) {
+        unsigned int order = get_order(size);
+        return kmalloc_order_trace(size, flags, order);
+    } else
+        return msg_kmalloc_large(size, flags, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 /**
@@ -439,24 +445,30 @@ static __always_inline void *kmalloc_large(size_t size, gfp_t flags)
  * for general use, and so are not documented here. For a full list of
  * potential flags, always refer to linux/gfp.h.
  */
+
+extern void *msg_kmalloc(size_t, gfp_t, int, int);
+
 static __always_inline void *kmalloc(size_t size, gfp_t flags)
 {
-	if (__builtin_constant_p(size)) {
-		if (size > KMALLOC_MAX_CACHE_SIZE)
-			return kmalloc_large(size, flags);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        if (__builtin_constant_p(size)) {
+            if (size > KMALLOC_MAX_CACHE_SIZE)
+                return kmalloc_large(size, flags);
 #ifndef CONFIG_SLOB
-		if (!(flags & GFP_DMA)) {
-			int index = kmalloc_index(size);
+            if (!(flags & GFP_DMA)) {
+                int index = kmalloc_index(size);
 
-			if (!index)
-				return ZERO_SIZE_PTR;
+                if (!index)
+                    return ZERO_SIZE_PTR;
 
-			return kmem_cache_alloc_trace(kmalloc_caches[index],
-					flags, size);
-		}
+                return kmem_cache_alloc_trace(kmalloc_caches[index], flags, size);
+            }
 #endif
-	}
-	return __kmalloc(size, flags);
+        }
+        return __kmalloc(size, flags);
+    } else
+        return msg_kmalloc(size, flags, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 /*
@@ -621,10 +633,15 @@ extern void *__kmalloc_node_track_caller(size_t, gfp_t, int, unsigned long);
 /*
  * Shortcuts
  */
+
+extern void *msg_kmem_cache_alloc(struct kmem_cache *, gfp_t, int, int);
 static inline void *kmem_cache_zalloc(struct kmem_cache *k, gfp_t flags)
 {
   MY_PRINTK(get_current()->comm);
-	return kmem_cache_alloc(k, flags | __GFP_ZERO);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      return kmem_cache_alloc(k, flags | __GFP_ZERO);
+  else
+      return msg_kmem_cache_alloc(k, flags | __GFP_ZERO, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 /**
@@ -632,9 +649,15 @@ static inline void *kmem_cache_zalloc(struct kmem_cache *k, gfp_t flags)
  * @size: how many bytes of memory are required.
  * @flags: the type of memory to allocate (see kmalloc).
  */
+
+extern void *msg_kmalloc(size_t, gfp_t, int, int);
+
 static inline void *kzalloc(size_t size, gfp_t flags)
 {
-	return kmalloc(size, flags | __GFP_ZERO);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        return kmalloc(size, flags | __GFP_ZERO);
+    else
+        return msg_kmalloc(size, flags, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 /**

@@ -130,11 +130,16 @@ static inline bool css_tryget(struct cgroup_subsys_state *css)
  *
  * Put a reference obtained via css_get() and css_tryget().
  */
+extern void msg_css_put(struct cgroup_subsys_state *, int, int);
+
 static inline void css_put(struct cgroup_subsys_state *css)
 {
-  MY_PRINTK(get_current()->comm);
-	if (!(css->flags & CSS_ROOT))
-		percpu_ref_put(&css->refcnt);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+        MY_PRINTK(get_current()->comm);
+        if (!(css->flags & CSS_ROOT))
+            percpu_ref_put(&css->refcnt);
+    } else
+        msg_css_put(css, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 /* bits in struct cgroup flags field */

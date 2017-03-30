@@ -1070,7 +1070,7 @@ extern void msg_spin_unlock_irq(
 );
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_trylock()
-extern void msg_spin_trylock(
+extern int msg_spin_trylock(
 	spinlock_t *lock, 
 	int msqid_from_fs_to_kernel, 
 	int msqid_from_kernel_to_fs
