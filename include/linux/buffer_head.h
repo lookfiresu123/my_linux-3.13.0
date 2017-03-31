@@ -264,13 +264,17 @@ void buffer_init(void);
  * inline definitions
  */
 
+extern void msg_attach_page_buffers(struct page *, struct buffer_head *, int, int);
 static inline void attach_page_buffers(struct page *page,
 		struct buffer_head *head)
 {
-  MY_PRINTK(get_current()->comm);
-	page_cache_get(page);
-	SetPagePrivate(page);
-	set_page_private(page, (unsigned long)head);
+	if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+  		MY_PRINTK(get_current()->comm);
+		page_cache_get(page);
+		SetPagePrivate(page);
+		set_page_private(page, (unsigned long)head);
+	} else
+		msg_attach_page_buffers(page, head, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 static inline void get_bh(struct buffer_head *bh)
