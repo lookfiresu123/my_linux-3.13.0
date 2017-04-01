@@ -114,11 +114,15 @@ static inline void cleancache_invalidate_inode(struct address_space *mapping)
 		__cleancache_invalidate_inode(mapping);
 }
 
+extern void msg_cleancache_invalidate_fs(struct super_block *, int, int);
 static inline void cleancache_invalidate_fs(struct super_block *sb)
 {
-  MY_PRINTK(get_current()->comm);
-	if (cleancache_enabled)
-		__cleancache_invalidate_fs(sb);
+	if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+  		MY_PRINTK(get_current()->comm);
+		if (cleancache_enabled)
+			__cleancache_invalidate_fs(sb);
+	} else
+		msg_cleancache_invalidate_fs(sb, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 #endif /* _LINUX_CLEANCACHE_H */
