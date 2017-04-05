@@ -266,10 +266,15 @@ struct page *grab_cache_page_write_begin(struct address_space *mapping,
 /*
  * Returns locked page at given index in given cache, creating it if needed.
  */
+extern struct page *msg_grab_cache_page(struct address_space *, pgoff_t, int, int);
 static inline struct page *grab_cache_page(struct address_space *mapping,
 								pgoff_t index)
 {
-	return find_or_create_page(mapping, index, mapping_gfp_mask(mapping));
+	if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+		MY_PRINTK(get_current()->comm);
+		return find_or_create_page(mapping, index, mapping_gfp_mask(mapping));
+	} else
+		return msg_grab_cache_page(mapping, index, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 extern struct page * grab_cache_page_nowait(struct address_space *mapping,
@@ -353,11 +358,15 @@ static inline int trylock_page(struct page *page)
 /*
  * lock_page may only be called if we have the page's inode pinned.
  */
+extern void msg_lock_page(struct page *, int, int);
 static inline void lock_page(struct page *page)
 {
-	might_sleep();
-	if (!trylock_page(page))
-		__lock_page(page);
+	if (my_strcmp(get_current()->comm, "fs_kthread") != 0) {
+		might_sleep();
+		if (!trylock_page(page))
+			__lock_page(page);
+	} else
+		msg_lock_page(page, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 /*
