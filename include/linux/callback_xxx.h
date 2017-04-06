@@ -191,11 +191,13 @@ extern void callback_audit_inode_child(struct my_msgbuf *this);// 调用了定�
 extern void callback_srcu_dereference(struct my_msgbuf *this);
 extern void callback_kfree_rcu(struct my_msgbuf *this);
 extern void callback_write_lock(struct my_msgbuf *this);// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_lock()
+extern void callback_write_unlock(struct my_msgbuf *this);// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_unlock()
 extern void callback_init_rwsem(struct my_msgbuf *this);// 宏，调用了定义在kernel/locking/rwsem-spinlock.c中的__init_rwsem()
 extern void callback_queue_delayed_work(struct my_msgbuf *this);// 调用了定义在kernel/workqueue.c中的queue_delayed_work_on()
 extern void callback_spin_lock(struct my_msgbuf *this);// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock()
 extern void callback_spin_unlock(struct my_msgbuf *this);// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock()
 extern void callback_spin_lock_irq(struct my_msgbuf *this);// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_irq()
+extern void callback_spin_lock_irqsave(struct my_msgbuf *this);
 extern void callback_spin_unlock_irq(struct my_msgbuf *this);// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irq()
 extern void callback_spin_trylock(struct my_msgbuf *this);// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_trylock()
 extern void callback_WARN_ON(struct my_msgbuf *this);// 宏，调用了定义在kernel/panic.c中的warn_slowpath_null()

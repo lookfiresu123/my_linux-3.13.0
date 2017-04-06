@@ -244,11 +244,19 @@ static Indirect *ext2_get_branch(struct inode *inode, int depth, int *offsets, I
 		bh = sb_bread(sb, le32_to_cpu(p->key));
 		if (!bh)
 			goto failure;
-		read_lock(&EXT2_I(inode)->i_meta_lock);
+		//read_lock(&EXT2_I(inode)->i_meta_lock);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        read_lock(&EXT2_I(inode)->i_meta_lock);
+    else
+        msg_read_lock(&EXT2_I(inode)->i_meta_lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		if (!verify_chain(chain, p))
 			goto changed;
 		add_chain(++p, bh, (__le32*)bh->b_data + *++offsets);
-		read_unlock(&EXT2_I(inode)->i_meta_lock);
+		//read_unlock(&EXT2_I(inode)->i_meta_lock);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        read_unlock(&EXT2_I(inode)->i_meta_lock);
+    else
+        msg_read_unlock(&EXT2_I(inode)->i_meta_lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		if (!p->key)
 			goto no_block;
 	}
@@ -951,7 +959,11 @@ static Indirect *ext2_find_shared(struct inode *inode, int depth, int offsets[4]
 	 * If the branch acquired continuation since we've looked at it -
 	 * fine, it should all survive and (new) top doesn't belong to us.
 	 */
-	write_lock(&EXT2_I(inode)->i_meta_lock);
+	//write_lock(&EXT2_I(inode)->i_meta_lock);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      write_lock(&EXT2_I(inode)->i_meta_lock);
+  else
+      msg_write_lock(&EXT2_I(inode)->i_meta_lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	if (!partial->key && *partial->p) {
 		write_unlock(&EXT2_I(inode)->i_meta_lock);
 		goto no_top;
@@ -970,7 +982,11 @@ static Indirect *ext2_find_shared(struct inode *inode, int depth, int offsets[4]
 		*top = *p->p;
 		*p->p = 0;
 	}
-	write_unlock(&EXT2_I(inode)->i_meta_lock);
+	//write_unlock(&EXT2_I(inode)->i_meta_lock);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      write_unlock(&EXT2_I(inode)->i_meta_lock);
+  else
+      msg_write_unlock(&EXT2_I(inode)->i_meta_lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 
 	while(partial > p)
 	{

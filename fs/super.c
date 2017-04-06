@@ -177,8 +177,13 @@ static struct super_block *alloc_super(struct file_system_type *type, int flags)
 		lockdep_init_map(&s->s_writers.lock_map[i], sb_writers_name[i],
 				 &type->s_writers_key[i], 0);
 	}
-	init_waitqueue_head(&s->s_writers.wait);
-	init_waitqueue_head(&s->s_writers.wait_unfrozen);
+	//init_waitqueue_head(&s->s_writers.wait);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      init_waitqueue_head(&s->s_writers.wait);
+  else
+      msg_init_waitqueue_head(&s->s_writers.wait, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+	//init_waitqueue_head(&s->s_writers.wait_unfrozen);
+	msg_init_waitqueue_head(&s->s_writers.wait_unfrozen, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	s->s_flags = flags;
 	s->s_bdi = &default_backing_dev_info;
 	INIT_HLIST_NODE(&s->s_instances);
@@ -211,11 +216,19 @@ static struct super_block *alloc_super(struct file_system_type *type, int flags)
 	down_write_nested(&s->s_umount, SINGLE_DEPTH_NESTING);
 	s->s_count = 1;
 	atomic_set(&s->s_active, 1);
-	mutex_init(&s->s_vfs_rename_mutex);
+	//mutex_init(&s->s_vfs_rename_mutex);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_init(&s->s_vfs_rename_mutex);
+  else
+      msg_mutex_init(&s->s_vfs_rename_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	lockdep_set_class(&s->s_vfs_rename_mutex, &type->s_vfs_rename_key);
 	mutex_init(&s->s_dquot.dqio_mutex);
 	mutex_init(&s->s_dquot.dqonoff_mutex);
-	init_rwsem(&s->s_dquot.dqptr_sem);
+	//init_rwsem(&s->s_dquot.dqptr_sem);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      init_rwsem(&s->s_dquot.dqptr_sem);
+  else
+      msg_init_rwsem(&s->s_dquot.dqptr_sem, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	s->s_maxbytes = MAX_NON_LFS;
 	s->s_op = &default_op;
 	s->s_time_gran = 1000000000;
@@ -1134,8 +1147,10 @@ void __sb_end_write(struct super_block *sb, int level)
 	 * freeze_super().
 	 */
 	smp_mb();
-	if (waitqueue_active(&sb->s_writers.wait))
-		wake_up(&sb->s_writers.wait);
+	if (waitqueue_active(&sb->s_writers.wait)) {
+      //wake_up(&sb->s_writers.wait);
+      msg_wake_up(&sb->s_writers.wait, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+  }
 	rwsem_release(&sb->s_writers.lock_map[level-1], 1, _RET_IP_);
 }
 EXPORT_SYMBOL(__sb_end_write);

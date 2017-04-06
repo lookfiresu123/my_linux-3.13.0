@@ -1025,6 +1025,13 @@ extern void msg_write_lock(
 	int msqid_from_kernel_to_fs
 );
 
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_unlock()
+extern void msg_write_unlock(
+	rwlock_t *lock, 
+	int msqid_from_fs_to_kernel, 
+	int msqid_from_kernel_to_fs
+);
+
 // 宏，调用了定义在kernel/locking/rwsem-spinlock.c中的__init_rwsem()
 extern void msg_init_rwsem(
 	struct rw_semaphore *sem, 
@@ -1060,6 +1067,13 @@ extern void msg_spin_lock_irq(
 	spinlock_t *lock, 
 	int msqid_from_fs_to_kernel, 
 	int msqid_from_kernel_to_fs
+);
+
+extern void msg_spin_lock_irqsave(
+    spinlock_t *lock,
+    unsigned long flags, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs
 );
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irq()

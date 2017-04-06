@@ -206,7 +206,8 @@ static void locks_init_lock_heads(struct file_lock *fl)
 {
 	INIT_HLIST_NODE(&fl->fl_link);
 	INIT_LIST_HEAD(&fl->fl_block);
-	init_waitqueue_head(&fl->fl_wait);
+	//init_waitqueue_head(&fl->fl_wait);
+	msg_init_waitqueue_head(&fl->fl_wait, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 }
 
 /* Allocate an empty lock structure. */
@@ -628,9 +629,11 @@ static void locks_wake_up_blocks(struct file_lock *blocker)
 		__locks_delete_block(waiter);
 		if (waiter->fl_lmops && waiter->fl_lmops->lm_notify)
 			waiter->fl_lmops->lm_notify(waiter);
-		else
-			wake_up(&waiter->fl_wait);
-	}
+		else {
+        //wake_up(&waiter->fl_wait);
+        msg_wake_up(&waiter->fl_wait, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+    }
+  }
 	spin_unlock(&blocked_lock_lock);
 }
 

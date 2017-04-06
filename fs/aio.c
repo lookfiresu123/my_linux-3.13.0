@@ -292,7 +292,11 @@ static int aio_migratepage(struct address_space *mapping, struct page *new, stru
 	ctx = mapping->private_data;
 	if (ctx) {
 		pgoff_t idx;
-		spin_lock_irqsave(&ctx->completion_lock, flags);
+		//spin_lock_irqsave(&ctx->completion_lock, flags);
+    if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+        spin_lock_irqsave(&ctx->completion_lock, flags);
+    else
+        msg_spin_lock_irqsave(&ctx->completion_lock, flags, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 		idx = old->index;
 		if (idx < (pgoff_t)ctx->nr_pages) {
 			if (ctx->ring_pages[idx] != old)

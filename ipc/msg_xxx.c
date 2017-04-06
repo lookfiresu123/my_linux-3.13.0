@@ -5521,6 +5521,42 @@ void msg_write_lock(
 }
 EXPORT_SYMBOL(msg_write_lock);
 
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_lock()
+void msg_write_unlock(
+    rwlock_t *lock, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_write_lock);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg1(rwlock_t *) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
+    // 阻塞等待接收消息
+    my_msgrcvA(&sendbuf, sendlength);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    write_unlock(lock);
+}
+EXPORT_SYMBOL(msg_write_unlock);
+
 // 宏，调用了定义在kernel/locking/rwsem-spinlock.c中的__init_rwsem()
 void msg_init_rwsem(
     struct rw_semaphore *sem, 
@@ -5713,6 +5749,45 @@ void msg_spin_lock_irq(
     }
 }
 EXPORT_SYMBOL(msg_spin_lock_irq);
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_irq()
+void msg_spin_lock_irqsave(
+    spinlock_t *lock,
+    unsigned long flags, 
+    int msqid_from_fs_to_kernel, 
+    int msqid_from_kernel_to_fs)
+{
+  //MY_PRINTK(get_current()->comm);
+  if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
+  {
+    MY_PRINTK(get_current()->comm);
+    struct timespec tpstart, tpend;
+    long timeuse;
+    getnstimeofday(&tpstart);
+    // 创建并初始化消息块
+    struct my_msgbuf sendbuf;
+    init_msgbuf(&sendbuf, 3, get_current(), msqid_from_kernel_to_fs, false, callback_spin_lock_irq);
+    // 创建并初始化参数容器，并将其挂载到消息块中
+    typedef Argus_msg2(spinlock_t *, unsigned long) Argus_type;
+    Argus_type argus;
+    argus.argu1 = lock;
+    argus.argu2 = flags;
+    sendbuf.argus_ptr = &argus;
+    // 发送消息
+    int sendlength, flag;
+    sendlength = sizeof(struct my_msgbuf);
+    my_msgsendA(&sendbuf, sendlength);
+    // 阻塞等待接收消息
+    my_msgrcvA(&sendbuf, sendlength);
+    // 处理从kernel传过来的消息
+    // 无需处理返回值
+    getnstimeofday(&tpend);
+    timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+  } else
+    spin_lock_irqsave(lock, flags);
+}
+EXPORT_SYMBOL(msg_spin_lock_irqsave);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_unlock_irq()
 void msg_spin_unlock_irq(

@@ -160,7 +160,11 @@ int inode_init_always(struct super_block *sb, struct inode *inode)
 	spin_lock_init(&inode->i_lock);
 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
 
-	mutex_init(&inode->i_mutex);
+	// mutex_init(&inode->i_mutex);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      mutex_init(&inode->i_mutex);
+  else
+      msg_mutex_init(&inode->i_mutex, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	lockdep_set_class(&inode->i_mutex, &sb->s_type->i_mutex_key);
 
 	atomic_set(&inode->i_dio_count, 0);

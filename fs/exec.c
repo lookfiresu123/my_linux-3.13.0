@@ -1393,7 +1393,11 @@ int search_binary_handler(struct linux_binprm *bprm)
 
 	retval = -ENOENT;
  retry:
-	read_lock(&binfmt_lock);
+	//read_lock(&binfmt_lock);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      read_lock(&binfmt_lock);
+  else
+      msg_read_lock(&binfmt_lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 	list_for_each_entry(fmt, &formats, lh) {
       if (!msg_try_module_get(fmt->module, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs))
           continue;
@@ -1409,7 +1413,11 @@ int search_binary_handler(struct linux_binprm *bprm)
 		read_lock(&binfmt_lock);
 		put_binfmt(fmt);
 	}
-	read_unlock(&binfmt_lock);
+	//read_unlock(&binfmt_lock);
+  if (my_strcmp(get_current()->comm, "fs_kthread") != 0)
+      read_unlock(&binfmt_lock);
+  else
+      msg_read_unlock(&binfmt_lock, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
 
 	if (need_retry && retval == -ENOEXEC) {
 		if (printable(bprm->buf[0]) && printable(bprm->buf[1]) &&

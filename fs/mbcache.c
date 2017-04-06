@@ -117,8 +117,10 @@ static void __mb_cache_entry_release_unlock(struct mb_cache_entry *ce)
 	__releases(mb_cache_spinlock)
 {
 	/* Wake up all processes queuing for this cache entry. */
-	if (ce->e_queued)
-		wake_up_all(&mb_cache_queue);
+    if (ce->e_queued) {
+        //wake_up_all(&mb_cache_queue);
+        msg_wake_up_all(&mb_cache_queue, msqid_from_fs_to_kernel, msqid_from_kernel_to_fs);
+    }
 	if (ce->e_used >= MB_CACHE_WRITER)
 		ce->e_used -= MB_CACHE_WRITER;
 	ce->e_used--;

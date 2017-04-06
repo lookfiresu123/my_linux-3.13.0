@@ -1661,6 +1661,18 @@ void callback_write_lock(struct my_msgbuf *this) {
   my_msgsendB(this, sendlength);
 }
 
+// 宏，调用了定义在kernel/locking/spinlock.c中的_raw_write_unlock()
+void callback_write_unlock(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg1(rwlock_t *) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  write_unlock(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
+}
+
 // 宏，调用了定义在kernel/locking/rwsem-spinlock.c中的__init_rwsem()
 void callback_init_rwsem(struct my_msgbuf *this) {
   MY_PRINTK(get_current()->comm);
@@ -1716,6 +1728,18 @@ void callback_spin_lock_irq(struct my_msgbuf *this) {
   typedef Argus_msg1(spinlock_t *) Argus_type;
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
   spin_lock_irq(ptr->argu1);
+  // 无需传递返回值
+  // 返回消息给发送方
+  int sendlength = sizeof(*this);
+  my_msgsendB(this, sendlength);
+}
+
+// 调用了定义在kernel/locking/spinlock.c中的_raw_spin_lock_irq()
+void callback_spin_lock_irqsave(struct my_msgbuf *this) {
+  MY_PRINTK(get_current()->comm);
+  typedef Argus_msg2(spinlock_t *, unsigned long) Argus_type;
+  Argus_type *ptr = (Argus_type *)(this->argus_ptr);
+  spin_lock_irqsave(ptr->argu1, ptr->argu2);
   // 无需传递返回值
   // 返回消息给发送方
   int sendlength = sizeof(*this);
