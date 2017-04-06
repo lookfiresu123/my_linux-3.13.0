@@ -1739,8 +1739,9 @@ void callback_spin_trylock(struct my_msgbuf *this) {
   MY_PRINTK(get_current()->comm);
   typedef Argus_msg1(spinlock_t *) Argus_type;
   Argus_type *ptr = (Argus_type *)(this->argus_ptr);
-  spin_trylock(ptr->argu1);
-  // 无需传递返回值
+  int ret = spin_trylock(ptr->argu1);
+  this->object_ptr = kmalloc(sizeof(int), GFP_KERNEL);
+  *(int *)(this->object_ptr) = ret;
   // 返回消息给发送方
   int sendlength = sizeof(*this);
   my_msgsendB(this, sendlength);

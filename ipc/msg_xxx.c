@@ -5603,9 +5603,10 @@ void msg_spin_lock(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5628,8 +5629,10 @@ void msg_spin_lock(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_lock(lock);
+  } else {
+        //spin_lock(lock);
+        raw_spin_lock(&lock->rlock);
+    }
 }
 EXPORT_SYMBOL(msg_spin_lock);
 
@@ -5639,9 +5642,10 @@ void msg_spin_unlock(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5664,8 +5668,10 @@ void msg_spin_unlock(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_unlock(lock);
+  } else {
+        //spin_unlock(lock);
+        raw_spin_unlock(&lock->rlock);
+    }
 }
 EXPORT_SYMBOL(msg_spin_unlock);
 
@@ -5675,9 +5681,10 @@ void msg_spin_lock_irq(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5700,8 +5707,10 @@ void msg_spin_lock_irq(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_lock_irq(lock);
+  } else {
+        //spin_lock_irq(lock);
+        raw_spin_lock_irq(&lock->rlock);
+    }
 }
 EXPORT_SYMBOL(msg_spin_lock_irq);
 
@@ -5711,9 +5720,10 @@ void msg_spin_unlock_irq(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5736,20 +5746,23 @@ void msg_spin_unlock_irq(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_unlock_irq(lock);
+  } else {
+        //spin_unlock_irq(lock);
+        raw_spin_unlock_irq(&lock->rlock);
+    }
 }
 EXPORT_SYMBOL(msg_spin_unlock_irq);
 
 // 调用了定义在kernel/locking/spinlock.c中的_raw_spin_trylock()
-void msg_spin_trylock(
+int msg_spin_trylock(
     spinlock_t *lock, 
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -5767,13 +5780,16 @@ void msg_spin_trylock(
     my_msgsendA(&sendbuf, sendlength);
     // 阻塞等待接收消息
     my_msgrcvA(&sendbuf, sendlength);
-    // 处理从kernel传过来的消息
+    int ret = *(int *)(sendbuf.object_ptr);
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_trylock(lock);
+    return ret;
+  } else {
+        //return spin_trylock(lock);
+        return raw_spin_trylock(&lock->rlock);
+    }
 }
 EXPORT_SYMBOL(msg_spin_trylock);
 
@@ -6040,9 +6056,10 @@ void msg_spin_unlock_irqrestore(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -6066,8 +6083,10 @@ void msg_spin_unlock_irqrestore(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_unlock_irqrestore(lock, flags);
+  } else {
+        //spin_unlock_irqrestore(lock, flags);
+        raw_spin_unlock_irqrestore(&lock->rlock, flags);
+    }
 }
 EXPORT_SYMBOL(msg_spin_unlock_irqrestore);
 
@@ -6140,8 +6159,10 @@ void msg_spin_lock_bh(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_lock_bh(lock);
+  } else {
+        //spin_lock_bh(lock);
+        raw_spin_lock_bh(&lock->rlock);
+    }
 }
 EXPORT_SYMBOL(msg_spin_lock_bh);
 
@@ -6151,9 +6172,10 @@ void msg_spin_unlock_bh(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
+    MY_PRINTK(get_current()->comm);
     struct timespec tpstart, tpend;
     long timeuse;
     getnstimeofday(&tpstart);
@@ -6176,8 +6198,10 @@ void msg_spin_unlock_bh(
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
     //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
-  } else
-    spin_unlock_bh(lock);
+  } else {
+        //spin_unlock_bh(lock);
+        raw_spin_unlock_bh(&lock->rlock);
+    }
 }
 EXPORT_SYMBOL(msg_spin_unlock_bh);
 
