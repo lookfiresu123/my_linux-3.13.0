@@ -2435,7 +2435,7 @@ void *kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags)
   */
   // MY_PRINTK("kernel_kthread");
   // MY_PRINTK("fs_kthread");
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
   // MY_DUMP_STACK();
 
 	void *ret = slab_alloc(s, gfpflags, _RET_IP_);
@@ -2654,7 +2654,7 @@ redo:
 
 void kmem_cache_free(struct kmem_cache *s, void *x)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
 	s = cache_from_obj(s, x);
 	if (!s)
 		return;
@@ -3329,7 +3329,7 @@ EXPORT_SYMBOL(ksize);
 
 void kfree(const void *x)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
 	struct page *page;
 	void *object = (void *)x;
 

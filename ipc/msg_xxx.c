@@ -66,7 +66,7 @@ void *msg_kmem_cache_alloc(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -106,7 +106,7 @@ void msg_kmem_cache_free(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     kmem_cache_free(s, x);
 }
@@ -142,7 +142,7 @@ void msg_kfree(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     kfree(x);
 }
@@ -178,7 +178,7 @@ void msg_vfree(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     vfree(addr);
@@ -217,7 +217,7 @@ void *msg_mempool_alloc(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -258,7 +258,7 @@ void msg_mempool_free(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     mempool_free(element, pool);
@@ -269,6 +269,7 @@ struct address_space *msg_page_mapping(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
+    MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
 
@@ -295,7 +296,7 @@ struct address_space *msg_page_mapping(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -335,7 +336,7 @@ bool msg_list_lru_add(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -375,7 +376,7 @@ bool msg_list_lru_del(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -415,7 +416,7 @@ struct page *msg_find_get_page(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -453,7 +454,7 @@ void msg_mark_page_accessed(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     mark_page_accessed(page);
@@ -494,7 +495,7 @@ struct page *msg_find_or_create_page(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -534,7 +535,7 @@ void msg_cancel_dirty_page(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     cancel_dirty_page(page, account_size);
@@ -571,7 +572,7 @@ void *msg_page_address(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -609,7 +610,7 @@ int msg_bdi_has_dirty_io(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -653,7 +654,7 @@ unsigned long msg_try_to_free_pages(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -691,7 +692,7 @@ void msg_unlock_page(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     unlock_page(page);
@@ -730,7 +731,7 @@ void msg_account_page_dirtied(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     account_page_dirtied(page, mapping);
@@ -767,7 +768,7 @@ void msg_bdi_wakeup_thread_delayed(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     bdi_wakeup_thread_delayed(bdi);
@@ -806,7 +807,7 @@ char *msg_kstrdup(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -844,7 +845,7 @@ void msg_free_percpu(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     free_percpu(__pdata);
@@ -885,7 +886,7 @@ void *msg_kmemdup(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -925,7 +926,7 @@ void msg_file_ra_state_init(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     file_ra_state_init(ra, mapping);
@@ -964,7 +965,7 @@ int msg_write_one_page(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1004,7 +1005,7 @@ void msg_truncate_setsize(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     truncate_setsize(inode, newsize);
@@ -1043,7 +1044,7 @@ int msg_mapping_tagged(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1083,7 +1084,7 @@ int msg_do_writepages(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1121,7 +1122,7 @@ int msg_filemap_fdatawait(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1161,7 +1162,7 @@ void msg_truncate_inode_pages(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     truncate_inode_pages(mapping, lstart);
@@ -1198,7 +1199,7 @@ void msg_unregister_shrinker(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     unregister_shrinker(shrinker);
@@ -1235,7 +1236,7 @@ void msg_list_lru_destroy(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     list_lru_destroy(lru);
@@ -1281,7 +1282,7 @@ struct kmem_cache *msg_kmem_cache_create(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1326,7 +1327,7 @@ struct page *msg_read_cache_page(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1366,7 +1367,7 @@ void msg_migrate_page_copy(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     migrate_page_copy(newpage, page);
@@ -1413,7 +1414,7 @@ int msg_migrate_page_move_mapping(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1451,7 +1452,7 @@ void msg_put_page(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     put_page(page);
@@ -1488,7 +1489,7 @@ int msg_filemap_write_and_wait(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1526,7 +1527,7 @@ int msg_filemap_flush(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1578,7 +1579,7 @@ long msg_get_user_pages(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1616,7 +1617,7 @@ int msg_register_shrinker(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1654,7 +1655,7 @@ int msg_set_page_dirty(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -1694,7 +1695,7 @@ void *msg_kmem_cache_zalloc(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return sendbuf.object_ptr;
   } else
@@ -1730,7 +1731,7 @@ void msg_page_cache_release(
 		// 处理从kernel传过来的消息
 		getnstimeofday(&tpend);
 		timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-		printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+		//printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 	} else
 		page_cache_release(page);
 }
@@ -1771,7 +1772,7 @@ struct zoneref *msg_first_zones_zonelist(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct zoneref *)(sendbuf.object_ptr);
   } else
@@ -1810,7 +1811,7 @@ struct zonelist *msg_node_zonelist(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct zonelist *)(sendbuf.object_ptr);
   } else
@@ -1850,7 +1851,7 @@ void msg_attach_page_buffers(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     attach_page_buffers(page, head);
@@ -1884,7 +1885,7 @@ struct mnt_pcp *msg_alloc_percpu(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct mnt_pcp *)(sendbuf.object_ptr);
   } else
     return alloc_percpu(struct mnt_pcp);
@@ -1924,7 +1925,7 @@ struct page *msg_read_mapping_page(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct page *)(sendbuf.object_ptr);
   } else
@@ -1970,7 +1971,7 @@ void msg_zero_user_segments(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     zero_user_segments(page, start1, end1, start2, end2);
@@ -2011,7 +2012,7 @@ void msg_zero_user(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     zero_user(page, start, size);
@@ -2048,7 +2049,7 @@ void msg_cleancache_invalidate_fs(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     cleancache_invalidate_fs(sb);
@@ -2086,7 +2087,7 @@ void msg_lock_page(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     lock_page(page);
@@ -2126,7 +2127,7 @@ void *msg_kmalloc(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2167,7 +2168,7 @@ struct page *msg_grab_cache_page(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2208,7 +2209,7 @@ void *msg_kmalloc_large(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2249,7 +2250,7 @@ void *msg_kzalloc(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2291,7 +2292,7 @@ bool msg_capable(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2329,7 +2330,7 @@ void msg_down_read(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     down_read(sem);
@@ -2340,6 +2341,7 @@ void msg_up_read(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
+    MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
     struct timespec tpstart, tpend;
@@ -2365,7 +2367,7 @@ void msg_up_read(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     up_read(sem);
@@ -2376,6 +2378,7 @@ void msg_down_write(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
+    MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
     struct timespec tpstart, tpend;
@@ -2401,7 +2404,7 @@ void msg_down_write(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     down_write(sem);
@@ -2438,7 +2441,7 @@ void msg_up_write(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     up_write(sem);
@@ -2450,6 +2453,7 @@ void msg_wake_up_bit(
     int msqid_from_fs_to_kernel, 
     int msqid_from_kernel_to_fs)
 {
+    MY_PRINTK(get_current()->comm);
   if (my_strcmp(get_current()->comm, "fs_kthread") == 0)
   {
     struct timespec tpstart, tpend;
@@ -2476,7 +2480,7 @@ void msg_wake_up_bit(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     wake_up_bit(word, bit);
@@ -2515,7 +2519,7 @@ wait_queue_head_t *msg_bit_waitqueue(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2551,7 +2555,7 @@ unsigned long msg_get_seconds(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2588,7 +2592,7 @@ void msg_put_pid(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     put_pid(pid);
@@ -2625,7 +2629,7 @@ int msg_in_group_p(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2660,7 +2664,7 @@ void msg_yield(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     yield();
@@ -2699,7 +2703,7 @@ bool msg_inode_capable(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2741,7 +2745,7 @@ int msg_task_work_add(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -2776,7 +2780,7 @@ void msg_synchronize_rcu(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     synchronize_rcu();
@@ -2816,7 +2820,7 @@ void msg_prepare_to_wait(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     prepare_to_wait(q, wait, state);
@@ -2850,7 +2854,7 @@ void msg_schedule(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     schedule();
@@ -2888,7 +2892,7 @@ void msg_finish_wait(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     finish_wait(q, wait);
@@ -2924,7 +2928,7 @@ struct timespec msg_current_fs_time(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(struct timespec *)(sendbuf.object_ptr);
   } else
@@ -2994,7 +2998,7 @@ void msg_audit_log_link_denied(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     audit_log_link_denied(operation, link);
@@ -3035,7 +3039,7 @@ int msg_send_sig(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3074,7 +3078,7 @@ struct timespec msg_timespec_trunc(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(struct timespec *)(sendbuf.object_ptr);
   } else
@@ -3111,7 +3115,7 @@ void msg_acct_auto_close_mnt(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     acct_auto_close_mnt(m);
@@ -3154,7 +3158,7 @@ int msg___wait_on_bit(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3191,7 +3195,7 @@ void msg_free_uid(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     free_uid(up);
@@ -3227,7 +3231,7 @@ void msg_module_put(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     module_put(module);
@@ -3267,7 +3271,7 @@ kgid_t msg_make_kgid(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3311,7 +3315,7 @@ int msg_autoremove_wake_function(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3347,7 +3351,7 @@ struct timespec msg_current_kernel_time(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3384,7 +3388,7 @@ void msg_mutex_lock(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     mutex_lock(lock);
@@ -3420,7 +3424,7 @@ void msg_mutex_unlock(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     mutex_unlock(lock);
@@ -3460,7 +3464,7 @@ kuid_t msg_make_kuid(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3495,7 +3499,7 @@ void msg_io_schedule(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     io_schedule();
@@ -3533,7 +3537,7 @@ void msg_lg_local_lock_cpu(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     lg_local_lock_cpu(lg, cpu);
@@ -3571,7 +3575,7 @@ void msg_lg_local_unlock_cpu(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     lg_local_unlock_cpu(lg, cpu);
@@ -3609,7 +3613,7 @@ void msg_warn_slowpath_null(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     warn_slowpath_null(file, line);
@@ -3649,7 +3653,7 @@ gid_t msg_from_kgid(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3693,7 +3697,7 @@ int msg_wake_bit_function(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3731,7 +3735,7 @@ bool msg_try_module_get(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3772,7 +3776,7 @@ uid_t msg_from_kuid(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3809,7 +3813,7 @@ void msg_destroy_workqueue(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     destroy_workqueue(wq);
@@ -3845,7 +3849,7 @@ void msg_wait_for_completion(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     wait_for_completion(x);
@@ -3881,7 +3885,7 @@ void msg___module_get(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     __module_get(module);
@@ -3919,7 +3923,7 @@ void msg_call_rcu(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     call_rcu(head, func);
@@ -3956,7 +3960,7 @@ int msg_down_read_trylock(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -3994,7 +3998,7 @@ struct filename *msg_audit_reusename(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct filename *)(sendbuf.object_ptr);
   } else
@@ -4032,7 +4036,7 @@ void msg_audit_getname(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     audit_getname(name);
@@ -4067,7 +4071,7 @@ const struct cred *msg_current_cred(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (const struct cred *)(sendbuf.object_ptr);
   } else
@@ -4105,7 +4109,7 @@ void msg_percpu_counter_inc(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     percpu_counter_inc(fbc);
@@ -4141,7 +4145,7 @@ const struct cred *msg_get_cred(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (const struct cred *)(sendbuf.object_ptr);
   } else
@@ -4179,7 +4183,7 @@ void msg_percpu_counter_dec(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     percpu_counter_dec(fbc);
@@ -4214,7 +4218,7 @@ kuid_t msg_current_fsuid(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(kuid_t *)(sendbuf.object_ptr);
   } else
@@ -4253,7 +4257,7 @@ struct posix_acl *msg_get_cached_acl_rcu(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct posix_acl *)(sendbuf.object_ptr);
   } else
@@ -4290,7 +4294,7 @@ void msg_local_irq_disable(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     local_irq_disable();
@@ -4326,7 +4330,7 @@ void msg_local_irq_enable(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     local_irq_enable();
@@ -4361,7 +4365,7 @@ void msg_might_sleep(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     might_sleep();
@@ -4397,7 +4401,7 @@ void msg_preempt_disable(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     preempt_disable();
@@ -4433,7 +4437,7 @@ void msg_preempt_enable(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     preempt_enable();
@@ -4485,7 +4489,7 @@ bool msg_mod_delayed_work(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return ret;
   } else
@@ -4523,7 +4527,7 @@ void msg_css_put(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     css_put(css);
@@ -4559,7 +4563,7 @@ void msg_wake_up_all(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     wake_up_all(q);
 }
@@ -4595,7 +4599,7 @@ void msg_posix_acl_release(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     posix_acl_release(acl);
@@ -4631,7 +4635,7 @@ unsigned msg_read_seqbegin(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(unsigned *)(sendbuf.object_ptr);
   } else
@@ -4670,7 +4674,7 @@ bool msg_schedule_delayed_work(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(bool *)(sendbuf.object_ptr);
   } else
@@ -4707,7 +4711,7 @@ struct dentry *msg_dget(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return (struct dentry *)(sendbuf.object_ptr);
   } else
@@ -4754,7 +4758,7 @@ struct hlist_bl_node *msg_hlist_bl_first_rcu(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct hlist_bl_node *)(sendbuf.object_ptr);
   } else
     return hlist_bl_first_rcu(h);
@@ -4788,7 +4792,7 @@ struct hlist_bl_node *msg_rcu_dereference_raw(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct hlist_bl_node *)(sendbuf.object_ptr);
   } else
     return rcu_dereference_raw(pos);
@@ -4825,7 +4829,7 @@ struct dentry *msg_list_entry_rcu(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct dentry *)(sendbuf.object_ptr);
   } else
     return list_entry_rcu(list, struct dentry, d_lru);
@@ -4860,7 +4864,7 @@ int msg_cond_resched(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
     return *(int *)(sendbuf.object_ptr);
   } else
@@ -4896,7 +4900,7 @@ void msg_wake_up_interruptible(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     wake_up_interruptible(ppoll);
 }
@@ -4930,7 +4934,7 @@ void msg_seqcount_init(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     seqcount_init(s);
 }
@@ -4973,7 +4977,7 @@ void msg_mutex_init(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     mutex_init(mutex);
 }
@@ -5009,7 +5013,7 @@ void msg_wait_event(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     wait_event(wq, condition);
 }
@@ -5047,7 +5051,7 @@ void msg_percpu_counter_add(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     percpu_counter_add(fbc, amount);
@@ -5082,7 +5086,7 @@ const struct file_operations *msg_fops_get(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (const struct file_operations *)(sendbuf.object_ptr);
   } else
     return fops_get(fops);
@@ -5118,7 +5122,7 @@ void msg_init_waitqueue_head(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     init_waitqueue_head(q);
 }
@@ -5153,7 +5157,7 @@ void msg_wake_up(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     wake_up(q);
 }
@@ -5191,7 +5195,7 @@ int msg_wait_event_interruptible_timeout(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(int *)(sendbuf.object_ptr);
   } else
     return wait_event_interruptible_timeout(wq, condition, timeout);
@@ -5232,7 +5236,7 @@ void msg_audit_inode(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     audit_inode(name, dentry, parent);
@@ -5273,7 +5277,7 @@ void msg_audit_inode_child(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     audit_inode_child(parent, dentry, type);
@@ -5311,7 +5315,7 @@ struct hlist_node *msg_srcu_dereference(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return (struct hlist_node *)(sendbuf.object_ptr);
   } else
     return srcu_dereference(p, sp);
@@ -5347,7 +5351,7 @@ void msg_kfree_rcu(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     kfree_rcu(s, rcu);
 }
@@ -5382,7 +5386,7 @@ void msg_write_lock(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     write_lock(lock);
 }
@@ -5417,7 +5421,7 @@ void msg_init_rwsem(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     init_rwsem(sem);
 }
@@ -5455,7 +5459,7 @@ bool msg_queue_delayed_work(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(bool *)(sendbuf.object_ptr);
   } else
     return queue_delayed_work(wq, dwork, delay);
@@ -5491,7 +5495,7 @@ void msg_spin_lock(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_lock(lock);
 }
@@ -5526,7 +5530,7 @@ void msg_spin_unlock(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_unlock(lock);
 }
@@ -5561,7 +5565,7 @@ void msg_spin_lock_irq(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_lock_irq(lock);
 }
@@ -5596,7 +5600,7 @@ void msg_spin_unlock_irq(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_unlock_irq(lock);
 }
@@ -5631,7 +5635,7 @@ void msg_spin_trylock(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_trylock(lock);
 }
@@ -5666,7 +5670,7 @@ void msg_WARN_ON(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     WARN_ON(condition);
 }
@@ -5698,7 +5702,7 @@ int msg_printk_ratelimit(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(int *)(sendbuf.object_ptr);
   } else
     return printk_ratelimit();
@@ -5739,7 +5743,7 @@ int msg_wait_on_bit_lock(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(int *)(sendbuf.object_ptr);
   } else
     return wait_on_bit_lock(word, bit, action, mode);
@@ -5775,7 +5779,7 @@ void msg_write_lock_irq(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     write_lock_irq(lock);
 }
@@ -5810,7 +5814,7 @@ void msg_write_unlock_irq(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     write_unlock_irq(lock);
 }
@@ -5845,7 +5849,7 @@ void msg_read_lock(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     read_lock(lock);
 }
@@ -5880,7 +5884,7 @@ void msg_read_unlock(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     read_unlock(lock);
 }
@@ -5917,7 +5921,7 @@ void msg_spin_unlock_irqrestore(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_unlock_irqrestore(lock, flags);
 }
@@ -5953,7 +5957,7 @@ bool msg_queue_work(
     // 处理从kernel传过来的消息
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
     return *(bool *)(sendbuf.object_ptr);
   } else
     return queue_work(wq, work);
@@ -5989,7 +5993,7 @@ void msg_spin_lock_bh(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_lock_bh(lock);
 }
@@ -6024,7 +6028,7 @@ void msg_spin_unlock_bh(
     // 无需处理返回值
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
   } else
     spin_unlock_bh(lock);
 }
@@ -6066,7 +6070,7 @@ void msg_bdevname(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     bdevname(bdev, buf);
@@ -6104,7 +6108,7 @@ void msg_submit_bio(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     submit_bio(rw, bio);
@@ -6140,7 +6144,7 @@ void msg_put_io_context(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     put_io_context(ioc);
@@ -6176,7 +6180,7 @@ void msg_blk_finish_plug(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     blk_finish_plug(plug);
@@ -6212,7 +6216,7 @@ void msg_blk_start_plug(
 
     getnstimeofday(&tpend);
     timeuse = 1000000000 * (tpend.tv_sec - tpstart.tv_sec) + (tpend.tv_nsec - tpstart.tv_nsec);
-    printk("%s() cost %ld\n", __FUNCTION__, timeuse);
+    //printk("%s() cost %ld\n", __FUNCTION__, timeuse);
 
   } else
     blk_start_plug(plug);

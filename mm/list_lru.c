@@ -13,7 +13,7 @@
 
 bool list_lru_add(struct list_lru *lru, struct list_head *item)
 {
-  MY_PRINTK(current->comm);
+  //MY_PRINTK(current->comm);
 	int nid = page_to_nid(virt_to_page(item));
 	struct list_lru_node *nlru = &lru->node[nid];
 
@@ -33,7 +33,7 @@ EXPORT_SYMBOL_GPL(list_lru_add);
 
 bool list_lru_del(struct list_lru *lru, struct list_head *item)
 {
-  MY_PRINTK(current->comm);
+  //MY_PRINTK(current->comm);
 	int nid = page_to_nid(virt_to_page(item));
 	struct list_lru_node *nlru = &lru->node[nid];
 

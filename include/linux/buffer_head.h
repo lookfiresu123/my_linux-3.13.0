@@ -267,7 +267,7 @@ void buffer_init(void);
 static inline void attach_page_buffers(struct page *page,
 		struct buffer_head *head)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
 	page_cache_get(page);
 	SetPagePrivate(page);
 	set_page_private(page, (unsigned long)head);

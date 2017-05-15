@@ -190,7 +190,7 @@ EXPORT_SYMBOL(mempool_resize);
  */
 void * mempool_alloc(mempool_t *pool, gfp_t gfp_mask)
 {
-  MY_PRINTK(current->comm);
+  //MY_PRINTK(current->comm);
 	void *element;
 	unsigned long flags;
 	wait_queue_t wait;
@@ -262,7 +262,7 @@ EXPORT_SYMBOL(mempool_alloc);
  */
 void mempool_free(void *element, mempool_t *pool)
 {
-  MY_PRINTK(current->comm);
+  //MY_PRINTK(current->comm);
 	unsigned long flags;
 
 	if (unlikely(element == NULL))

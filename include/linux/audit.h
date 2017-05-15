@@ -145,21 +145,21 @@ static inline void audit_syscall_exit(void *pt_regs)
 }
 static inline struct filename *audit_reusename(const __user char *name)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
 	if (unlikely(!audit_dummy_context()))
 		return __audit_reusename(name);
 	return NULL;
 }
 static inline void audit_getname(struct filename *name)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
 	if (unlikely(!audit_dummy_context()))
 		__audit_getname(name);
 }
 static inline void audit_inode(struct filename *name,
 				const struct dentry *dentry,
 				unsigned int parent) {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
 	if (unlikely(!audit_dummy_context())) {
 		unsigned int flags = 0;
 		if (parent)
@@ -177,7 +177,7 @@ static inline void audit_inode_parent_hidden(struct filename *name,
 static inline void audit_inode_child(const struct inode *parent,
 				     const struct dentry *dentry,
 				     const unsigned char type) {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
 	if (unlikely(!audit_dummy_context()))
 		__audit_inode_child(parent, dentry, type);
 }

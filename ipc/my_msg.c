@@ -51,6 +51,8 @@ int my_msgget(key_t key, int msgflg){
     msg_params.flg = msgflg;
     return my_ipcget(ns, &msg_ids(ns), &msg_ops, &msg_params);
 }
+EXPORT_SYMBOL(my_msgget);
+
 int my_newque(struct ipc_namespace *ns, struct my_ipc_params *params){
     struct msg_queue *msq;
     int id, retval;
@@ -282,7 +284,7 @@ int my_ipc_check_perms(struct ipc_namespace *ns, struct kern_ipc_perm *ipcp, str
 	int err;
 
 	if (my_ipcperms(ns, ipcp, params->flg)) {
-      printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
+      //printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
       err = -EACCES;
   }
 	else {
@@ -301,6 +303,8 @@ long my_msgsnd(int msqid, struct my_msgbuf *msgp, size_t msgsz, int msgflg){
     mtype = msgp->mtype;
     return my_do_msgsnd(msqid, mtype, msgp->mtext, msgsz, msgflg);
 }
+EXPORT_SYMBOL(my_msgsnd);
+
 long my_do_msgsnd(int msqid, long mtype, void *mtext, size_t msgsz, int msgflg){
     struct msg_queue *msq;
     struct my_msg_msg *msg;
@@ -308,13 +312,13 @@ long my_do_msgsnd(int msqid, long mtype, void *mtext, size_t msgsz, int msgflg){
     struct ipc_namespace *ns;
     ns = current->nsproxy->ipc_ns;
     if(msgsz > ns->msg_ctlmax || (long) msgsz < 0 || msqid < 0) {
-        printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
+        //printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
         // testFunc();
         return -EINVAL;
     }
     if(mtype < 1) {
         // testFunc();
-        printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
+        //printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
         return -EINVAL;
     }
     msg = my_load_msg(mtext, msgsz);
@@ -332,7 +336,7 @@ long my_do_msgsnd(int msqid, long mtype, void *mtext, size_t msgsz, int msgflg){
     my_ipc_lock_object(&msq->q_perm);
     for(;;){
         struct my_msg_sender s;
-        printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
+        //printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
         err = -EACCES;
 
         /*
@@ -608,6 +612,7 @@ long my_msgrcv(int msqid, struct my_msgbuf * msgp, size_t msgsz, long msgtyp, in
 {
     return my_do_msgrcv(msqid, msgp, msgsz, msgtyp, msgflg, my_do_msg_fill);
 }
+EXPORT_SYMBOL(my_msgrcv);
 
 long my_do_msg_fill(void *dest, struct my_msg_msg *msg, size_t bufsz){
     struct my_msgbuf *msgp = dest;
@@ -643,14 +648,14 @@ long my_do_msgrcv(int msqid, void *buf, size_t bufsz, long msgtyp, int msgflg,
 
 	if (msqid < 0 || (long) bufsz < 0) {
       // testFunc();
-      printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
+      //printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
       return -EINVAL;
   }
 
 	if (msgflg & MSG_COPY) {
       if ((msgflg & MSG_EXCEPT) || !(msgflg & IPC_NOWAIT)) {
           // testFunc();
-          printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
+          //printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
           return -EINVAL;
       }
 		copy = my_prepare_copy(buf, min_t(size_t, bufsz, ns->msg_ctlmax));
@@ -851,7 +856,7 @@ struct my_msg_msg *my_copy_msg(struct my_msg_msg *src, struct my_msg_msg *dst){
     BUG_ON(dst == NULL);
     if(src->m_ts > dst->m_ts) {
         // testFunc();
-        printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
+        //printk("File = %s, Line = %d, Func = %s\n", __FILE__, __LINE__, __FUNCTION__);
         return ERR_PTR(-EINVAL);
     }
     alen = len < DATALEN_MSG ? len : DATALEN_MSG;

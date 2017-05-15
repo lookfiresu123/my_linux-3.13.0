@@ -1482,7 +1482,7 @@ static void __vunmap(const void *addr, int deallocate_pages)
  */
 void vfree(const void *addr)
 {
-  MY_PRINTK(current->comm);
+  //MY_PRINTK(current->comm);
 	BUG_ON(in_nmi());
 
 	kmemleak_free(addr);

@@ -116,7 +116,7 @@ static inline void cleancache_invalidate_inode(struct address_space *mapping)
 
 static inline void cleancache_invalidate_fs(struct super_block *sb)
 {
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
 	if (cleancache_enabled)
 		__cleancache_invalidate_fs(sb);
 }

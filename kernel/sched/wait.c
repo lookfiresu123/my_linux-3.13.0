@@ -400,7 +400,7 @@ void wake_up_bit(void *word, int bit)
   */
 
   // MY_PRINTK("kernel_kthread");
-  MY_PRINTK(get_current()->comm);
+  //MY_PRINTK(get_current()->comm);
 	__wake_up_bit(bit_waitqueue(word, bit), word, bit);
 }
 EXPORT_SYMBOL(wake_up_bit);

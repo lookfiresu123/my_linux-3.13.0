@@ -1835,7 +1835,7 @@ EXPORT_SYMBOL(generic_make_request);
 void submit_bio(int rw, struct bio *bio)
 {
 
-  MY_PRINTK("fs_kthread");
+  //MY_PRINTK("fs_kthread");
 	// printk("FILE = %s, LINE = %d, FUNC = %s, current->comm = fs_kthread\n", __FILE__, __LINE__, __FUNCTION__);
 
 	bio->bi_rw |= rw;
